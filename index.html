@@ -1374,7 +1374,7 @@
                     const clientIp = await this.getClientIp();
                     const deviceInfo = this.getDeviceInfo();
 
-                    // Kullanıcının yetkili modüllerini ve oturum bilgilerini çekiyoruz
+                    // Kullanıcının yetkili modüllerini ve oturum verilerini çekiyoruz
                     const { data: profile, error } = await supabaseClient
                         .from('profiles')
                         .select('allowed_modules, last_session_id, last_active_at')
@@ -1397,32 +1397,26 @@
                                                  (now - lastActive) < (30 * 60 * 1000); // Son 30 dakika içinde aktif mi?
 
                     if (isOtherSessionActive) {
-                        this.hideLoading();
+                        // Çift oturum açma ihlali tespit edildi!
+                        // Hem veritabanındaki oturumu sonlandırıyoruz (böylece diğer aktif cihaz da atılacak!)
+                        // hem de bu cihazın giriş yapmasını engelliyoruz!
+                        await supabaseClient
+                            .from('profiles')
+                            .update({ 
+                                last_session_id: 'terminated',
+                                last_active_at: null
+                            })
+                            .eq('id', user.id);
                         
-                        // Diğer cihazda aktif bir oturum var, kullanıcıyı uyaralım ve engelleme ekranını gösterelim!
-                        const htmlContent = `
-                            <div class="text-center mb-6">
-                                <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto mb-4 relative animate-pulse">
-                                    <span class="absolute inset-0 rounded-2xl border border-amber-500/20 animate-ping opacity-30"></span>
-                                    <i data-lucide="shield-alert" class="w-8 h-8 text-amber-500"></i>
-                                </div>
-                                <h2 class="font-display text-xl md:text-2xl font-bold text-white mb-2 uppercase tracking-wide">AKTİF OTURUM UYARISI</h2>
-                                <p class="text-gray-400 text-xs leading-relaxed max-w-sm mx-auto">Hesabınızda şu anda başka bir cihazda aktif bir oturum bulunmaktadır.</p>
-                            </div>
-                            <div class="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4 mb-6 text-left flex items-start gap-3">
-                                <i data-lucide="info" class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5 animate-bounce"></i>
-                                <div class="text-xs text-amber-300 leading-relaxed font-semibold">
-                                    Wyckoff Akademi kuralları gereği, hesap paylaşımını engellemek amacıyla aynı anda yalnızca tek bir cihazdan eğitimleri izleyebilirsiniz.
-                                </div>
-                            </div>
-                            <button onclick="app.forceTerminateAllSessions('${user.id}')" 
-                                class="w-full py-4 bg-brand-primary hover:bg-brand-hover text-white text-sm font-bold rounded-xl transition-all glow-button flex justify-center items-center gap-2">
-                                <i data-lucide="shield-off" class="w-4 h-4"></i>
-                                Diğer Tüm Oturumları Kapat ve Giriş Yap
-                            </button>
-                        `;
-                        this.showSecurityViolationScreen(htmlContent);
-                        return; // Giriş yapmayı durduruyoruz!
+                        this.hideLoading();
+                        this.showToast("Güvenlik İhlali: Aynı anda birden fazla cihazdan oturum açılamaz. Tüm aktif oturumlarınız sonlandırıldı.", "error");
+                        
+                        // Bu cihazı da temizleyip ana sayfaya yönlendiriyoruz
+                        setTimeout(async () => {
+                            await this.logoutSilent();
+                            this.showLogin();
+                        }, 2000);
+                        return; // Girişi durduruyoruz!
                     }
 
                     // Yeni oturum kimliğini veritabanına yazıyoruz (Eski cihazı otomatik devre dışı bırakır!)
@@ -1493,7 +1487,10 @@
                                     // Bizi sistem dışına atar (En premium, kararlı ve sorunsuz yaklaşım!).
                                     if (data.last_session_id && data.last_session_id !== this.state.localSessionId) {
                                         clearInterval(this.sessionCheckInterval);
-                                        this.showToast("Hesabınıza başka bir cihazdan giriş yapıldı. Oturumunuz sonlandırılıyor.", "error");
+                                        const toastMsg = data.last_session_id === 'terminated' 
+                                            ? "Güvenlik İhlali: Aynı anda birden fazla cihazdan oturum açılamaz. Oturumunuz sonlandırıldı."
+                                            : "Hesabınıza başka bir cihazdan giriş yapıldı. Oturumunuz sonlandırılıyor.";
+                                        this.showToast(toastMsg, "error");
                                         setTimeout(() => { this.logout(); }, 1500);
                                     } else {
                                         // Sekme arka planda ise veritabanını meşgul etmeyelim
