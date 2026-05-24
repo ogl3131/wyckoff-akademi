@@ -1332,12 +1332,11 @@
                     
                     const { error } = await supabaseClient
                         .from('profiles')
-                        .upsert({
-                            id: userId,
+                        .update({
                             last_session_id: 'terminated',
-                            last_active_at: null,
-                            allowed_modules: this.state.profile ? (this.state.profile.allowed_modules || []) : []
-                        });
+                            last_active_at: null
+                        })
+                        .eq('id', userId);
 
                     if (error) throw error;
 
@@ -1403,12 +1402,11 @@
                         // hem de bu cihazın giriş yapmasını engelliyoruz!
                         await supabaseClient
                             .from('profiles')
-                            .upsert({ 
-                                id: user.id,
+                            .update({ 
                                 last_session_id: 'terminated',
-                                last_active_at: null,
-                                allowed_modules: profileData.allowed_modules || []
-                            });
+                                last_active_at: null
+                            })
+                            .eq('id', user.id);
                         
                         this.hideLoading();
                         this.showToast("Güvenlik İhlali: Aynı anda birden fazla cihazdan oturum açılamaz. Tüm aktif oturumlarınız sonlandırıldı.", "error");
@@ -1424,12 +1422,11 @@
                     // Yeni oturum kimliğini veritabanına yazıyoruz (Eski cihazı otomatik devre dışı bırakır!)
                     const { error: updateError } = await supabaseClient
                         .from('profiles')
-                        .upsert({ 
-                            id: user.id,
+                        .update({ 
                             last_session_id: this.state.localSessionId,
-                            last_active_at: new Date().toISOString(),
-                            allowed_modules: profileData.allowed_modules || []
-                        });
+                            last_active_at: new Date().toISOString()
+                        })
+                        .eq('id', user.id);
 
                     let writeSucceeded = !updateError;
 
