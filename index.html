@@ -1318,6 +1318,7 @@
             logoutSilent: async function() {
                 if (this.sessionCheckInterval) clearInterval(this.sessionCheckInterval);
                 sessionStorage.removeItem('wyckoff_agreement_accepted');
+                localStorage.removeItem('wyckoff_session_id');
                 document.getElementById('iframeWrapper').innerHTML = '';
                 document.getElementById('videoPlayerState').classList.add('hidden');
                 document.getElementById('noteContentState').classList.add('hidden');
@@ -1361,7 +1362,14 @@
                 
                 try {
                     this.showLoading();
-                    this.state.localSessionId = Math.random().toString(36).substring(2) + Date.now().toString(36);
+                    
+                    // Sayfa yenilendiğinde (F5) kendini engellememesi için session ID'yi localStorage'dan okuyoruz.
+                    let savedSessionId = localStorage.getItem('wyckoff_session_id');
+                    if (!savedSessionId) {
+                        savedSessionId = Math.random().toString(36).substring(2) + Date.now().toString(36);
+                        localStorage.setItem('wyckoff_session_id', savedSessionId);
+                    }
+                    this.state.localSessionId = savedSessionId;
                     
                     const clientIp = await this.getClientIp();
                     const deviceInfo = this.getDeviceInfo();
@@ -1535,7 +1543,7 @@
                                 .single();
                             
                             if (data) {
-                                if (data.last_session_id === 'terminated' || data.last_session_id !== this.state.localSessionId) {
+                                if (data.last_session_id === 'terminated' || (data.last_session_id && data.last_session_id !== this.state.localSessionId)) {
                                     clearInterval(this.sessionCheckInterval);
                                     this.showToast("Güvenlik ihlali tespit edildi. Oturum kapatılıyor.", "error");
                                     setTimeout(() => { this.logout(); }, 1000);
@@ -1569,8 +1577,9 @@
                 this.showLoading();
                 if (this.sessionCheckInterval) clearInterval(this.sessionCheckInterval);
                 
-                // Reset Security Agreement
+                // Reset Security Agreement and Session
                 sessionStorage.removeItem('wyckoff_agreement_accepted');
+                localStorage.removeItem('wyckoff_session_id');
                 
                 // Clear video state to prevent leaks
                 document.getElementById('iframeWrapper').innerHTML = '';
