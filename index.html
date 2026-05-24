@@ -1265,7 +1265,24 @@
                 try {
                     const res = await fetch('https://api.ipify.org?format=json');
                     const data = await res.json();
-                    return data.ip || 'Bilinmeyen IP';
+                    const rawIp = data.ip || 'Bilinmeyen IP';
+                    
+                    // KVKK ve Gizlilik uyumluluğu için IP adresini maskeleme (örn: 88.230.13.252 -> 88.230.13.***)
+                    if (rawIp.includes('.')) {
+                        // IPv4 Maskeleme
+                        const parts = rawIp.split('.');
+                        if (parts.length === 4) {
+                            return `${parts[0]}.${parts[1]}.${parts[2]}.***`;
+                        }
+                    } else if (rawIp.includes(':')) {
+                        // IPv6 Maskeleme
+                        const parts = rawIp.split(':');
+                        if (parts.length > 1) {
+                            parts[parts.length - 1] = '***';
+                            return parts.join(':');
+                        }
+                    }
+                    return rawIp;
                 } catch (e) {
                     return 'Bilinmeyen IP';
                 }
