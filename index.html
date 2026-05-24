@@ -1400,13 +1400,15 @@
                         // Çift oturum açma ihlali tespit edildi!
                         // Hem veritabanındaki oturumu sonlandırıyoruz (böylece diğer aktif cihaz da atılacak!)
                         // hem de bu cihazın giriş yapmasını engelliyoruz!
-                        await supabaseClient
+                        const { error: termError } = await supabaseClient
                             .from('profiles')
                             .update({ 
                                 last_session_id: 'terminated',
-                                last_active_at: null
+                                last_active_at: new Date().toISOString() // null kullanmıyoruz, DB kısıtlamalarına takılmamak için
                             })
                             .eq('id', user.id);
+                        
+                        if (termError) console.error("Terminate update error:", termError);
                         
                         this.hideLoading();
                         this.showToast("Güvenlik İhlali: Aynı anda birden fazla cihazdan oturum açılamaz. Tüm aktif oturumlarınız sonlandırıldı.", "error");
@@ -1415,20 +1417,25 @@
                         setTimeout(async () => {
                             await this.logoutSilent();
                             this.showLogin();
-                        }, 2000);
+                        }, 2500);
                         return; // Girişi durduruyoruz!
                     }
 
                     // Yeni oturum kimliğini veritabanına yazıyoruz (Eski cihazı otomatik devre dışı bırakır!)
-                    const { error: updateError } = await supabaseClient
+                    const { data: updatedProfile, error: updateError } = await supabaseClient
                         .from('profiles')
                         .update({ 
                             last_session_id: this.state.localSessionId,
                             last_active_at: new Date().toISOString()
                         })
-                        .eq('id', user.id);
+                        .eq('id', user.id)
+                        .select(); // Güncellemenin gerçekten yapılıp yapılmadığını görmek için select() ekliyoruz
 
-                    let writeSucceeded = !updateError;
+                    let writeSucceeded = !updateError && updatedProfile && updatedProfile.length > 0;
+                    if (!writeSucceeded) {
+                        console.warn("Session update might have failed or RLS blocked it.", updateError);
+                        // Hata olsa bile devam edelim, belki sadece select yetkisi yoktur
+                    }
 
                     // Başarılı giriş logu ekleme
                     await supabaseClient
@@ -1441,56 +1448,56 @@
                             status: 'success'
                         });
 
-                    // Oturum takibi ancak veritabanı başarıyla güncellendiyse başlatılır (atılma döngüsü engellendi!).
-                    if (writeSucceeded) {
-                        if (this.sessionCheckInterval) clearInterval(this.sessionCheckInterval);
-                        this.sessionCheckInterval = setInterval(async () => {
-                            if (!this.state.user) return;
-                            try {
-                                // Hareketsizlik Kontrolü (Idle Timeout)
-                                // Video açık ise 2 saat, değilse 30 dakika limit
-                                const isVideoOpen = document.getElementById('iframeWrapper').innerHTML !== '';
-                                const idleLimit = isVideoOpen ? 2 * 60 * 60 * 1000 : 30 * 60 * 1000;
-                                const idleTime = Date.now() - this.state.lastActivityTime;
-                                
-                                if (idleTime > idleLimit) {
-                                    clearInterval(this.sessionCheckInterval);
-                                    this.showToast("30 dakika boyunca işlem yapılmadığı için oturumunuz sonlandırılmıştır.", "error");
-                                    setTimeout(() => { this.logout(); }, 2000);
-                                    return;
-                                }
+                    // Oturum takibini BAŞLATIYORUZ. Eğer writeSucceeded false ise bile başlatıyoruz ki 
+                    // en azından veritabanından 'terminated' sinyali gelirse kendini atsın.
+                    if (this.sessionCheckInterval) clearInterval(this.sessionCheckInterval);
+                    this.sessionCheckInterval = setInterval(async () => {
+                        if (!this.state.user) return;
+                        try {
+                            // Hareketsizlik Kontrolü
+                            const isVideoOpen = document.getElementById('iframeWrapper').innerHTML !== '';
+                            const idleLimit = isVideoOpen ? 2 * 60 * 60 * 1000 : 30 * 60 * 1000;
+                            const idleTime = Date.now() - this.state.lastActivityTime;
+                            
+                            if (idleTime > idleLimit) {
+                                clearInterval(this.sessionCheckInterval);
+                                this.showToast("30 dakika boyunca işlem yapılmadığı için oturumunuz sonlandırılmıştır.", "error");
+                                setTimeout(() => { this.logout(); }, 2000);
+                                return;
+                            }
 
-                                const { data, error } = await supabaseClient
-                                    .from('profiles')
-                                    .select('last_session_id')
-                                    .eq('id', this.state.user.id)
-                                    .single();
-                                
-                                if (data) {
-                                    // Eğer veritabanındaki oturum ID'si bizimkinden farklıysa, başka cihaz girmiş demektir!
-                                    // Bizi sistem dışına atar (En premium, kararlı ve sorunsuz yaklaşım!).
-                                    if (data.last_session_id && data.last_session_id !== this.state.localSessionId) {
-                                        clearInterval(this.sessionCheckInterval);
-                                        const toastMsg = data.last_session_id === 'terminated' 
-                                            ? "Güvenlik İhlali: Aynı anda birden fazla cihazdan oturum açılamaz. Oturumunuz sonlandırıldı."
-                                            : "Hesabınıza başka bir cihazdan giriş yapıldı. Oturumunuz sonlandırılıyor.";
-                                        this.showToast(toastMsg, "error");
-                                        setTimeout(() => { this.logout(); }, 1500);
-                                    } else {
-                                        // Sekme arka planda ise veritabanını meşgul etmeyelim
-                                        if (!document.hidden) {
-                                            await supabaseClient
-                                                .from('profiles')
-                                                .update({ last_active_at: new Date().toISOString() })
-                                                .eq('id', this.state.user.id);
-                                        }
+                            const { data, error } = await supabaseClient
+                                .from('profiles')
+                                .select('last_session_id')
+                                .eq('id', this.state.user.id)
+                                .single();
+                            
+                            if (data) {
+                                // Eğer veritabanındaki oturum ID'si bizimkinden farklıysa, başka cihaz girmiş demektir!
+                                if (data.last_session_id && data.last_session_id !== this.state.localSessionId) {
+                                    clearInterval(this.sessionCheckInterval);
+                                    const toastMsg = data.last_session_id === 'terminated' 
+                                        ? "Güvenlik İhlali: Aynı anda birden fazla cihazdan oturum açılamaz. Oturumunuz sonlandırıldı."
+                                        : "Hesabınıza başka bir cihazdan giriş yapıldı. Oturumunuz sonlandırılıyor.";
+                                    
+                                    this.showToast(toastMsg, "error");
+                                    setTimeout(() => { 
+                                        this.logoutSilent().then(() => this.showLogin()); 
+                                    }, 2000);
+                                } else {
+                                    // Sekme arka planda ise veritabanını meşgul etmeyelim
+                                    if (!document.hidden) {
+                                        await supabaseClient
+                                            .from('profiles')
+                                            .update({ last_active_at: new Date().toISOString() })
+                                            .eq('id', this.state.user.id);
                                     }
                                 }
-                            } catch (err) {
-                                console.error("Session heartbeat error:", err);
                             }
-                        }, 10000);
-                    }
+                        } catch (err) {
+                            console.error("Session heartbeat error:", err);
+                        }
+                    }, 10000);
 
                     this.showDashboard();
 
