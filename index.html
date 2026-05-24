@@ -1325,6 +1325,37 @@
                 if (supabaseClient) await supabaseClient.auth.signOut();
             },
 
+            forceTerminateAllSessions: async function(userId) {
+                try {
+                    this.showLoading();
+                    
+                    const { error } = await supabaseClient
+                        .from('profiles')
+                        .update({
+                            last_session_id: 'terminated',
+                            last_active_at: null
+                        })
+                        .eq('id', userId);
+
+                    if (error) throw error;
+
+                    this.showToast("Diğer tüm cihazlardaki aktif oturumlar kapatıldı. Şimdi güvenle giriş yapabilirsiniz.", "success");
+                    
+                    const container = document.getElementById('securityViolationView');
+                    if (container) container.remove();
+                    
+                    // Oturumu tamamen kapatıp giriş yapma ekranına yönlendir
+                    await this.logoutSilent();
+                    this.showLogin();
+                    
+                } catch (e) {
+                    console.error("Force terminate sessions error:", e);
+                    this.showToast("Diğer oturumlar kapatılamadı. Lütfen tekrar deneyin.", "error");
+                } finally {
+                    this.hideLoading();
+                }
+            },
+
             loadUserProfile: async function(user) {
                 this.state.user = user;
                 
@@ -1394,9 +1425,14 @@
                                         <div>• IP Adresi: ${clientIp}</div>
                                         <div>• Durum: Askıya Alındı / İncelemede</div>
                                     </div>
-                                    <p class="text-red-400/80 text-xs font-semibold">
+                                    <p class="text-red-400/80 text-xs font-semibold mb-4">
                                         Lütfen hesap paylaşım sebebinizi en kısa sürede yöneticinize bildirin. Geçerli bir mazeret sunulmadığı takdirde hesabınız tamamen kapatılacaktır.
                                     </p>
+                                    <button onclick="app.forceTerminateAllSessions('${user.id}')" 
+                                        class="mt-2 w-full py-3 bg-red-600 hover:bg-red-500 text-white text-xs font-bold rounded-xl transition-all shadow-[0_0_15px_rgba(239,68,68,0.2)] flex items-center justify-center gap-2">
+                                        <i data-lucide="power" class="w-3.5 h-3.5"></i>
+                                        <span>Diğer Oturumları Kapat ve Hesabı Temizle</span>
+                                    </button>
                                 </div>
                             `;
                         } else {
@@ -1414,9 +1450,14 @@
                                         <div>• Oturum Açan Cihaz: ${deviceInfo}</div>
                                         <div>• IP: ${clientIp}</div>
                                     </div>
-                                    <p class="text-gray-400 text-xs">
+                                    <p class="text-gray-400 text-xs mb-4">
                                         Lütfen hesabınızı tek bir cihazda kullanın. Tekrarı veya paylaşımın devamı halinde üyeliğiniz tamamen kapatılacaktır.
                                     </p>
+                                    <button onclick="app.forceTerminateAllSessions('${user.id}')" 
+                                        class="mt-2 w-full py-3 bg-yellow-500 hover:bg-yellow-400 text-black text-xs font-bold rounded-xl transition-all shadow-[0_0_15px_rgba(234,179,8,0.2)] flex items-center justify-center gap-2">
+                                        <i data-lucide="power" class="w-3.5 h-3.5"></i>
+                                        <span>Diğer Tüm Oturumları Sonlandır ve Giriş Yap</span>
+                                    </button>
                                 </div>
                             `;
                         }
