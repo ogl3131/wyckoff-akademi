@@ -1450,6 +1450,47 @@
                             status: 'success'
                         });
 
+                    // -------------------------------------------------------------
+                    // YENİ CİHAZ TESPİTİ (Güvenlik Uyarısı)
+                    // -------------------------------------------------------------
+                    try {
+                        // Kullanıcının geçmiş başarılı girişlerini çekelim
+                        const { data: previousLogins } = await supabaseClient
+                            .from('login_logs')
+                            .select('device_info')
+                            .eq('user_id', user.id)
+                            .eq('status', 'success')
+                            .order('created_at', { ascending: false })
+                            .limit(50);
+                            
+                        if (previousLogins && previousLogins.length > 1) { 
+                            // İlk eleman [0] az önce insert ettiğimiz şu anki girişimizdir.
+                            // O yüzden [1]'den itibaren eski cihazlara bakıyoruz.
+                            const pastDevices = previousLogins.slice(1).map(log => log.device_info);
+                            
+                            // Tekrar eden cihaz isimlerini eleyip benzersiz bir liste yapalım
+                            const uniquePastDevices = [...new Set(pastDevices)];
+                            
+                            // Eğer şu anki cihazımız, geçmişte kullandıklarımız arasında HİÇ YOKSA:
+                            if (!uniquePastDevices.includes(deviceInfo)) {
+                                
+                                const pastDevicesStr = uniquePastDevices.join(', ') || 'Bilinmiyor';
+                                
+                                // Ayrı açtığımız güvenlik tablosuna uyarı olarak basıyoruz
+                                await supabaseClient.from('security_alerts').insert({
+                                    user_id: user.id,
+                                    user_email: user.email,
+                                    event_type: 'YENİ CİHAZ TESPİTİ',
+                                    details: `Yeni Cihaz: [${deviceInfo}] | Eski Cihazlar: [${pastDevicesStr}]`,
+                                    ip_address: clientIp
+                                });
+                            }
+                        }
+                    } catch (err) {
+                        // Tablo henüz kurulmamışsa veya hata olursa ana sistemi bozmasın
+                        console.error("Yeni cihaz tespit sistemi hatası (Tablo kurulmamış olabilir):", err);
+                    }
+
                     // Heartbeat (Oturum Kontrolü)
                     if (this.sessionCheckInterval) clearInterval(this.sessionCheckInterval);
                     this.sessionCheckInterval = setInterval(async () => {
@@ -1872,7 +1913,7 @@
             },
 
             // --- CORE SECURITY & PLAYER LOGIC ---
-            playVideo: function(video) {
+            playVideo: async function(video) {
                 
                 // 1. FRONTEND DOUBLE-CHECK AUTHORIZATION
                 const allowed = this.state.profile.allowed_modules || [];
@@ -1882,12 +1923,31 @@
                 }
 
                 // 2. DATA INTEGRITY CHECK (Prevents DOM manipulation attacks)
-                // Ensures the video object being played actually came from our secure Supabase fetch
                 const isValid = this.state.videos.find(v => v.id === video.id && v.bunny_url === video.bunny_url);
                 if (!isValid) {
                     this.showToast("Güvenlik İhlali: Geçersiz video kaynağı tespit edildi.", "error");
                     return;
                 }
+                
+                this.showLoading();
+
+                // 3. GET SECURE TOKEN FROM SUPABASE (Backend Token Generation)
+                // We call the PostgreSQL function to generate the token securely without exposing the key
+                let secureBunnyUrl = video.bunny_url;
+                try {
+                    const { data, error } = await supabaseClient
+                        .rpc('get_secure_video_url', { raw_url: video.bunny_url });
+                    
+                    if (error) throw error;
+                    if (data) {
+                        secureBunnyUrl = data;
+                    }
+                } catch (e) {
+                    console.error("Token alınamadı, normal link denenecek:", e);
+                    // Fallback to raw URL just in case token system fails, though Bunny will block it
+                }
+                
+                this.hideLoading();
 
                 // Switch UI State
                 document.getElementById('noVideoState').classList.add('hidden');
@@ -1900,13 +1960,11 @@
                 document.getElementById('currentModuleBadge').textContent = this.formatModuleName(video.module_name);
                 document.getElementById('currentVideoDescription').textContent = video.description || "Bu ders Wyckoff Metodolojisi kapsamında kurumsal fiyat hareketlerini ve Smart Money konseptlerini anlamanız için hazırlanmıştır. Grafik üzerinde backtest yaparak not almanız tavsiye edilir.";
 
-                // 3. SECURE IFRAME INJECTION
-                // Iframe is ONLY generated here, directly from the validated data.
-                // It is impossible to load an unauthorized Bunny Stream URL by inspecting the HTML before this point.
+                // 4. SECURE IFRAME INJECTION
                 const wrapper = document.getElementById('iframeWrapper');
                 wrapper.innerHTML = `
                     <iframe 
-                        src="${video.bunny_url}" 
+                        src="${secureBunnyUrl}" 
                         loading="lazy" 
                         class="absolute top-0 left-0 w-full h-full border-0 bg-black" 
                         allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" 
