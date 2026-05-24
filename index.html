@@ -1216,37 +1216,208 @@
                 }
             },
 
+            getDeviceInfo: function() {
+                const ua = navigator.userAgent;
+                let deviceName = "Bilinmeyen Cihaz";
+                
+                if (/iPhone/i.test(ua)) {
+                    deviceName = "iPhone";
+                } else if (/iPad/i.test(ua)) {
+                    deviceName = "iPad";
+                } else if (/Android/i.test(ua)) {
+                    const match = ua.match(/Android\s+([^\s;]+(?:[- \s][^\s;]+)*)/);
+                    deviceName = match ? `Android (${match[1]})` : "Android Cihaz";
+                } else if (/Macintosh/i.test(ua)) {
+                    deviceName = "Mac";
+                } else if (/Windows NT/i.test(ua)) {
+                    deviceName = "Windows PC";
+                } else if (/Linux/i.test(ua)) {
+                    deviceName = "Linux PC";
+                }
+                
+                let browserName = "Bilinmeyen Tarayıcı";
+                if (/chrome|crios/i.test(ua) && !/edge|edg/i.test(ua) && !/opr/i.test(ua)) {
+                    browserName = "Chrome";
+                } else if (/safari/i.test(ua) && !/chrome|crios/i.test(ua)) {
+                    browserName = "Safari";
+                } else if (/firefox|fxios/i.test(ua)) {
+                    browserName = "Firefox";
+                } else if (/edge|edg/i.test(ua)) {
+                    browserName = "Edge";
+                } else if (/opr/i.test(ua)) {
+                    browserName = "Opera";
+                }
+                
+                return `${deviceName} - ${browserName}`;
+            },
+
+            getClientIp: async function() {
+                try {
+                    const res = await fetch('https://api.ipify.org?format=json');
+                    const data = await res.json();
+                    return data.ip || 'Bilinmeyen IP';
+                } catch (e) {
+                    return 'Bilinmeyen IP';
+                }
+            },
+
+            showSecurityViolationScreen: function(htmlContent) {
+                this.hideAllViews();
+                
+                let container = document.getElementById('securityViolationView');
+                if (!container) {
+                    container = document.createElement('div');
+                    container.id = 'securityViolationView';
+                    container.className = 'fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center px-4 py-8';
+                    document.body.appendChild(container);
+                }
+                
+                container.innerHTML = `
+                    <div class="w-full max-w-lg bg-dark-bg border border-dark-border/80 rounded-3xl p-8 relative overflow-hidden shadow-[0_0_50px_rgba(239,68,68,0.15)] text-white">
+                        <div class="absolute inset-0 bg-[linear-gradient(to_right,#ef444405_1px,transparent_1px),linear-gradient(to_bottom,#ef444405_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+                        <div class="relative z-10">
+                            ${htmlContent}
+                            <button onclick="document.getElementById('securityViolationView').remove(); app.showLanding();" 
+                                class="mt-6 w-full py-3.5 bg-dark-border/40 hover:bg-dark-border text-white text-sm font-semibold rounded-xl border border-white/5 transition-all">
+                                Kapat ve Ana Sayfaya Dön
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.classList.remove('hidden');
+                lucide.createIcons();
+            },
+
+            logoutSilent: async function() {
+                if (this.sessionCheckInterval) clearInterval(this.sessionCheckInterval);
+                sessionStorage.removeItem('wyckoff_agreement_accepted');
+                document.getElementById('iframeWrapper').innerHTML = '';
+                document.getElementById('videoPlayerState').classList.add('hidden');
+                document.getElementById('noteContentState').classList.add('hidden');
+                document.getElementById('noVideoState').classList.remove('hidden');
+                if (supabaseClient) await supabaseClient.auth.signOut();
+            },
+
             loadUserProfile: async function(user) {
                 this.state.user = user;
                 
                 try {
-                    // Generate a unique session ID for this browser tab
+                    this.showLoading();
                     this.state.localSessionId = Math.random().toString(36).substring(2) + Date.now().toString(36);
+                    
+                    const clientIp = await this.getClientIp();
+                    const deviceInfo = this.getDeviceInfo();
 
-                    // Fetch user permissions and update the session ID in the database
                     const { data: profile, error } = await supabaseClient
                         .from('profiles')
-                        .select('allowed_modules, last_session_id')
+                        .select('allowed_modules, last_session_id, last_active_at, sharing_violations')
                         .eq('id', user.id)
                         .single();
 
-                    if (error) {
-                        if (error.code === 'PGRST116') {
-                            this.state.profile = { allowed_modules: [] };
-                        } else {
-                            throw error;
-                        }
-                    } else {
-                        this.state.profile = profile;
+                    if (error && error.code !== 'PGRST116') {
+                        throw error;
                     }
 
-                    // Update database with the new session ID
+                    const profileData = profile || { allowed_modules: [], last_session_id: null, last_active_at: null, sharing_violations: 0 };
+                    this.state.profile = profileData;
+
+                    const now = new Date();
+                    const lastActive = profileData.last_active_at ? new Date(profileData.last_active_at) : null;
+                    
+                    const isActiveSession = lastActive && (now - lastActive < 25000);
+                    const isDifferentSession = profileData.last_session_id && (profileData.last_session_id !== this.state.localSessionId);
+                    
+                    if (isActiveSession && isDifferentSession) {
+                        const newViolations = (profileData.sharing_violations || 0) + 1;
+                        
+                        await supabaseClient
+                            .from('profiles')
+                            .update({ 
+                                last_session_id: 'terminated',
+                                sharing_violations: newViolations,
+                                last_active_at: now.toISOString()
+                            })
+                            .eq('id', user.id);
+
+                        await supabaseClient
+                            .from('login_logs')
+                            .insert({
+                                user_id: user.id,
+                                user_email: user.email,
+                                device_info: deviceInfo,
+                                ip_address: clientIp,
+                                status: 'sharing_blocked'
+                            });
+
+                        let alertMsg = "";
+                        if (newViolations >= 2) {
+                            alertMsg = `
+                                <div class="text-center p-6 bg-red-950/40 rounded-2xl border border-red-500/30 max-w-md mx-auto">
+                                    <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/20 animate-pulse">
+                                        <i data-lucide="shield-alert" class="w-8 h-8 text-red-500"></i>
+                                    </div>
+                                    <h3 class="text-xl font-bold text-red-400 mb-2">HESAP PAYLAŞIMI TESPİT EDİLDİ!</h3>
+                                    <p class="text-gray-300 text-sm mb-4 leading-relaxed text-left">
+                                        Sistemimiz, bu hesabın birden fazla cihazda aynı anda kullanıldığını tespit etti. 
+                                        <b>Kural ihlali ve mükerrer çoklu giriş denemeleri nedeniyle hesabınız askıya alınmıştır.</b>
+                                    </p>
+                                    <div class="bg-black/40 p-3 rounded-lg border border-red-500/10 text-left text-xs font-mono text-red-300 space-y-1 mb-4">
+                                        <div>• Kullanıcı: ${user.email}</div>
+                                        <div>• Tespit Edilen Cihaz: ${deviceInfo}</div>
+                                        <div>• IP Adresi: ${clientIp}</div>
+                                        <div>• Durum: Askıya Alındı / İncelemede</div>
+                                    </div>
+                                    <p class="text-red-400/80 text-xs font-semibold">
+                                        Lütfen hesap paylaşım sebebinizi en kısa sürede yöneticinize bildirin. Geçerli bir mazeret sunulmadığı takdirde hesabınız tamamen kapatılacaktır.
+                                    </p>
+                                </div>
+                            `;
+                        } else {
+                            alertMsg = `
+                                <div class="text-center p-6 bg-yellow-950/40 rounded-2xl border border-yellow-500/30 max-w-md mx-auto">
+                                    <div class="w-16 h-16 bg-yellow-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-yellow-500/20">
+                                        <i data-lucide="alert-triangle" class="w-8 h-8 text-yellow-500"></i>
+                                    </div>
+                                    <h3 class="text-xl font-bold text-yellow-400 mb-2">ÇOKLU CİHAZ GİRİŞİ ENGELLENDİ!</h3>
+                                    <p class="text-gray-300 text-sm mb-4 leading-relaxed text-left">
+                                        Hesabınızda aktif bir oturum bulunurken başka bir cihazdan giriş yapılmaya çalışıldı. 
+                                        <b>Güvenliğiniz nedeniyle her iki cihazdaki oturum da sonlandırılmıştır.</b>
+                                    </p>
+                                    <div class="bg-black/40 p-3 rounded-lg border border-yellow-500/10 text-left text-xs font-mono text-yellow-300 space-y-1 mb-4">
+                                        <div>• Oturum Açan Cihaz: ${deviceInfo}</div>
+                                        <div>• IP: ${clientIp}</div>
+                                    </div>
+                                    <p class="text-gray-400 text-xs">
+                                        Lütfen hesabınızı tek bir cihazda kullanın. Tekrarı veya paylaşımın devamı halinde üyeliğiniz tamamen kapatılacaktır.
+                                    </p>
+                                </div>
+                            `;
+                        }
+
+                        this.hideLoading();
+                        this.showSecurityViolationScreen(alertMsg);
+                        await this.logoutSilent();
+                        return;
+                    }
+
                     await supabaseClient
                         .from('profiles')
-                        .update({ last_session_id: this.state.localSessionId })
+                        .update({ 
+                            last_session_id: this.state.localSessionId,
+                            last_active_at: now.toISOString()
+                        })
                         .eq('id', user.id);
 
-                    // Start Concurrent Session Heartbeat (Enforce Single Active Device)
+                    await supabaseClient
+                        .from('login_logs')
+                        .insert({
+                            user_id: user.id,
+                            user_email: user.email,
+                            device_info: deviceInfo,
+                            ip_address: clientIp,
+                            status: 'success'
+                        });
+
                     if (this.sessionCheckInterval) clearInterval(this.sessionCheckInterval);
                     this.sessionCheckInterval = setInterval(async () => {
                         if (!this.state.user) return;
@@ -1257,17 +1428,30 @@
                                 .eq('id', this.state.user.id)
                                 .single();
                             
-                            if (data && data.last_session_id && data.last_session_id !== this.state.localSessionId) {
-                                clearInterval(this.sessionCheckInterval);
-                                this.showToast("Hesabınıza başka bir cihazdan giriş yapıldı. Oturumunuz kapatılıyor.", "error");
-                                setTimeout(() => {
-                                    this.logout();
-                                }, 3000);
+                            if (data) {
+                                if (data.last_session_id === 'terminated') {
+                                    clearInterval(this.sessionCheckInterval);
+                                    this.showToast("Hesap paylaşımı veya çoklu cihaz girişi nedeniyle oturumunuz kapatıldı!", "error");
+                                    setTimeout(() => {
+                                        this.logout();
+                                    }, 3000);
+                                } else if (data.last_session_id !== this.state.localSessionId) {
+                                    clearInterval(this.sessionCheckInterval);
+                                    this.showToast("Hesabınıza başka bir cihazdan giriş yapıldı. Oturumunuz kapatılıyor.", "error");
+                                    setTimeout(() => {
+                                        this.logout();
+                                    }, 3000);
+                                } else {
+                                    await supabaseClient
+                                        .from('profiles')
+                                        .update({ last_active_at: new Date().toISOString() })
+                                        .eq('id', this.state.user.id);
+                                }
                             }
                         } catch (err) {
                             console.error("Session heartbeat error:", err);
                         }
-                    }, 10000); // Check every 10 seconds
+                    }, 10000);
 
                     this.showDashboard();
 
