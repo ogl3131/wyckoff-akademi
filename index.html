@@ -1214,9 +1214,11 @@
                     
                 } catch (error) {
                     let msg = "Giriş başarısız. Bilgilerinizi kontrol edin.";
-                    if(error.message.includes("Invalid login")) msg = "E-posta veya şifre hatalı.";
+                    if(error.message && error.message.includes("Invalid login")) msg = "E-posta veya şifre hatalı.";
+                    if(error.message && error.message.includes("Rate limit")) msg = "Çok fazla giriş denemesi yaptınız. Lütfen 1-2 dakika bekleyip tekrar deneyin.";
                     this.showToast(msg, "error");
                 } finally {
+                    this.hideLoading();
                     // Reset UI
                     btn.disabled = false;
                     btnText.textContent = "Giriş Yap";
