@@ -1323,7 +1323,7 @@
                 document.getElementById('videoPlayerState').classList.add('hidden');
                 document.getElementById('noteContentState').classList.add('hidden');
                 document.getElementById('noVideoState').classList.remove('hidden');
-                if (supabaseClient) await supabaseClient.auth.signOut();
+                if (supabaseClient) await supabaseClient.auth.signOut({ scope: 'local' });
             },
 
             forceTerminateAllSessions: async function(userId) {
@@ -1374,9 +1374,10 @@
                     const clientIp = await this.getClientIp();
                     const deviceInfo = this.getDeviceInfo();
 
+                    // Kullanıcının yetkili modüllerini ve oturum bilgilerini çekiyoruz
                     const { data: profile, error } = await supabaseClient
                         .from('profiles')
-                        .select('allowed_modules, last_session_id, last_active_at, sharing_violations')
+                        .select('allowed_modules, last_session_id, last_active_at')
                         .eq('id', user.id)
                         .single();
 
@@ -1384,132 +1385,75 @@
                         throw error;
                     }
 
-                    const profileData = profile || { allowed_modules: [], last_session_id: null, last_active_at: null, sharing_violations: 0 };
+                    const profileData = profile || { allowed_modules: [], last_session_id: null, last_active_at: null };
                     this.state.profile = profileData;
 
-                    const now = new Date();
-                    const lastActive = profileData.last_active_at ? new Date(profileData.last_active_at) : null;
-                    
-                    // 'terminated' olan bir oturum aktif kabul edilmez, böylece sonsuz döngü engellenir!
-                    const isActiveSession = lastActive && (now - lastActive < 25000) && (profileData.last_session_id !== 'terminated');
-                    const isDifferentSession = profileData.last_session_id && (profileData.last_session_id !== this.state.localSessionId);
-                    
-                    if (isActiveSession && isDifferentSession) {
-                        const newViolations = (profileData.sharing_violations || 0) + 1;
-                        
-                        await supabaseClient
-                            .from('profiles')
-                            .update({ 
-                                last_session_id: 'terminated',
-                                sharing_violations: newViolations,
-                                last_active_at: now.toISOString()
-                            })
-                            .eq('id', user.id);
+                    // Aktif başka bir oturum var mı kontrol edelim
+                    const lastActive = profileData.last_active_at ? new Date(profileData.last_active_at).getTime() : 0;
+                    const now = Date.now();
+                    const isOtherSessionActive = profileData.last_session_id && 
+                                                 profileData.last_session_id !== 'terminated' && 
+                                                 profileData.last_session_id !== savedSessionId && 
+                                                 (now - lastActive) < (30 * 60 * 1000); // Son 30 dakika içinde aktif mi?
 
-                        await supabaseClient
-                            .from('login_logs')
-                            .insert({
-                                user_id: user.id,
-                                user_email: user.email,
-                                device_info: deviceInfo,
-                                ip_address: clientIp,
-                                status: 'sharing_blocked'
-                            });
-
-                        let alertMsg = "";
-                        if (newViolations >= 2) {
-                            alertMsg = `
-                                <div class="text-center p-6 bg-red-950/40 rounded-2xl border border-red-500/30 max-w-md mx-auto text-white">
-                                    <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/20 animate-pulse">
-                                        <i data-lucide="shield-alert" class="w-8 h-8 text-red-500"></i>
-                                    </div>
-                                    <h3 class="text-xl font-bold text-red-400 mb-2">HESAP PAYLAŞIMI TESPİT EDİLDİ!</h3>
-                                    <p class="text-gray-300 text-sm mb-4 leading-relaxed text-left">
-                                        Sistemimiz, bu hesabın birden fazla cihazda aynı anda kullanıldığını tespit etti. 
-                                        <b>Kural ihlali ve mükerrer çoklu giriş denemeleri nedeniyle hesabınız askıya alınmıştır.</b>
-                                    </p>
-                                    <div class="bg-black/40 p-3 rounded-lg border border-red-500/10 text-left text-xs font-mono text-red-300 space-y-1 mb-4">
-                                        <div>• Kullanıcı: ${user.email}</div>
-                                        <div>• Tespit Edilen Cihaz: ${deviceInfo}</div>
-                                        <div>• IP Adresi: ${clientIp}</div>
-                                        <div>• Durum: Askıya Alındı / İncelemede</div>
-                                    </div>
-                                    <p class="text-red-400/80 text-xs font-semibold mb-4">
-                                        Lütfen hesap paylaşım sebebinizi en kısa sürede yöneticinize bildirin. Geçerli bir mazeret sunulmadığı takdirde hesabınız tamamen kapatılacaktır.
-                                    </p>
-                                    <button onclick="app.forceTerminateAllSessions('${user.id}')" 
-                                        class="mt-2 w-full py-3 bg-red-600 hover:bg-red-500 text-white text-xs font-bold rounded-xl transition-all shadow-[0_0_15px_rgba(239,68,68,0.2)] flex items-center justify-center gap-2">
-                                        <i data-lucide="power" class="w-3.5 h-3.5"></i>
-                                        <span>Diğer Tüm Oturumları Kapat ve Sıfırla</span>
-                                    </button>
-                                </div>
-                            `;
-                        } else {
-                            alertMsg = `
-                                <div class="text-center p-6 bg-yellow-950/40 rounded-2xl border border-yellow-500/30 max-w-md mx-auto text-white">
-                                    <div class="w-16 h-16 bg-yellow-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-yellow-500/20">
-                                        <i data-lucide="alert-triangle" class="w-8 h-8 text-yellow-500"></i>
-                                    </div>
-                                    <h3 class="text-xl font-bold text-yellow-400 mb-2">ÇOKLU CİHAZ GİRİŞİ ENGELLENDİ!</h3>
-                                    <p class="text-gray-300 text-sm mb-4 leading-relaxed text-left">
-                                        Hesabınızda aktif bir oturum bulunurken başka bir cihazdan giriş yapılmaya çalışıldı. 
-                                        <b>Güvenliğiniz nedeniyle her iki cihazdaki oturum da sonlandırılmıştır.</b>
-                                    </p>
-                                    <div class="bg-black/40 p-3 rounded-lg border border-yellow-500/10 text-left text-xs font-mono text-yellow-300 space-y-1 mb-4">
-                                        <div>• Oturum Açan Cihaz: ${deviceInfo}</div>
-                                        <div>• IP: ${clientIp}</div>
-                                    </div>
-                                    <p class="text-gray-400 text-xs mb-4">
-                                        Lütfen hesabınızı tek bir cihazda kullanın. Tekrarı veya paylaşımın devamı halinde üyeliğiniz tamamen kapatılacaktır.
-                                    </p>
-                                    <button onclick="app.forceTerminateAllSessions('${user.id}')" 
-                                        class="mt-2 w-full py-3 bg-yellow-500 hover:bg-yellow-400 text-black text-xs font-bold rounded-xl transition-all shadow-[0_0_15px_rgba(234,179,8,0.2)] flex items-center justify-center gap-2">
-                                        <i data-lucide="power" class="w-3.5 h-3.5"></i>
-                                        <span>Diğer Tüm Oturumları Sonlandır ve Tekrar Giriş Yap</span>
-                                    </button>
-                                </div>
-                            `;
-                        }
-
+                    if (isOtherSessionActive) {
                         this.hideLoading();
-                        this.showSecurityViolationScreen(alertMsg);
-                        // RLS yetki hatası almamak için oturumu hemen kapatmıyoruz, butona basınca veya kapatınca kapatacağız!
-                        return;
+                        
+                        // Diğer cihazda aktif bir oturum var, kullanıcıyı uyaralım ve engelleme ekranını gösterelim!
+                        const htmlContent = `
+                            <div class="text-center mb-6">
+                                <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto mb-4 relative animate-pulse">
+                                    <span class="absolute inset-0 rounded-2xl border border-amber-500/20 animate-ping opacity-30"></span>
+                                    <i data-lucide="shield-alert" class="w-8 h-8 text-amber-500"></i>
+                                </div>
+                                <h2 class="font-display text-xl md:text-2xl font-bold text-white mb-2 uppercase tracking-wide">AKTİF OTURUM UYARISI</h2>
+                                <p class="text-gray-400 text-xs leading-relaxed max-w-sm mx-auto">Hesabınızda şu anda başka bir cihazda aktif bir oturum bulunmaktadır.</p>
+                            </div>
+                            <div class="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4 mb-6 text-left flex items-start gap-3">
+                                <i data-lucide="info" class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5 animate-bounce"></i>
+                                <div class="text-xs text-amber-300 leading-relaxed font-semibold">
+                                    Wyckoff Akademi kuralları gereği, hesap paylaşımını engellemek amacıyla aynı anda yalnızca tek bir cihazdan eğitimleri izleyebilirsiniz.
+                                </div>
+                            </div>
+                            <button onclick="app.forceTerminateAllSessions('${user.id}')" 
+                                class="w-full py-4 bg-brand-primary hover:bg-brand-hover text-white text-sm font-bold rounded-xl transition-all glow-button flex justify-center items-center gap-2">
+                                <i data-lucide="shield-off" class="w-4 h-4"></i>
+                                Diğer Tüm Oturumları Kapat ve Giriş Yap
+                            </button>
+                        `;
+                        this.showSecurityViolationScreen(htmlContent);
+                        return; // Giriş yapmayı durduruyoruz!
                     }
 
-                    console.log("🔒 GÜVENLİK KONTROLÜ - Oturum Güncelleniyor:", {
-                        userId: user.id,
-                        email: user.email,
-                        localSessionId: this.state.localSessionId,
-                        deviceInfo,
-                        clientIp
-                    });
-
+                    // Yeni oturum kimliğini veritabanına yazıyoruz (Eski cihazı otomatik devre dışı bırakır!)
                     const { error: updateError } = await supabaseClient
                         .from('profiles')
                         .update({ 
                             last_session_id: this.state.localSessionId,
-                            last_active_at: now.toISOString()
+                            last_active_at: new Date().toISOString()
                         })
                         .eq('id', user.id);
 
+                    let writeSucceeded = !updateError;
+
                     if (updateError) {
-                        console.log("ℹ️ Satır bulunamadı veya güncellenemedi, upsert deneniyor...");
+                        // Eğer profiles satırı yoksa upsert ile oluşturmayı deneyelim
                         const { error: upsertError } = await supabaseClient
                             .from('profiles')
                             .upsert({
                                 id: user.id,
                                 last_session_id: this.state.localSessionId,
-                                last_active_at: now.toISOString(),
+                                last_active_at: new Date().toISOString(),
                                 allowed_modules: profileData.allowed_modules || []
                             });
                         
-                        if (upsertError) {
-                            console.error("❌ profiles tablosuna upsert yapılamadı:", upsertError);
+                        if (!upsertError) {
+                            writeSucceeded = true;
                         }
                     }
 
-                    const { error: logError } = await supabaseClient
+                    // Başarılı giriş logu ekleme
+                    await supabaseClient
                         .from('login_logs')
                         .insert({
                             user_id: user.id,
@@ -1519,50 +1463,53 @@
                             status: 'success'
                         });
 
-                    if (this.sessionCheckInterval) clearInterval(this.sessionCheckInterval);
-                    this.sessionCheckInterval = setInterval(async () => {
-                        if (!this.state.user) return;
-                        try {
-                            // Hareketsizlik Kontrolü (Idle Timeout)
-                            // Video açık ise 2 saat (video izleme payı), video açık değilse 30 dakika limit
-                            const isVideoOpen = document.getElementById('iframeWrapper').innerHTML !== '';
-                            const idleLimit = isVideoOpen ? 2 * 60 * 60 * 1000 : 30 * 60 * 1000;
-                            const idleTime = Date.now() - this.state.lastActivityTime;
-                            
-                            if (idleTime > idleLimit) {
-                                clearInterval(this.sessionCheckInterval);
-                                this.showToast("30 dakika boyunca işlem yapılmadığı için oturumunuz güvenlik nedeniyle sonlandırılmıştır.", "error");
-                                setTimeout(() => { this.logout(); }, 2000);
-                                return;
-                            }
-
-                            const { data, error } = await supabaseClient
-                                .from('profiles')
-                                .select('last_session_id')
-                                .eq('id', this.state.user.id)
-                                .single();
-                            
-                            if (data) {
-                                if (data.last_session_id === 'terminated' || (data.last_session_id && data.last_session_id !== this.state.localSessionId)) {
+                    // Oturum takibi ancak veritabanı başarıyla güncellendiyse başlatılır (atılma döngüsü engellendi!).
+                    if (writeSucceeded) {
+                        if (this.sessionCheckInterval) clearInterval(this.sessionCheckInterval);
+                        this.sessionCheckInterval = setInterval(async () => {
+                            if (!this.state.user) return;
+                            try {
+                                // Hareketsizlik Kontrolü (Idle Timeout)
+                                // Video açık ise 2 saat, değilse 30 dakika limit
+                                const isVideoOpen = document.getElementById('iframeWrapper').innerHTML !== '';
+                                const idleLimit = isVideoOpen ? 2 * 60 * 60 * 1000 : 30 * 60 * 1000;
+                                const idleTime = Date.now() - this.state.lastActivityTime;
+                                
+                                if (idleTime > idleLimit) {
                                     clearInterval(this.sessionCheckInterval);
-                                    this.showToast("Güvenlik ihlali tespit edildi. Oturum kapatılıyor.", "error");
-                                    setTimeout(() => { this.logout(); }, 1000);
-                                } else {
-                                    // Sadece tarayıcı sekmesi aktif ve görünür durumdaysa son aktiflik zamanını yaz
-                                    // Sekme arka planda (küçültülmüş/başka sekmede) unutulduysa DB güncellenmez!
-                                    // Böylece telefondan sorunsuzca girilebilir, eski sekme ön plana gelince otomatik atılır.
-                                    if (!document.hidden) {
-                                        await supabaseClient
-                                            .from('profiles')
-                                            .update({ last_active_at: new Date().toISOString() })
-                                            .eq('id', this.state.user.id);
+                                    this.showToast("30 dakika boyunca işlem yapılmadığı için oturumunuz sonlandırılmıştır.", "error");
+                                    setTimeout(() => { this.logout(); }, 2000);
+                                    return;
+                                }
+
+                                const { data, error } = await supabaseClient
+                                    .from('profiles')
+                                    .select('last_session_id')
+                                    .eq('id', this.state.user.id)
+                                    .single();
+                                
+                                if (data) {
+                                    // Eğer veritabanındaki oturum ID'si bizimkinden farklıysa, başka cihaz girmiş demektir!
+                                    // Bizi sistem dışına atar (En premium, kararlı ve sorunsuz yaklaşım!).
+                                    if (data.last_session_id && data.last_session_id !== this.state.localSessionId) {
+                                        clearInterval(this.sessionCheckInterval);
+                                        this.showToast("Hesabınıza başka bir cihazdan giriş yapıldı. Oturumunuz sonlandırılıyor.", "error");
+                                        setTimeout(() => { this.logout(); }, 1500);
+                                    } else {
+                                        // Sekme arka planda ise veritabanını meşgul etmeyelim
+                                        if (!document.hidden) {
+                                            await supabaseClient
+                                                .from('profiles')
+                                                .update({ last_active_at: new Date().toISOString() })
+                                                .eq('id', this.state.user.id);
+                                        }
                                     }
                                 }
+                            } catch (err) {
+                                console.error("Session heartbeat error:", err);
                             }
-                        } catch (err) {
-                            console.error("Session heartbeat error:", err);
-                        }
-                    }, 10000);
+                        }, 10000);
+                    }
 
                     this.showDashboard();
 
@@ -1587,7 +1534,7 @@
                 document.getElementById('noteContentState').classList.add('hidden');
                 document.getElementById('noVideoState').classList.remove('hidden');
                 
-                if(supabaseClient) await supabaseClient.auth.signOut();
+                if(supabaseClient) await supabaseClient.auth.signOut({ scope: 'local' });
                 this.hideLoading();
             },
 
