@@ -1086,12 +1086,22 @@
                 modules: {}, // Videoların modüllere göre gruplanmış hali
                 notes: [],   // Supabase'den çekilen analiz notları listesi
                 currentTab: 'videos', // Aktif sekme: 'videos' veya 'notes'
-                isSidebarOpen: false
+                isSidebarOpen: false,
+                lastActivityTime: Date.now()
             },
 
             init: async function() {
                 lucide.createIcons();
                 this.showLoading();
+                
+                // Hareketsizlik kontrolü için dinleyiciler ekle
+                const updateActivity = () => {
+                    this.state.lastActivityTime = Date.now();
+                };
+                window.addEventListener('mousemove', updateActivity);
+                window.addEventListener('keydown', updateActivity);
+                window.addEventListener('click', updateActivity);
+                window.addEventListener('scroll', updateActivity);
                 
                 if (!supabaseClient) {
                     this.showToast("Sistem Kurulumu Bekleniyor (DB Config).", "error");
@@ -1446,6 +1456,19 @@
                     this.sessionCheckInterval = setInterval(async () => {
                         if (!this.state.user) return;
                         try {
+                            // Hareketsizlik Kontrolü (Idle Timeout)
+                            // Video açık ise 2 saat (video izleme payı), video açık değilse 30 dakika limit
+                            const isVideoOpen = document.getElementById('iframeWrapper').innerHTML !== '';
+                            const idleLimit = isVideoOpen ? 2 * 60 * 60 * 1000 : 30 * 60 * 1000;
+                            const idleTime = Date.now() - this.state.lastActivityTime;
+                            
+                            if (idleTime > idleLimit) {
+                                clearInterval(this.sessionCheckInterval);
+                                this.showToast("30 dakika boyunca işlem yapılmadığı için oturumunuz güvenlik nedeniyle sonlandırılmıştır.", "error");
+                                setTimeout(() => { this.logout(); }, 2000);
+                                return;
+                            }
+
                             const { data, error } = await supabaseClient
                                 .from('profiles')
                                 .select('last_session_id')
@@ -1458,10 +1481,15 @@
                                     this.showToast("Güvenlik ihlali tespit edildi. Oturum kapatılıyor.", "error");
                                     setTimeout(() => { this.logout(); }, 1000);
                                 } else {
-                                    await supabaseClient
-                                        .from('profiles')
-                                        .update({ last_active_at: new Date().toISOString() })
-                                        .eq('id', this.state.user.id);
+                                    // Sadece tarayıcı sekmesi aktif ve görünür durumdaysa son aktiflik zamanını yaz
+                                    // Sekme arka planda (küçültülmüş/başka sekmede) unutulduysa DB güncellenmez!
+                                    // Böylece telefondan sorunsuzca girilebilir, eski sekme ön plana gelince otomatik atılır.
+                                    if (!document.hidden) {
+                                        await supabaseClient
+                                            .from('profiles')
+                                            .update({ last_active_at: new Date().toISOString() })
+                                            .eq('id', this.state.user.id);
+                                    }
                                 }
                             }
                         } catch (err) {
