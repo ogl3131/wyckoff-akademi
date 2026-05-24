@@ -1352,7 +1352,7 @@
                         let alertMsg = "";
                         if (newViolations >= 2) {
                             alertMsg = `
-                                <div class="text-center p-6 bg-red-950/40 rounded-2xl border border-red-500/30 max-w-md mx-auto">
+                                <div class="text-center p-6 bg-red-950/40 rounded-2xl border border-red-500/30 max-w-md mx-auto text-white">
                                     <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/20 animate-pulse">
                                         <i data-lucide="shield-alert" class="w-8 h-8 text-red-500"></i>
                                     </div>
@@ -1374,7 +1374,7 @@
                             `;
                         } else {
                             alertMsg = `
-                                <div class="text-center p-6 bg-yellow-950/40 rounded-2xl border border-yellow-500/30 max-w-md mx-auto">
+                                <div class="text-center p-6 bg-yellow-950/40 rounded-2xl border border-yellow-500/30 max-w-md mx-auto text-white">
                                     <div class="w-16 h-16 bg-yellow-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-yellow-500/20">
                                         <i data-lucide="alert-triangle" class="w-8 h-8 text-yellow-500"></i>
                                     </div>
@@ -1400,7 +1400,15 @@
                         return;
                     }
 
-                    await supabaseClient
+                    console.log("🔒 GÜVENLİK KONTROLÜ - Oturum Güncelleniyor:", {
+                        userId: user.id,
+                        email: user.email,
+                        localSessionId: this.state.localSessionId,
+                        deviceInfo,
+                        clientIp
+                    });
+
+                    const { error: updateError } = await supabaseClient
                         .from('profiles')
                         .update({ 
                             last_session_id: this.state.localSessionId,
@@ -1408,7 +1416,23 @@
                         })
                         .eq('id', user.id);
 
-                    await supabaseClient
+                    if (updateError) {
+                        console.log("ℹ️ Satır bulunamadı veya güncellenemedi, upsert deneniyor...");
+                        const { error: upsertError } = await supabaseClient
+                            .from('profiles')
+                            .upsert({
+                                id: user.id,
+                                last_session_id: this.state.localSessionId,
+                                last_active_at: now.toISOString(),
+                                allowed_modules: profileData.allowed_modules || []
+                            });
+                        
+                        if (upsertError) {
+                            console.error("❌ profiles tablosuna upsert yapılamadı:", upsertError);
+                        }
+                    }
+
+                    const { error: logError } = await supabaseClient
                         .from('login_logs')
                         .insert({
                             user_id: user.id,
@@ -1429,18 +1453,10 @@
                                 .single();
                             
                             if (data) {
-                                if (data.last_session_id === 'terminated') {
+                                if (data.last_session_id === 'terminated' || data.last_session_id !== this.state.localSessionId) {
                                     clearInterval(this.sessionCheckInterval);
-                                    this.showToast("Hesap paylaşımı veya çoklu cihaz girişi nedeniyle oturumunuz kapatıldı!", "error");
-                                    setTimeout(() => {
-                                        this.logout();
-                                    }, 3000);
-                                } else if (data.last_session_id !== this.state.localSessionId) {
-                                    clearInterval(this.sessionCheckInterval);
-                                    this.showToast("Hesabınıza başka bir cihazdan giriş yapıldı. Oturumunuz kapatılıyor.", "error");
-                                    setTimeout(() => {
-                                        this.logout();
-                                    }, 3000);
+                                    this.showToast("Güvenlik ihlali tespit edildi. Oturum kapatılıyor.", "error");
+                                    setTimeout(() => { this.logout(); }, 1000);
                                 } else {
                                     await supabaseClient
                                         .from('profiles')
