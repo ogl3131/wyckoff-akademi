@@ -150,18 +150,15 @@ Deno.serve(async (req) => {
     const securityKey = setting.setting_value;
 
 
-    const expires = Math.floor(Date.now() / 1000) + 300; // 5 min TTL
-    const tokenStr = `${securityKey}${videoId}${expires}${clientIp}`;
+    const expires = Math.floor(Date.now() / 1000) + 60; // 60 sn TTL
+    const tokenStr = `${securityKey}${videoId}${expires}`;
     const token = await sha256(tokenStr);
 
-    const playlistUrl = `https://video.bunnycdn.com/play/${libraryId}/${videoId}/playlist.m3u8`;
-
+    const signedUrl = `https://iframe.mediadelivery.net/embed/${libraryId}/${videoId}?token=${token}&expires=${expires}`;
 
     return new Response(
       JSON.stringify({
-        url: playlistUrl,
-        token: token,
-        expires: expires.toString(),
+        signed_url: signedUrl,
         watermark_text: user.email,
         timestamp: Date.now()
       }),

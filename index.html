@@ -1999,9 +1999,6 @@
 
                 let secureBunnyUrl = "";
                 let watermarkText = "";
-                let hlsUrl = "";
-                let hlsToken = "";
-                let hlsExpires = "";
                 
                 try {
                     const { data, error } = await supabaseClient.functions.invoke('get-video', {
@@ -2030,10 +2027,8 @@
                         }
                         throw error;
                     }
-                    if (data && data.url) {
-                        hlsUrl = data.url;
-                        hlsToken = data.token;
-                        hlsExpires = data.expires;
+                    if (data && data.signed_url) {
+                        secureBunnyUrl = data.signed_url;
                         watermarkText = data.watermark_text || this.state.user?.email || "Wyckoff Academy";
                     }
                 } catch (e) {
@@ -2068,7 +2063,13 @@
                 const wrapper = document.getElementById('iframeWrapper');
                 wrapper.innerHTML = `
                     <div class="relative w-full h-full bg-black overflow-hidden group">
-                        <video id="hls-video-player" controls autoplay class="absolute top-0 left-0 w-full h-full border-0"></video>
+                        <iframe 
+                            src="${secureBunnyUrl}" 
+                            loading="lazy" 
+                            class="absolute top-0 left-0 w-full h-full border-0 pointer-events-auto" 
+                            allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" 
+                            allowfullscreen="true">
+                        </iframe>
                         
                         <div class="pointer-events-none absolute inset-0 z-50 flex items-center justify-center overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-1000">
                             <div class="transform -rotate-45 whitespace-nowrap text-white/10 font-mono text-2xl md:text-4xl font-bold tracking-widest select-none drop-shadow-md">
@@ -2081,36 +2082,6 @@
                         </div>
                     </div>
                 `;
-
-                const videoElement = document.getElementById('hls-video-player');
-                if (window.Hls && Hls.isSupported()) {
-                    if (window.currentHlsPlayer) {
-                        window.currentHlsPlayer.destroy();
-                    }
-                    const hls = new Hls({
-                        xhrSetup: function(xhr, xhrUrl) {
-                            if (xhrUrl.includes('video.bunnycdn.com') || xhrUrl.includes('b-cdn.net')) {
-                                const parsedUrl = new URL(xhrUrl);
-                                parsedUrl.searchParams.set('token', hlsToken);
-                                parsedUrl.searchParams.set('expires', hlsExpires);
-                                xhr.open('GET', parsedUrl.toString(), true);
-                            }
-                        }
-                    });
-                    window.currentHlsPlayer = hls;
-                    hls.loadSource(hlsUrl);
-                    hls.attachMedia(videoElement);
-                    hls.on(Hls.Events.ERROR, (event, data) => {
-                        if (data.fatal) {
-                            console.error("HLS Fatal Error", data);
-                        }
-                    });
-                } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-                    const authUrl = new URL(hlsUrl);
-                    authUrl.searchParams.set('token', hlsToken);
-                    authUrl.searchParams.set('expires', hlsExpires);
-                    videoElement.src = authUrl.toString();
-                }
             },
 
 
