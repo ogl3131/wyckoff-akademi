@@ -1,0 +1,2299 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wyckoff Trade Akademisi | Mumların Arkasındaki Mantığı Anlayın</title>
+    
+    
+    <script>
+        const originalWarn = console.warn;
+        console.warn = function(...args) {
+            if (typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com should not be used in production')) return;
+            originalWarn.apply(console, args);
+        };
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            bg: '#0b0f19',
+                            panel: '#111827',
+                            border: '#1f2937'
+                        },
+                        brand: {
+                            primary: '#10b981', // Neon Yeşili
+                            hover: '#059669',
+                            accent: '#3b82f6' // Neon Mavisi
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body {
+            background-color: #0b0f19;
+            color: #f3f4f6;
+            overflow-x: hidden;
+        }
+        
+        .font-display {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(31, 41, 55, 0.8);
+        }
+        
+        .chart-bg {
+            background-color: #0b0f19;
+            background-image: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 50%),
+                              url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 60 L15 45 L30 50 L45 20 L60 30' stroke='rgba(255,255,255,0.02)' stroke-width='1' fill='none'/%3E%3C/svg%3E");
+            background-size: 100% 100%, 300px 300px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0f19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f2937;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #374151;
+        }
+        
+        .glow-text {
+            text-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+        }
+        
+        .glow-button {
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+            transition: all 0.3s ease;
+        }
+        .glow-button:hover {
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen antialiased selection:bg-brand-primary selection:text-white">
+
+    
+    <div id="loadingOverlay" class="fixed inset-0 bg-dark-bg/90 backdrop-blur-sm z-[100] flex flex-col items-center justify-center hidden">
+        <i data-lucide="loader-2" class="w-12 h-12 text-brand-primary animate-spin mb-4"></i>
+        <div class="text-brand-primary font-medium tracking-widest text-sm uppercase">Sistem Yükleniyor...</div>
+    </div>
+
+    
+    <div id="toast" class="fixed top-6 right-6 z-[90] transform transition-all duration-300 translate-y-[-150%] opacity-0 glass-panel px-6 py-4 rounded-xl shadow-2xl border-l-4 flex items-center gap-3 max-w-sm">
+        <i id="toastIcon" data-lucide="info" class="w-5 h-5"></i>
+        <span id="toastMsg" class="font-medium text-sm"></span>
+    </div>
+
+    
+    <div id="landingView" class="flex-grow flex flex-col">
+        
+        <nav class="glass-panel sticky top-0 z-40 border-b border-dark-border px-6 py-4">
+            <div class="max-w-7xl mx-auto flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-brand-primary/10 flex items-center justify-center border border-brand-primary/30">
+                        <i data-lucide="bar-chart-2" class="w-6 h-6 text-brand-primary"></i>
+                    </div>
+                    <span class="font-display text-xl font-extrabold tracking-widest text-white uppercase">WYCKOFF<span class="text-brand-primary">AKADEMİ</span></span>
+                </div>
+                
+                <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
+                    <a href="#hero" class="hover:text-white transition-colors">Ana Sayfa</a>
+                    <a href="#proof" class="hover:text-white transition-colors">Kanıtlar</a>
+                    <a href="#about" class="hover:text-white transition-colors">Hakkımda</a>
+                    <a href="#curriculum" class="hover:text-white transition-colors">Müfredat</a>
+                    <a href="#registration" class="hover:text-white transition-colors">Kayıt Rehberi</a>
+                </div>
+                
+                <div>
+                    <button onclick="app.showLogin()" class="bg-brand-primary hover:bg-brand-hover text-white px-6 py-2.5 rounded-xl font-medium flex items-center gap-2 glow-button text-sm">
+                        <i data-lucide="log-in" class="w-4 h-4"></i>
+                        Öğrenci Girişi
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        
+        <section id="hero" class="relative pt-32 pb-24 px-6 overflow-hidden flex-grow flex items-center">
+            <div class="absolute inset-0 chart-bg opacity-40 pointer-events-none"></div>
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
+            
+            <div class="max-w-7xl mx-auto w-full relative z-10">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                    
+                    
+                    <div class="lg:col-span-7 text-left space-y-6 flex flex-col items-start">
+                        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs font-bold uppercase tracking-widest animate-pulse shadow-[0_0_20px_rgba(16,185,129,0.25)]">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
+                            %100 Ücretsiz Profesyonel Trade Eğitimi
+                        </div>
+                        
+                        <h1 class="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-[1.15] mb-2">
+                            Mumların Arkasındaki Mantığı Anlayın: <br>
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary via-emerald-400 to-brand-accent glow-text">Wyckoff ile Sıfırdan Profesyonel Trader Olma Yolculuğu</span>
+                        </h1>
+                        
+                        
+                        <div class="flex items-center gap-3 text-emerald-400 font-bold text-lg md:text-xl glow-text font-display">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0 animate-bounce">
+                                <i data-lucide="gift" class="w-5 h-5 text-emerald-400"></i>
+                            </div>
+                            <span>%100 ÜCRETSİZ Ömür Boyu Erişim ve Canlı Destek!</span>
+                        </div>
+                        
+                        <p class="text-base md:text-lg text-gray-400 leading-relaxed max-w-xl">
+                            Piyasa yapıcıların izlerini takip edin. Birikim, Dağıtım ve Fiyatlandırma fazlarını okuyarak, akıllı para (Smart Money) ile aynı yönde güvenle işlem alın.
+                        </p>
+                        
+                        <div class="flex flex-col sm:flex-row items-center gap-4 w-full pt-2">
+                            <button onclick="document.getElementById('curriculum').scrollIntoView({behavior: 'smooth'})" class="bg-brand-primary hover:bg-brand-hover text-white px-8 py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2 w-full sm:w-auto glow-button group text-sm">
+                                Müfredatı İncele
+                                <i data-lucide="arrow-down" class="w-4 h-4 group-hover:translate-y-1 transition-transform"></i>
+                            </button>
+                            <button onclick="app.showLogin()" class="glass-panel hover:bg-dark-border text-white px-8 py-4 rounded-xl font-medium transition-all flex items-center justify-center gap-2 w-full sm:w-auto text-sm">
+                                <i data-lucide="log-in" class="w-4 h-4"></i>
+                                Öğrenci Girişi
+                            </button>
+                        </div>
+        
+                        
+                        <div class="glass-panel rounded-2xl p-5 border border-brand-accent/30 bg-brand-accent/5 flex items-center gap-4 text-left shadow-2xl relative overflow-hidden group hover:border-brand-primary/40 hover:bg-brand-primary/5 transition-all max-w-xl mt-6">
+                            <div class="w-12 h-12 rounded-xl bg-brand-accent/10 border border-brand-accent/20 flex items-center justify-center text-brand-accent flex-shrink-0 group-hover:border-brand-primary/30 group-hover:text-brand-primary transition-all">
+                                <i data-lucide="send" class="w-6 h-6 animate-pulse"></i>
+                            </div>
+                            <div class="flex-grow">
+                                <h4 class="text-white font-bold text-sm mb-1 font-display">Eğitime Kayıt Olmak & Öğrenmek İçin</h4>
+                                <p class="text-gray-400 text-xs leading-relaxed mb-2.5">Akademiye katılmak, kayıt yaptırmak ve eğitim videolarına erişmek için öncelikle resmi Telegram kanalımıza katılmanız gerekmektedir.</p>
+                                <a href="https://t.me/+9xPTBzt5Zo45YTU0" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-bold text-brand-accent hover:text-white group-hover:text-brand-primary transition-all group-hover:underline">
+                                    Telegram Kanalına Katıl <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    <div class="lg:col-span-5 w-full">
+                        <div class="relative w-full aspect-[4/5] md:aspect-[3/4] max-w-md mx-auto lg:max-w-none group">
+                            
+                            <div class="absolute -inset-1 bg-gradient-to-r from-brand-primary to-brand-accent rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-1000 animate-pulse"></div>
+                            
+                            <div class="relative glass-panel rounded-3xl border border-dark-border p-4 shadow-2xl h-full flex flex-col justify-between overflow-hidden bg-dark-panel/90">
+                                
+                                <div class="flex items-center justify-between border-b border-dark-border/80 pb-3 mb-3 flex-shrink-0">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="w-3 h-3 rounded-full bg-red-500/80"></span>
+                                        <span class="w-3 h-3 rounded-full bg-yellow-500/80"></span>
+                                        <span class="w-3 h-3 rounded-full bg-emerald-500/80"></span>
+                                    </div>
+                                    <div class="text-[10px] font-bold text-gray-500 tracking-wider font-display uppercase flex items-center gap-1.5">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                        Canlı Başarı Kanıtları
+                                    </div>
+                                </div>
+        
+                                
+                                <div class="relative flex-grow rounded-2xl overflow-hidden bg-dark-bg/60 border border-dark-border/60 flex items-center justify-center min-h-[300px]">
+                                    
+                                    <div class="hero-slide absolute inset-0 w-full h-full opacity-100 transition-all duration-700 ease-in-out flex flex-col p-2">
+                                        <div class="w-full h-full overflow-hidden rounded-xl bg-dark-bg relative">
+                                            <img src="./slide1.png" class="w-full h-full object-contain" alt="Zecusdt.p Giriş">
+                                        </div>
+                                        <div class="absolute bottom-4 left-4 right-4 bg-dark-bg/90 backdrop-blur-md border border-dark-border p-3 rounded-xl shadow-xl flex items-center justify-between z-20">
+                                            <div class="overflow-hidden pr-2">
+                                                <p class="text-white text-xs font-bold font-display truncate">Zecusdt.p - Kurumsal Analiz & Giriş</p>
+                                                <p class="text-[10px] text-brand-primary font-semibold">Giriş Bölgesi & Hedefler Hazır</p>
+                                            </div>
+                                            <span class="text-[9px] bg-brand-primary/10 border border-brand-primary/20 text-brand-primary px-2 py-1 rounded font-bold uppercase tracking-wider flex-shrink-0">KURULUM</span>
+                                        </div>
+                                    </div>
+        
+                                    
+                                    <div class="hero-slide absolute inset-0 w-full h-full opacity-0 transition-all duration-700 ease-in-out flex flex-col p-2">
+                                        <div class="w-full h-full overflow-hidden rounded-xl bg-dark-bg relative">
+                                            <img src="./slide2.png" class="w-full h-full object-contain" alt="Zecusdt.p Sonuç">
+                                        </div>
+                                        <div class="absolute bottom-4 left-4 right-4 bg-dark-bg/90 backdrop-blur-md border border-dark-border p-3 rounded-xl shadow-xl flex items-center justify-between z-20">
+                                            <div class="overflow-hidden pr-2">
+                                                <p class="text-white text-xs font-bold font-display truncate">Zecusdt.p - Hedefe Ulaşıldı</p>
+                                                <p class="text-[10px] text-emerald-400 font-semibold">Mükemmel Wyckoff Çıkışı</p>
+                                            </div>
+                                            <span class="text-[9px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-2 py-1 rounded font-bold uppercase tracking-wider flex-shrink-0">HEDEF</span>
+                                        </div>
+                                    </div>
+        
+                                    
+                                    <div class="hero-slide absolute inset-0 w-full h-full opacity-0 transition-all duration-700 ease-in-out flex flex-col p-2">
+                                        <div class="w-full h-full overflow-hidden rounded-xl bg-dark-bg relative">
+                                            <img src="./slide3.png" class="w-full h-full object-contain" alt="ETH Giriş">
+                                        </div>
+                                        <div class="absolute bottom-4 left-4 right-4 bg-dark-bg/90 backdrop-blur-md border border-dark-border p-3 rounded-xl shadow-xl flex items-center justify-between z-20">
+                                            <div class="overflow-hidden pr-2">
+                                                <p class="text-white text-xs font-bold font-display truncate">ETHUSDT - Emir Akışı Planlama</p>
+                                                <p class="text-[10px] text-brand-primary font-semibold">Kırılım Öncesi Güvenli Yapı</p>
+                                            </div>
+                                            <span class="text-[9px] bg-brand-primary/10 border border-brand-primary/20 text-brand-primary px-2 py-1 rounded font-bold uppercase tracking-wider flex-shrink-0">KURULUM</span>
+                                        </div>
+                                    </div>
+        
+                                    
+                                    <div class="hero-slide absolute inset-0 w-full h-full opacity-0 transition-all duration-700 ease-in-out flex flex-col p-2">
+                                        <div class="w-full h-full overflow-hidden rounded-xl bg-dark-bg relative">
+                                            <img src="./slide4.png" class="w-full h-full object-contain" alt="ETH Sonuç">
+                                        </div>
+                                        <div class="absolute bottom-4 left-4 right-4 bg-dark-bg/90 backdrop-blur-md border border-dark-border p-3 rounded-xl shadow-xl flex items-center justify-between z-20">
+                                            <div class="overflow-hidden pr-2">
+                                                <p class="text-white text-xs font-bold font-display truncate">ETHUSDT - Pozisyon Yönetildi</p>
+                                                <p class="text-[10px] text-emerald-400 font-semibold">Tüm Hedefler Kusursuz Alındı</p>
+                                            </div>
+                                            <span class="text-[9px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-2 py-1 rounded font-bold uppercase tracking-wider flex-shrink-0">HEDEF</span>
+                                        </div>
+                                    </div>
+
+                                    
+                                    <div class="hero-slide absolute inset-0 w-full h-full opacity-0 transition-all duration-700 ease-in-out flex flex-col p-2">
+                                        <div class="w-full h-full overflow-hidden rounded-xl bg-dark-bg relative">
+                                            <img src="./slide5.png" class="w-full h-full object-contain" alt="ICNT Giriş">
+                                        </div>
+                                        <div class="absolute bottom-4 left-4 right-4 bg-dark-bg/90 backdrop-blur-md border border-dark-border p-3 rounded-xl shadow-xl flex items-center justify-between z-20">
+                                            <div class="overflow-hidden pr-2">
+                                                <p class="text-white text-xs font-bold font-display truncate">ICNTUSDT - Wyckoff Kırılım Arayışı</p>
+                                                <p class="text-[10px] text-brand-primary font-semibold">Destek Bölgesinden Güçlü Tepki</p>
+                                            </div>
+                                            <span class="text-[9px] bg-brand-primary/10 border border-brand-primary/20 text-brand-primary px-2 py-1 rounded font-bold uppercase tracking-wider flex-shrink-0">KURULUM</span>
+                                        </div>
+                                    </div>
+
+                                    
+                                    <div class="hero-slide absolute inset-0 w-full h-full opacity-0 transition-all duration-700 ease-in-out flex flex-col p-2">
+                                        <div class="w-full h-full overflow-hidden rounded-xl bg-dark-bg relative">
+                                            <img src="./slide6.png" class="w-full h-full object-contain" alt="ICNT Sonuç">
+                                        </div>
+                                        <div class="absolute bottom-4 left-4 right-4 bg-dark-bg/90 backdrop-blur-md border border-dark-border p-3 rounded-xl shadow-xl flex items-center justify-between z-20">
+                                            <div class="overflow-hidden pr-2">
+                                                <p class="text-white text-xs font-bold font-display truncate">ICNTUSDT - Hedef Noktası Kusursuz</p>
+                                                <p class="text-[10px] text-emerald-400 font-semibold">Kusursuz Fiyat Hareketi Başarısı</p>
+                                            </div>
+                                            <span class="text-[9px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-2 py-1 rounded font-bold uppercase tracking-wider flex-shrink-0">HEDEF</span>
+                                        </div>
+                                    </div>
+
+                                    
+                                    <div class="hero-slide absolute inset-0 w-full h-full opacity-0 transition-all duration-700 ease-in-out flex flex-col p-2">
+                                        <div class="w-full h-full overflow-hidden rounded-xl bg-dark-bg relative">
+                                            <img src="./slide7.png" class="w-full h-full object-contain" alt="EDGEX Giriş">
+                                        </div>
+                                        <div class="absolute bottom-4 left-4 right-4 bg-dark-bg/90 backdrop-blur-md border border-dark-border p-3 rounded-xl shadow-xl flex items-center justify-between z-20">
+                                            <div class="overflow-hidden pr-2">
+                                                <p class="text-white text-xs font-bold font-display truncate">EDGEXUSDT - Sipariş Defteri & Likidite</p>
+                                                <p class="text-[10px] text-brand-primary font-semibold">Kurumsal Giriş Alanı Belirlendi</p>
+                                            </div>
+                                            <span class="text-[9px] bg-brand-primary/10 border border-brand-primary/20 text-brand-primary px-2 py-1 rounded font-bold uppercase tracking-wider flex-shrink-0">KURULUM</span>
+                                        </div>
+                                    </div>
+
+                                    
+                                    <div class="hero-slide absolute inset-0 w-full h-full opacity-0 transition-all duration-700 ease-in-out flex flex-col p-2">
+                                        <div class="w-full h-full overflow-hidden rounded-xl bg-dark-bg relative">
+                                            <img src="./slide8.png" class="w-full h-full object-contain" alt="EDGEX Sonuç">
+                                        </div>
+                                        <div class="absolute bottom-4 left-4 right-4 bg-dark-bg/90 backdrop-blur-md border border-dark-border p-3 rounded-xl shadow-xl flex items-center justify-between z-20">
+                                            <div class="overflow-hidden pr-2">
+                                                <p class="text-white text-xs font-bold font-display truncate">EDGEXUSDT - Büyük Kırılım & Kâr Alımı</p>
+                                                <p class="text-[10px] text-emerald-400 font-semibold">Başarıyla Tamamlanan Premium İşlem</p>
+                                            </div>
+                                            <span class="text-[9px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-2 py-1 rounded font-bold uppercase tracking-wider flex-shrink-0">HEDEF</span>
+                                        </div>
+                                    </div>
+                                </div>
+        
+                                
+                                <div class="flex items-center justify-between mt-4 flex-shrink-0 px-1">
+                                    <div class="flex items-center gap-2">
+                                        <span class="hero-slide-dot w-4 h-2 rounded-full bg-brand-primary transition-all duration-300 cursor-pointer"></span>
+                                        <span class="hero-slide-dot w-2 h-2 rounded-full bg-gray-600 transition-all duration-300 cursor-pointer"></span>
+                                        <span class="hero-slide-dot w-2 h-2 rounded-full bg-gray-600 transition-all duration-300 cursor-pointer"></span>
+                                        <span class="hero-slide-dot w-2 h-2 rounded-full bg-gray-600 transition-all duration-300 cursor-pointer"></span>
+                                        <span class="hero-slide-dot w-2 h-2 rounded-full bg-gray-600 transition-all duration-300 cursor-pointer"></span>
+                                        <span class="hero-slide-dot w-2 h-2 rounded-full bg-gray-600 transition-all duration-300 cursor-pointer"></span>
+                                        <span class="hero-slide-dot w-2 h-2 rounded-full bg-gray-600 transition-all duration-300 cursor-pointer"></span>
+                                        <span class="hero-slide-dot w-2 h-2 rounded-full bg-gray-600 transition-all duration-300 cursor-pointer"></span>
+                                    </div>
+                                    <div class="text-[10px] text-gray-500 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                                        <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-brand-primary animate-spin" style="animation-duration: 6s;"></i>
+                                        Slayt Akışı
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </section>
+
+        
+        <section id="proof" class="py-24 px-6 border-t border-dark-border bg-dark-bg/60 relative z-10">
+            <div class="max-w-4xl mx-auto text-center">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-brand-primary/30 bg-brand-primary/10 text-brand-primary text-xs font-semibold mb-6 uppercase tracking-wider">
+                    <i data-lucide="eye" class="w-3.5 h-3.5 animate-pulse"></i>
+                    Şeffaflık & Başarı Kanıtı
+                </div>
+                <h2 class="font-display text-3xl md:text-5xl font-bold text-white mb-6">İşlemlerimizin Şeffaf Kanıtı</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed text-sm md:text-base">
+                    Ezbere dayalı değil, piyasada birebir çalışan modeller. Sürecimizin doğruluğunu ve işlemlerimizin canlı performansını aşağıdaki gerçek işlem kaydından inceleyebilirsiniz.
+                </p>
+                
+                
+                <div class="glass-panel p-4 rounded-3xl border border-dark-border shadow-2xl relative overflow-hidden group hover:border-brand-primary/30 transition-all max-w-2xl mx-auto">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 flex items-end justify-center pb-6 transition-all duration-300 pointer-events-none">
+                        <span class="text-white text-xs font-bold px-4 py-2 bg-dark-bg/90 border border-dark-border rounded-xl shadow-xl flex items-center gap-1.5 backdrop-blur-md">
+                            <i data-lucide="zoom-in" class="w-3.5 h-3.5 text-brand-primary"></i> Canlı İşlem İzleme Kaydı
+                        </span>
+                    </div>
+                    <img src="./transparency.gif" class="w-full h-auto rounded-2xl shadow-inner border border-dark-border/50 object-cover" alt="Wyckoff Şeffaflık Kanıtı" />
+                </div>
+            </div>
+        </section>
+
+        
+        <section id="about" class="py-24 px-6 border-t border-dark-border bg-dark-panel/20 relative z-10">
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
+            <div class="max-w-7xl mx-auto relative z-10">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                    
+                    
+                    <div class="lg:col-span-7 space-y-6 text-left">
+                        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-brand-primary/30 bg-brand-primary/10 text-brand-primary text-xs font-semibold mb-2 uppercase tracking-wider">
+                            <i data-lucide="user" class="w-3.5 h-3.5 animate-pulse"></i>
+                            Kurucu & Trader Hakkında
+                        </div>
+                        <h2 class="font-display text-3xl md:text-5xl font-extrabold text-white leading-tight">
+                            Ben Kimim & <br>
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary via-emerald-400 to-brand-accent glow-text">Başarı Tablosu</span>
+                        </h2>
+                        
+                        <div class="space-y-4 text-gray-300 text-sm md:text-base leading-relaxed">
+                            <p>
+                                5 yılı aşkın süredir aktif olarak trade yapıyorum. Bu süreçte özellikle forex, kripto ve endeks piyasalarında farklı stratejiler test ederek kendime büyük bir tecrübe sağladım.
+                            </p>
+                            <p>
+                                Amacım sadece işlem açmak değil; piyasanın mantığını, fiyat hareketlerinin arkasındaki davranışları ve risk yönetiminin gerçek önemini anlamaktır. Bu yüzden Wyckoff metodolojisi, likidite yapıları ve kurumsal fiyat hareketleri üzerine yoğunlaştım.
+                            </p>
+                            <p>
+                                Bugün burada paylaştığım tüm içerikler; yıllar içinde edindiğim tecrübelerin, yaptığım hataların ve geliştirdiğim sistemlerin süzülmüş halidir.
+                            </p>
+                            <p>
+                                Bu platformda hedefim, trade dünyasına yeni başlayan ya da kendini geliştirmek isteyen kişilere sade, anlaşılır ve uygulanabilir bir bakış açısı kazandırmaktır.
+                            </p>
+                        </div>
+                        
+                        
+                        <div class="flex flex-wrap items-center gap-4 pt-2">
+                            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider font-display">Takip Edin:</span>
+                            
+                            
+                            <a href="https://kick.com/gtraderfx" target="_blank" class="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[#53fc18]/20 bg-[#53fc18]/5 text-[#53fc18] hover:bg-[#53fc18]/10 hover:border-[#53fc18]/40 hover:-translate-y-0.5 transition-all font-display font-bold text-xs uppercase tracking-wider">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#53fc18] animate-pulse"></span>
+                                <i data-lucide="tv" class="w-3.5 h-3.5"></i> Kick Yayın
+                            </a>
+                            
+                            
+                            <a href="https://www.youtube.com/@Gtradefx" target="_blank" class="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-red-500/20 bg-red-500/5 text-red-400 hover:bg-red-500/10 hover:border-red-500/40 hover:-translate-y-0.5 transition-all font-display font-bold text-xs uppercase tracking-wider">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg> YouTube
+                            </a>
+                            
+                            
+                            <a href="https://www.instagram.com/gtradefx1/" target="_blank" class="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-pink-500/20 bg-pink-500/5 text-pink-400 hover:bg-pink-500/10 hover:border-pink-500/40 hover:-translate-y-0.5 transition-all font-display font-bold text-xs uppercase tracking-wider">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg> Instagram
+                            </a>
+                        </div>
+                        
+                        
+                        <div class="glass-panel p-5 rounded-2xl border-l-4 border-l-brand-primary border-brand-primary/20 bg-brand-primary/5 max-w-2xl mt-6 relative overflow-hidden group">
+                            <div class="absolute -right-6 -bottom-6 text-brand-primary/5 group-hover:scale-110 transition-transform duration-500">
+                                <i data-lucide="trending-up" class="w-24 h-24"></i>
+                            </div>
+                            <p class="text-white font-bold text-sm md:text-base flex items-center gap-2 mb-1">
+                                <i data-lucide="award" class="w-5 h-5 text-brand-primary animate-bounce"></i>
+                                Unutma:
+                            </p>
+                            <p class="text-gray-300 text-xs md:text-sm font-medium italic leading-relaxed">
+                                "Bu piyasada başarı şansa değil, disipline ve doğru sisteme dayanır. 📊🔥"
+                            </p>
+                        </div>
+                    </div>
+                    
+                    
+                    <div class="lg:col-span-5 w-full">
+                        <div class="relative w-full max-w-md mx-auto lg:max-w-none group">
+                            
+                            <div class="absolute -inset-1 bg-gradient-to-r from-brand-primary to-brand-accent rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
+                            
+                            <div class="relative glass-panel rounded-3xl border border-dark-border p-4 shadow-2xl overflow-hidden bg-dark-panel/90 flex flex-col justify-between">
+                                
+                                <div class="flex items-center justify-between border-b border-dark-border/80 pb-3 mb-4">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="w-3 h-3 rounded-full bg-red-500/80"></span>
+                                        <span class="w-3 h-3 rounded-full bg-yellow-500/80"></span>
+                                        <span class="w-3 h-3 rounded-full bg-emerald-500/80"></span>
+                                    </div>
+                                    <div class="text-[10px] font-bold text-gray-500 tracking-wider font-display uppercase flex items-center gap-1.5">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-brand-accent animate-pulse"></span>
+                                        MetaTrader 5 Gerçek Hesap Raporu
+                                    </div>
+                                </div>
+
+                                
+                                <div class="relative rounded-2xl overflow-hidden bg-white/95 border border-dark-border/60 p-1 flex items-center justify-center cursor-zoom-in group/img" onclick="app.openLightbox('./about_proof.png')">
+                                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-all duration-300 z-10">
+                                        <span class="text-white text-xs font-bold px-3 py-2 bg-dark-bg/90 border border-dark-border rounded-xl shadow-xl flex items-center gap-1.5 backdrop-blur-md">
+                                            <i data-lucide="zoom-in" class="w-3.5 h-3.5 text-brand-primary"></i> Raporu Büyüt
+                                        </span>
+                                    </div>
+                                    <img src="./about_proof.png" class="w-full h-auto rounded-xl object-contain shadow-inner transition-transform duration-500 group-hover/img:scale-105" alt="MetaTrader 5 Portföy Performansı" />
+                                </div>
+
+                                
+                                <div class="grid grid-cols-2 gap-3 mt-4">
+                                    <div class="glass-panel px-4 py-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 flex items-center gap-2.5">
+                                        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                                            <i data-lucide="percent" class="w-4 h-4"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-[9px] text-gray-500 font-bold uppercase tracking-wider">Toplam Büyüme (Gain)</div>
+                                            <div class="text-xs font-extrabold text-emerald-400 font-display leading-tight">%17.33 Kâr</div>
+                                        </div>
+                                    </div>
+                                    <div class="glass-panel px-4 py-3 rounded-xl border border-red-500/20 bg-red-500/5 flex items-center gap-2.5">
+                                        <div class="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center text-red-400">
+                                            <i data-lucide="shield-alert" class="w-4 h-4"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-[9px] text-gray-500 font-bold uppercase tracking-wider">Maksimum Kayıp (Drawdown)</div>
+                                            <div class="text-xs font-extrabold text-red-400 font-display leading-tight">%2.53 (Düşük Risk)</div>
+                                        </div>
+                                    </div>
+                                    <div class="glass-panel px-4 py-3 rounded-xl border-dark-border bg-dark-bg/60 flex items-center gap-2.5 col-span-2">
+                                        <div class="w-8 h-8 rounded-lg bg-brand-accent/10 flex items-center justify-center text-brand-accent">
+                                            <i data-lucide="calendar" class="w-4 h-4"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-[9px] text-gray-500 font-bold uppercase tracking-wider">Hesap Rapor Süresi</div>
+                                            <div class="text-xs font-extrabold text-white font-display leading-tight">1 Yıllık Gerçek Hesap Performansı (2025-2026)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </section>
+
+        
+        <section id="curriculum" class="py-24 px-6 bg-dark-panel/40 border-t border-dark-border relative z-10">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="font-display text-3xl md:text-4xl font-bold text-white mb-4">Eğitim Müfredatı</h2>
+                    <p class="text-gray-400 max-w-2xl mx-auto">Tamamen mantığa ve kurumsal fiyat hareketine dayalı, ezberden uzak Wyckoff eğitim modülleri.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    
+                    <div class="glass-panel p-8 rounded-2xl group hover:border-brand-primary/40 transition-all cursor-pointer hover:-translate-y-1" onclick="app.requireLoginPrompt()">
+                        <div class="w-14 h-14 rounded-xl bg-dark-bg border border-dark-border flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg">
+                            <i data-lucide="lock" class="w-6 h-6 text-gray-500 group-hover:text-brand-primary transition-colors"></i>
+                        </div>
+                        <h3 class="font-display text-xl font-bold text-white mb-3">1. Piyasaların Temeli</h3>
+                        <p class="text-gray-400 text-sm mb-6 leading-relaxed">Kompozit Operatör (CO) kavramı, piyasa döngüleri ve arz-talep dinamikleri.</p>
+                        <div class="flex items-center gap-2 text-xs font-semibold text-brand-primary uppercase tracking-wide">
+                            <span>İzlemek İçin Giriş Yapın</span>
+                            <i data-lucide="chevron-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+
+                    
+                    <div class="glass-panel p-8 rounded-2xl group hover:border-brand-primary/40 transition-all cursor-pointer hover:-translate-y-1" onclick="app.requireLoginPrompt()">
+                        <div class="w-14 h-14 rounded-xl bg-dark-bg border border-dark-border flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg">
+                            <i data-lucide="lock" class="w-6 h-6 text-gray-500 group-hover:text-brand-primary transition-colors"></i>
+                        </div>
+                        <h3 class="font-display text-xl font-bold text-white mb-3">2. Birikim (Accumulation)</h3>
+                        <p class="text-gray-400 text-sm mb-6 leading-relaxed">Dip oluşumları, Spring, Selling Climax ve test aşamalarının tespiti.</p>
+                        <div class="flex items-center gap-2 text-xs font-semibold text-brand-primary uppercase tracking-wide">
+                            <span>İzlemek İçin Giriş Yapın</span>
+                            <i data-lucide="chevron-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+
+                    
+                    <div class="glass-panel p-8 rounded-2xl group hover:border-brand-primary/40 transition-all cursor-pointer hover:-translate-y-1" onclick="app.requireLoginPrompt()">
+                        <div class="w-14 h-14 rounded-xl bg-dark-bg border border-dark-border flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg">
+                            <i data-lucide="lock" class="w-6 h-6 text-gray-500 group-hover:text-brand-primary transition-colors"></i>
+                        </div>
+                        <h3 class="font-display text-xl font-bold text-white mb-3">3. Dağıtım (Distribution)</h3>
+                        <p class="text-gray-400 text-sm mb-6 leading-relaxed">Tepe oluşumları, UTAD (Upthrust After Distribution) ve mal boşaltma evreleri.</p>
+                        <div class="flex items-center gap-2 text-xs font-semibold text-brand-primary uppercase tracking-wide">
+                            <span>İzlemek İçin Giriş Yapın</span>
+                            <i data-lucide="chevron-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+
+                    
+                    <div class="glass-panel p-8 rounded-2xl group hover:border-brand-primary/40 transition-all cursor-pointer hover:-translate-y-1" onclick="app.requireLoginPrompt()">
+                        <div class="w-14 h-14 rounded-xl bg-dark-bg border border-dark-border flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg">
+                            <i data-lucide="lock" class="w-6 h-6 text-gray-500 group-hover:text-brand-primary transition-colors"></i>
+                        </div>
+                        <h3 class="font-display text-xl font-bold text-white mb-3">4. İleri Seviye Akış</h3>
+                        <p class="text-gray-400 text-sm mb-6 leading-relaxed">Re-Accumulation, Re-Distribution ve konfirmasyon tabanlı entry setup'ları.</p>
+                        <div class="flex items-center gap-2 text-xs font-semibold text-brand-primary uppercase tracking-wide">
+                            <span>İzlemek İçin Giriş Yapın</span>
+                            <i data-lucide="chevron-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        
+        <section id="registration" class="py-24 px-6 border-t border-dark-border bg-dark-panel/20 relative z-10">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center mb-16">
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-brand-accent/30 bg-brand-accent/10 text-brand-accent text-xs font-semibold mb-4 uppercase tracking-wider">
+                        <i data-lucide="help-circle" class="w-3.5 h-3.5 animate-bounce"></i>
+                        Eğitim Kayıt Rehberi
+                    </div>
+                    <h2 class="font-display text-3xl md:text-5xl font-bold text-white mb-4">Akademiye Nasıl Kayıt Olunur?</h2>
+                    <p class="text-gray-400 max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
+                        Eğitim videolarına, gizli notlara ve canlı TradingView grafiklerine erişmek için aşağıdaki adımları sırasıyla takip ederek kaydınızı tamamlayabilirsiniz.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                    
+                    <div class="lg:col-span-7 space-y-6">
+                        
+                        <div class="glass-panel p-6 rounded-2xl border border-dark-border flex items-start gap-4 hover:border-brand-primary/30 transition-all group">
+                            <div class="w-10 h-10 rounded-xl bg-brand-accent/10 border border-brand-accent/20 flex items-center justify-center text-brand-accent font-bold flex-shrink-0 group-hover:bg-brand-primary/10 group-hover:border-brand-primary/20 group-hover:text-brand-primary transition-all">
+                                1
+                            </div>
+                            <div class="flex-grow">
+                                <h3 class="text-white font-bold text-sm mb-1.5 font-display flex items-center gap-2">
+                                    Telegram Kanalımıza Katılın
+                                </h3>
+                                <p class="text-gray-400 text-xs leading-relaxed mb-3">
+                                    Akademi kayıt işlemleri ve şifre tanımlamaları tamamen resmi Telegram grubumuz üzerinden yürütülmektedir.
+                                </p>
+                                <a href="https://t.me/+9xPTBzt5Zo45YTU0" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-bold text-brand-accent hover:text-white transition-colors">
+                                    <i data-lucide="send" class="w-3.5 h-3.5"></i> Telegram Kanalına Git
+                                </a>
+                            </div>
+                        </div>
+
+                        
+                        <div class="glass-panel p-6 rounded-2xl border border-dark-border flex items-start gap-4 hover:border-brand-primary/30 transition-all group">
+                            <div class="w-10 h-10 rounded-xl bg-brand-accent/10 border border-brand-accent/20 flex items-center justify-center text-brand-accent font-bold flex-shrink-0 group-hover:bg-brand-primary/10 group-hover:border-brand-primary/20 group-hover:text-brand-primary transition-all">
+                                2
+                            </div>
+                            <div class="flex-grow">
+                                <h3 class="text-white font-bold text-sm mb-1.5 font-display">
+                                    #EGITIM-KAYIT Başlığına Geçin
+                                </h3>
+                                <p class="text-gray-400 text-xs leading-relaxed">
+                                    Kanalımıza giriş yaptıktan sonra menüde yer alan veya sabitlenmiş mesajlardaki <strong class="text-white font-semibold">#EGITIM-KAYIT</strong> konusuna/odasına tıklayın.
+                                </p>
+                            </div>
+                        </div>
+
+                        
+                        <div class="glass-panel p-6 rounded-2xl border border-dark-border flex items-start gap-4 hover:border-brand-primary/30 transition-all group">
+                            <div class="w-10 h-10 rounded-xl bg-brand-accent/10 border border-brand-accent/20 flex items-center justify-center text-brand-accent font-bold flex-shrink-0 group-hover:bg-brand-primary/10 group-hover:border-brand-primary/20 group-hover:text-brand-primary transition-all">
+                                3
+                            </div>
+                            <div class="flex-grow">
+                                <h3 class="text-white font-bold text-sm mb-1.5 font-display">
+                                    Kayıt Formunu Doldurun & Admini Etiketleyin
+                                </h3>
+                                <p class="text-gray-400 text-xs leading-relaxed">
+                                    Kanal başlığındaki sabitlenmiş (pinned) mesajda yer alan başvuru formunu doldurun ve sohbet alanından yöneticiyi (Admin) etiketleyerek bilgi verin.
+                                </p>
+                            </div>
+                        </div>
+
+                        
+                        <div class="glass-panel p-6 rounded-2xl border border-dark-border flex items-start gap-4 hover:border-brand-primary/30 transition-all group">
+                            <div class="w-10 h-10 rounded-xl bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center text-brand-primary font-bold flex-shrink-0 transition-all shadow-[0_0_10px_rgba(16,185,129,0.1)]">
+                                4
+                            </div>
+                            <div class="flex-grow">
+                                <h3 class="text-white font-bold text-sm mb-1.5 font-display">
+                                    Hesabınızın Tanımlanması & Giriş
+                                </h3>
+                                <p class="text-gray-400 text-xs leading-relaxed">
+                                    Admin gerekli incelemeyi yaptıktan sonra size özel kullanıcı adı ve şifrenizi iletecektir. Bu bilgilerle sitenin sağ üstündeki <strong class="text-brand-primary">"Öğrenci Girişi"</strong> butonundan panele giriş yapabilirsiniz.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                    <div class="lg:col-span-5">
+                        <div class="glass-panel p-3 rounded-3xl border border-dark-border shadow-2xl relative overflow-hidden group hover:border-brand-primary/30 transition-all">
+                            <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent p-6 flex flex-col justify-end text-left pointer-events-none z-10">
+                                <span class="text-white font-bold text-xs flex items-center gap-1 mb-1">
+                                    <i data-lucide="info" class="w-3.5 h-3.5 text-brand-accent"></i> Telegram Kanal Görünümü
+                                </span>
+                                <span class="text-gray-400 text-[10px] leading-relaxed">Grup içerisindeki #EGITIM-KAYIT konu başlığı altındaki sabitlenmiş mesajın görsel rehberi.</span>
+                            </div>
+                            <img src="./telegram_guide.png" class="w-full h-auto rounded-2xl shadow-inner border border-dark-border/50 object-cover group-hover:scale-105 transition-transform duration-500" alt="Telegram Kayıt Rehberi" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        
+        <section id="disclaimer" class="py-12 px-6 border-t border-dark-border bg-dark-bg/40 relative z-10">
+            <div class="max-w-4xl mx-auto">
+                <div class="glass-panel p-6 md:p-8 rounded-2xl border border-dark-border/60 bg-dark-panel/40">
+                    <div class="flex items-center gap-2.5 mb-4 text-gray-400">
+                        <i data-lucide="shield-alert" class="w-5 h-5 text-yellow-500/80"></i>
+                        <h4 class="font-display font-bold text-xs md:text-sm uppercase tracking-wider text-gray-300">Yasal Uyarı & Sorumluluk Reddi (Disclaimer)</h4>
+                    </div>
+                    
+                    <div class="space-y-3.5 text-gray-500 text-[11px] md:text-xs leading-relaxed text-left">
+                        <p>
+                            Bu web sitesinde yer alan tüm içerikler yalnızca eğitim ve bilgilendirme amaçlıdır. Burada paylaşılan bilgiler herhangi bir şekilde yatırım tavsiyesi niteliği taşımaz.
+                        </p>
+                        <p>
+                            Finansal piyasalarda yapılan işlemler yüksek risk içerir ve tüm yatırım kararları tamamen kullanıcının kendi sorumluluğundadır. Geçmiş performanslar, gelecekteki sonuçlar için garanti teşkil etmez.
+                        </p>
+                        <p>
+                            Bu sitede yer alan hiçbir içerik; belirli bir finansal enstrümanın alım, satım veya tutulması yönünde bir tavsiye, yönlendirme veya garanti sunmaz.
+                        </p>
+                        <p>
+                            Kullanıcılar, yatırım kararlarını almadan önce kendi araştırmalarını yapmalı ve gerekirse bağımsız bir finansal danışmana başvurmalıdır.
+                        </p>
+                        <p>
+                            Site sahibi, bu içeriklerin kullanımından doğabilecek herhangi bir doğrudan veya dolaylı zarardan sorumlu tutulamaz.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        
+        <footer class="py-10 border-t border-dark-border bg-dark-bg relative z-10">
+            <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
+                
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-brand-primary/10 flex items-center justify-center border border-brand-primary/20">
+                        <i data-lucide="bar-chart-2" class="w-4.5 h-4.5 text-brand-primary"></i>
+                    </div>
+                    <span class="font-display font-bold uppercase tracking-wider text-sm text-white">Wyckoff<span class="text-brand-primary">Akademi</span></span>
+                </div>
+                
+                
+                <div class="text-gray-500 text-xs md:text-sm">
+                    &copy; 2026 Tüm hakları saklıdır. Yatırım tavsiyesi değildir.
+                </div>
+                
+                
+                <div class="flex items-center gap-3">
+                    
+                    <a href="https://kick.com/gtraderfx" target="_blank" title="Kick Canlı Yayın" class="w-9 h-9 rounded-lg bg-[#53fc18]/10 border border-[#53fc18]/20 flex items-center justify-center text-[#53fc18] hover:bg-[#53fc18] hover:text-black hover:scale-105 transition-all shadow-sm">
+                        <span class="font-display font-black text-xs">K.</span>
+                    </a>
+                    
+                    
+                    <a href="https://www.youtube.com/@Gtradefx" target="_blank" title="YouTube Kanalı" class="w-9 h-9 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 hover:bg-red-500 hover:text-white hover:scale-105 transition-all shadow-sm">
+                        <svg class="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg>
+                    </a>
+                    
+                    
+                    <a href="https://www.instagram.com/gtradefx1/" target="_blank" title="Instagram Hesabı" class="w-9 h-9 rounded-lg bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-400 hover:bg-pink-500 hover:text-white hover:scale-105 transition-all shadow-sm">
+                        <svg class="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                    </a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    
+    <div id="loginView" class="hidden flex-grow flex items-center justify-center chart-bg relative px-4">
+        
+        
+        <button onclick="app.showLanding()" class="absolute top-6 left-6 text-gray-400 hover:text-white flex items-center gap-2 transition-colors glass-panel px-4 py-2.5 rounded-xl text-sm font-medium z-20">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            Ana Sayfaya Dön
+        </button>
+
+        <div class="glass-panel w-full max-w-[400px] p-8 md:p-10 rounded-2xl shadow-2xl border-brand-primary/20 relative z-10">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 rounded-2xl bg-dark-bg border border-dark-border flex items-center justify-center mx-auto mb-5 shadow-inner">
+                    <i data-lucide="user" class="w-8 h-8 text-brand-primary"></i>
+                </div>
+                <h2 class="font-display text-2xl font-bold text-white mb-2">Öğrenci Girişi</h2>
+                <p class="text-gray-400 text-sm">Akademi paneline erişmek için giriş yapın.</p>
+            </div>
+
+            <form id="loginForm" onsubmit="app.handleLogin(event)" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1.5">E-posta Adresi</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i data-lucide="mail" class="w-5 h-5 text-gray-500"></i>
+                        </div>
+                        <input type="email" id="email" required 
+                            class="w-full bg-dark-bg/80 border border-dark-border text-white rounded-xl pl-12 pr-4 py-3.5 focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all placeholder-gray-600" 
+                            placeholder="ornek@email.com">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1.5">Şifre</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i data-lucide="key" class="w-5 h-5 text-gray-500"></i>
+                        </div>
+                        <input type="password" id="password" required 
+                            class="w-full bg-dark-bg/80 border border-dark-border text-white rounded-xl pl-12 pr-4 py-3.5 focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all placeholder-gray-600" 
+                            placeholder="••••••••">
+                    </div>
+                </div>
+                <button type="submit" id="loginBtn" class="w-full bg-brand-primary hover:bg-brand-hover text-white py-3.5 rounded-xl font-semibold transition-all glow-button flex justify-center items-center gap-2 mt-2">
+                    <span>Giriş Yap</span>
+                    <span id="loginBtnIcon"><i data-lucide="arrow-right" class="w-4 h-4"></i></span>
+                </button>
+            </form>
+            
+            <div class="mt-8 text-center border-t border-dark-border pt-6 space-y-4">
+                <div class="bg-brand-accent/5 border border-brand-accent/20 rounded-xl p-4 text-left flex items-start gap-3">
+                    <i data-lucide="send" class="w-5 h-5 text-brand-accent flex-shrink-0 mt-0.5 animate-pulse"></i>
+                    <div>
+                        <span class="text-white font-bold text-xs block mb-1 font-display">Kayıt Olmak & Eğitim Almak İçin:</span>
+                        <p class="text-gray-400 text-[11px] leading-relaxed mb-2.5">Sisteme kayıtlar yalnızca yönetici tarafından yapılmaktadır. Akademiye kaydolmak için önce Telegram kanalımıza katılarak bilgi almalısınız.</p>
+                        <a href="https://t.me/+9xPTBzt5Zo45YTU0" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-brand-accent hover:text-white transition-all hover:underline">
+                            Telegram Kanalına Katıl <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="text-[10px] text-gray-600">
+                    Erişim sorunu yaşıyorsanız destek ile iletişime geçin.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div id="dashboardView" class="hidden flex-grow flex flex-col md:flex-row h-screen overflow-hidden bg-dark-bg">
+        
+        
+        <aside class="w-full md:w-80 bg-dark-panel border-r border-dark-border flex flex-col flex-shrink-0 transition-transform duration-300 md:translate-x-0 absolute md:relative z-40 h-full -translate-x-full shadow-2xl md:shadow-none" id="sidebar">
+            
+            
+            <div class="p-6 border-b border-dark-border flex justify-between items-center bg-dark-bg/50">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-brand-primary/10 flex items-center justify-center border border-brand-primary/30">
+                        <i data-lucide="bar-chart-2" class="w-4 h-4 text-brand-primary"></i>
+                    </div>
+                    <span class="font-display font-extrabold text-white tracking-widest uppercase text-sm">AKADEMİ<span class="text-brand-primary">PANEL</span></span>
+                </div>
+                <button onclick="app.toggleSidebar()" class="md:hidden text-gray-400 hover:text-white bg-dark-bg p-1.5 rounded-lg border border-dark-border">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            
+            <div class="px-4 pt-4 flex gap-2 border-b border-dark-border/50 pb-3 flex-shrink-0 bg-dark-bg/20">
+                <button onclick="app.switchTab('videos')" id="tabBtnVideos" class="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-bold transition-all border border-brand-primary/30 bg-brand-primary/10 text-brand-primary">
+                    <i data-lucide="video" class="w-3.5 h-3.5"></i>
+                    Dersler
+                </button>
+                <button onclick="app.switchTab('notes')" id="tabBtnNotes" class="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-medium transition-all text-gray-400 hover:text-white bg-transparent border border-transparent">
+                    <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+                    Notlar & Analiz
+                </button>
+            </div>
+
+            
+            <div class="flex-grow overflow-y-auto p-4 space-y-6 custom-scrollbar" id="moduleList">
+                
+            </div>
+
+            
+            <div class="p-5 border-t border-dark-border bg-dark-bg/80">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-full bg-brand-primary/20 flex items-center justify-center text-brand-primary text-base font-bold uppercase border border-brand-primary/30" id="userInitial">
+                        U
+                    </div>
+                    <div class="overflow-hidden">
+                        <p class="text-sm font-medium text-white truncate" id="userEmailDisplay">user@email.com</p>
+                        <p class="text-xs text-brand-primary flex items-center gap-1 mt-0.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-brand-primary"></span> Online
+                        </p>
+                    </div>
+                </div>
+                <button onclick="app.logout()" class="w-full flex items-center justify-center gap-2 text-sm text-gray-400 hover:text-white bg-dark-panel hover:bg-red-500/10 py-2.5 rounded-xl transition-colors border border-dark-border hover:border-red-500/30 group">
+                    <i data-lucide="log-out" class="w-4 h-4 group-hover:text-red-400 transition-colors"></i>
+                    <span class="group-hover:text-red-400 transition-colors">Çıkış Yap</span>
+                </button>
+            </div>
+        </aside>
+
+        
+        <main class="flex-grow flex flex-col h-full relative overflow-hidden">
+            
+            
+            <header class="md:hidden glass-panel border-b border-dark-border p-4 flex items-center justify-between z-20">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-brand-primary/10 flex items-center justify-center border border-brand-primary/30">
+                        <i data-lucide="bar-chart-2" class="w-4 h-4 text-brand-primary"></i>
+                    </div>
+                    <span class="font-display font-bold text-white text-sm uppercase tracking-wider">AKADEMİ</span>
+                </div>
+                <button onclick="app.toggleSidebar()" class="text-gray-300 hover:text-white bg-dark-panel p-2 rounded-lg border border-dark-border">
+                    <i data-lucide="menu" class="w-5 h-5"></i>
+                </button>
+            </header>
+
+            
+            <div class="flex-grow overflow-y-auto relative w-full custom-scrollbar" id="videoContainer">
+                
+                
+                <div id="noVideoState" class="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-dark-bg overflow-y-auto custom-scrollbar">
+                    <div class="w-20 h-20 md:w-24 md:h-24 bg-dark-panel rounded-full flex items-center justify-center border border-dark-border mb-6 shadow-inner relative flex-shrink-0">
+                        <div class="absolute inset-0 rounded-full border border-brand-primary/20 animate-ping opacity-20"></div>
+                        <i data-lucide="play" class="w-8 h-8 md:w-10 md:h-10 text-brand-primary ml-1"></i>
+                    </div>
+                    <h2 class="font-display text-2xl md:text-3xl font-bold text-white mb-3">Eğitime Başlayın</h2>
+                    <p class="text-gray-400 max-w-md leading-relaxed text-sm md:text-base">Sol menüden yetkili olduğunuz modülleri seçerek ders videolarını izleyebilirsiniz.</p>
+                    
+                    
+                    <div id="announcementContainer" class="mt-8 max-w-md w-full mx-auto hidden transition-all duration-300 transform scale-95 hover:scale-100 flex-shrink-0">
+                        <div class="glass-panel border border-brand-primary/20 rounded-2xl p-5 text-left relative overflow-hidden bg-brand-primary/5 shadow-xl shadow-brand-primary/5">
+                            <div class="absolute -right-8 -top-8 w-24 h-24 bg-brand-primary/10 rounded-full blur-xl"></div>
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-9 h-9 rounded-xl bg-brand-primary/20 flex items-center justify-center border border-brand-primary/40 flex-shrink-0">
+                                    <i data-lucide="megaphone" class="w-4 h-4 text-brand-primary animate-pulse"></i>
+                                </div>
+                                <div class="overflow-hidden">
+                                    <h3 class="text-xs font-semibold uppercase tracking-wider text-brand-primary">Akademi Duyurusu</h3>
+                                    <p class="text-[10px] text-gray-500 truncate" id="announcementTime">Yeni</p>
+                                </div>
+                            </div>
+                            <h4 class="font-display font-bold text-white text-base mb-2" id="announcementTitle">Duyuru Başlığı</h4>
+                            <p class="text-gray-300 text-xs md:text-sm leading-relaxed whitespace-pre-line" id="announcementContent">Duyuru içeriği buraya gelecektir.</p>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="videoPlayerState" class="hidden h-full flex-col">
+                    
+                    <div class="w-full bg-black relative border-b border-dark-border shadow-2xl aspect-video xl:aspect-[21/9] flex-shrink-0 flex items-center justify-center overflow-hidden">
+                        
+                        
+                        <div id="iframeWrapper" class="absolute inset-0 w-full h-full">
+                            
+                        </div>
+                        
+                    </div>
+                    
+                    
+                    <div class="p-6 md:p-10 max-w-6xl mx-auto w-full flex-grow">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="inline-block px-3 py-1 rounded-md border border-brand-primary/30 bg-brand-primary/10 text-brand-primary text-xs font-bold uppercase tracking-widest" id="currentModuleBadge">
+                                MODÜL
+                            </span>
+                            <span class="text-gray-500 text-sm flex items-center gap-1">
+                                <i data-lucide="shield-check" class="w-4 h-4"></i>
+                                Şifrelenmiş Akış
+                            </span>
+                        </div>
+                        
+                        <h1 class="font-display text-2xl md:text-4xl font-bold text-white mb-4 leading-tight" id="currentVideoTitle">
+                            Video Başlığı
+                        </h1>
+                        
+                        <div class="w-16 h-1 bg-brand-primary rounded-full mb-6"></div>
+                        
+                        <div class="bg-dark-panel border border-dark-border rounded-xl p-6 text-gray-400 text-sm md:text-base leading-relaxed">
+                            <p id="currentVideoDescription">Bu ders Wyckoff Metodolojisi kapsamında kurumsal fiyat hareketlerini ve Smart Money konseptlerini anlamanız için hazırlanmıştır. Grafik üzerinde backtest yaparak not almanız tavsiye edilir.</p>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="noteContentState" class="hidden h-full flex flex-col">
+                    
+                    <div class="w-full bg-black relative border-b border-dark-border shadow-2xl aspect-video xl:aspect-[21/9] flex-shrink-0 flex items-center justify-center overflow-hidden">
+                        <div id="noteMediaContainer" class="absolute inset-0 w-full h-full">
+                            
+                        </div>
+                    </div>
+                    
+                    
+                    <div class="p-6 md:p-10 max-w-4xl mx-auto w-full flex-grow overflow-y-auto custom-scrollbar">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="inline-block px-3 py-1 rounded-md border border-brand-primary/30 bg-brand-primary/10 text-brand-primary text-xs font-bold uppercase tracking-widest" id="currentNoteBadge">
+                                ANALİZ / NOT
+                            </span>
+                            <span class="text-gray-500 text-sm flex items-center gap-1">
+                                <i data-lucide="calendar" class="w-4 h-4"></i>
+                                <span id="currentNoteDate">Tarih</span>
+                            </span>
+                        </div>
+                        
+                        <h1 class="font-display text-2xl md:text-4xl font-bold text-white mb-4 leading-tight" id="currentNoteTitle">
+                            Not Başlığı
+                        </h1>
+                        
+                        <div class="w-16 h-1 bg-brand-primary rounded-full mb-6"></div>
+                        
+                        
+                        <div class="bg-dark-panel border border-dark-border rounded-2xl p-6 md:p-8 text-gray-300 text-sm md:text-base leading-relaxed whitespace-pre-line prose prose-invert max-w-none" id="currentNoteBody">
+                            Not detayları...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        
+        <div id="sidebarOverlay" onclick="app.toggleSidebar()" class="md:hidden fixed inset-0 bg-black/70 z-30 hidden backdrop-blur-sm transition-opacity"></div>
+    </div>
+
+    
+    <div id="securityAgreementModal" class="hidden fixed inset-0 z-[100] items-center justify-center bg-black/90 backdrop-blur-xl px-4 overflow-y-auto py-8">
+        <div class="glass-panel w-full max-w-[550px] p-6 md:p-8 rounded-3xl shadow-2xl border-red-500/30 relative bg-dark-panel/90 flex flex-col my-auto border">
+            
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center mx-auto mb-4 relative animate-pulse">
+                    <span class="absolute inset-0 rounded-2xl border border-red-500/20 animate-ping opacity-30"></span>
+                    <i data-lucide="shield-alert" class="w-8 h-8 text-red-500"></i>
+                </div>
+                <h2 class="font-display text-xl md:text-2xl font-bold text-white mb-2 uppercase tracking-wide">YASAL GÜVENLİK TAAHHÜTNAMESİ</h2>
+                <p class="text-gray-400 text-xs leading-relaxed max-w-sm mx-auto">Akademi paneline erişebilmek için aşağıdaki yasal güvenlik maddelerini okuyup onaylamanız gerekmektedir.</p>
+            </div>
+
+            
+            <div class="bg-red-500/5 border border-red-500/20 rounded-xl p-4 mb-6 text-left flex items-start gap-3">
+                <i data-lucide="alert-triangle" class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5 animate-bounce"></i>
+                <div class="text-xs text-red-300 leading-relaxed font-semibold">
+                    DİKKAT: Platform üzerindeki tüm derslerin ekran kaydı alınması, kaydedilmesi veya paylaşılması kesinlikle yasaktır ve yasal takibe tabidir.
+                </div>
+            </div>
+
+            
+            <form onsubmit="app.acceptAgreement(event)" class="space-y-4 text-left">
+                
+                <label class="flex items-start gap-3 p-3.5 rounded-xl border border-dark-border bg-dark-bg/40 hover:bg-dark-bg/60 cursor-pointer transition-colors group select-none">
+                    <input type="checkbox" id="agreeTelif" required onchange="app.checkAgreementForm()"
+                        class="w-4 h-4 mt-0.5 accent-red-500 rounded focus:ring-red-500 text-red-600 bg-dark-bg border-dark-border cursor-pointer">
+                    <span class="text-xs text-gray-300 leading-relaxed group-hover:text-white transition-colors">
+                        <strong class="text-white font-bold">Telif Hakkı Koruması:</strong> Wyckoff Akademi bünyesindeki tüm video, ders, grafik, analiz ve yazılı notların telif hakları saklıdır. Bunların ekran kaydının alınması, indirilmesi, kopyalanması veya herhangi bir sosyal mecrada (Telegram, YouTube vb.) paylaşılmasının 5846 sayılı kanun kapsamında ağır bir yasal suç teşkil ettiğini biliyorum.
+                    </span>
+                </label>
+
+                
+                <label class="flex items-start gap-3 p-3.5 rounded-xl border border-dark-border bg-dark-bg/40 hover:bg-dark-bg/60 cursor-pointer transition-colors group select-none">
+                    <input type="checkbox" id="agreeTakip" required onchange="app.checkAgreementForm()"
+                        class="w-4 h-4 mt-0.5 accent-red-500 rounded focus:ring-red-500 text-red-600 bg-dark-bg border-dark-border cursor-pointer">
+                    <span class="text-xs text-gray-300 leading-relaxed group-hover:text-white transition-colors">
+                        <strong class="text-white font-bold">Aktif IP & Cihaz İzleme:</strong> Akademi altyapısının güvenlik amacıyla IP adresi, cihaz türü ve oturum kimliği üzerinden arka planda otomatik takip ve ekran kaydı yazılım tespiti yaptığını; aykırı durumlarda üyeliğimin süresiz iptal edileceğini kabul ediyorum.
+                    </span>
+                </label>
+
+                
+                <label class="flex items-start gap-3 p-3.5 rounded-xl border border-dark-border bg-dark-bg/40 hover:bg-dark-bg/60 cursor-pointer transition-colors group select-none">
+                    <input type="checkbox" id="agreeSorumluluk" required onchange="app.checkAgreementForm()"
+                        class="w-4 h-4 mt-0.5 accent-red-500 rounded focus:ring-red-500 text-red-600 bg-dark-bg border-dark-border cursor-pointer">
+                    <span class="text-xs text-gray-300 leading-relaxed group-hover:text-white transition-colors">
+                        <strong class="text-white font-bold">Hukuki ve Cezai Sorumluluk:</strong> İzinsiz paylaşım, korsan dağıtım veya ekran kaydı ihlali tespiti durumunda hakkımda başlatılacak tüm hukuki/cezai davaları, maddi ve manevi tazminat taleplerini kayıtsız şartsız peşinen kabul ediyorum.
+                    </span>
+                </label>
+
+                
+                <button type="submit" id="agreeSubmitBtn" disabled
+                    class="w-full py-4 rounded-xl font-bold text-sm tracking-wider uppercase transition-all flex justify-center items-center gap-2 mt-4 bg-red-600/30 text-red-400 border border-red-500/20 cursor-not-allowed opacity-50">
+                    <i data-lucide="shield-check" class="w-4 h-4"></i>
+                    <span>Taahhütnameyi Onaylıyorum ve Giriş Yap</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    
+    <script>
+
+
+
+
+        const SUPABASE_URL = 'https://kwdyomjvjkvixxvqvszm.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3ZHlvbWp2amt2aXh4dnF2c3ptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxMjM4MzYsImV4cCI6MjA5NDY5OTgzNn0.QhWccLNnLu05ZO5JX2e_HK3n-0GVzxT40SAIsq0xKjY';
+        
+
+        let supabaseClient;
+        if (SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+                auth: {
+                    storage: window.sessionStorage,
+                    autoRefreshToken: true,
+                    persistSession: true
+                }
+            });
+        } else {
+            console.warn("DIKKAT: Supabase URL ve Key yapılandırılmamış.");
+        }
+
+
+
+
+        const app = {
+            state: {
+                user: null,
+                profile: null,
+                videos: [], // Supabase'den çekilen güvenli videolar listesi
+                modules: {}, // Videoların modüllere göre gruplanmış hali
+                notes: [],   // Supabase'den çekilen analiz notları listesi
+                currentTab: 'videos', // Aktif sekme: 'videos' veya 'notes'
+                isSidebarOpen: false,
+                lastActivityTime: Date.now()
+            },
+
+            init: async function() {
+                lucide.createIcons();
+                this.showLoading();
+                
+
+                const updateActivity = () => {
+                    this.state.lastActivityTime = Date.now();
+                };
+                window.addEventListener('mousemove', updateActivity);
+                window.addEventListener('keydown', updateActivity);
+                window.addEventListener('click', updateActivity);
+                window.addEventListener('scroll', updateActivity);
+                
+                if (!supabaseClient) {
+                    this.showToast("Sistem Kurulumu Bekleniyor (DB Config).", "error");
+                    this.hideLoading();
+                    return;
+                }
+
+                try {
+
+                    const { data: { session } } = await supabaseClient.auth.getSession();
+                    if (session) {
+                        await this.loadUserProfile(session.user);
+                    } else {
+                        this.showLanding();
+                    }
+                } catch (error) {
+                    console.error("Auth init error:", error);
+                    this.showLanding();
+                }
+                
+                this.hideLoading();
+                
+
+                supabaseClient.auth.onAuthStateChange((event, session) => {
+                    if (event === 'SIGNED_OUT') {
+                        this.state.user = null;
+                        this.state.profile = null;
+                        this.showLanding();
+                    }
+                });
+            },
+
+
+            hideAllViews: function() {
+                document.getElementById('landingView').classList.add('hidden');
+                document.getElementById('loginView').classList.add('hidden');
+                document.getElementById('dashboardView').classList.add('hidden');
+            },
+
+
+            getDeviceId: async function() {
+                let deviceId = localStorage.getItem('wyckoff_device_id');
+                
+
+                if (!deviceId) {
+                    deviceId = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2) + Date.now().toString(36);
+                    localStorage.setItem('wyckoff_device_id', deviceId);
+                }
+
+
+                try {
+                    const components = [
+                        navigator.userAgent,
+                        navigator.language,
+                        screen.width + 'x' + screen.height,
+                        Intl.DateTimeFormat().resolvedOptions().timeZone
+                    ].join('|');
+                    
+                    const msgBuffer = new TextEncoder().encode(components);
+                    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+                    const hashArray = Array.from(new Uint8Array(hashBuffer));
+                    const currentFingerprint = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                    
+
+                    localStorage.setItem('wyckoff_risk_fingerprint', currentFingerprint);
+                } catch (e) {
+                    console.warn("Fingerprint generation skipped");
+                }
+                
+                return deviceId;
+            },
+
+            showLanding: function() {
+                this.hideAllViews();
+                document.getElementById('landingView').classList.remove('hidden');
+            },
+
+            showLogin: function() {
+                this.hideAllViews();
+                document.getElementById('loginView').classList.remove('hidden');
+                document.getElementById('loginView').classList.add('flex');
+            },
+
+            showDashboard: async function() {
+                this.hideAllViews();
+                document.getElementById('dashboardView').classList.remove('hidden');
+                document.getElementById('dashboardView').classList.add('flex');
+                
+
+                document.getElementById('userEmailDisplay').textContent = this.state.user.email;
+                document.getElementById('userInitial').textContent = this.state.user.email.charAt(0);
+                
+                await this.loadVideos();
+                await this.loadAnnouncement();
+
+
+                if (sessionStorage.getItem('wyckoff_agreement_accepted') !== 'true') {
+                    const modal = document.getElementById('securityAgreementModal');
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                    
+
+                    document.getElementById('agreeTelif').checked = false;
+                    document.getElementById('agreeTakip').checked = false;
+                    document.getElementById('agreeSorumluluk').checked = false;
+                    this.checkAgreementForm();
+                    
+                    lucide.createIcons();
+                }
+            },
+
+
+            handleLogin: async function(e) {
+                e.preventDefault();
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const btn = document.getElementById('loginBtn');
+                const btnText = btn.querySelector('span');
+                const iconContainer = document.getElementById('loginBtnIcon');
+
+                if (!supabaseClient) {
+                    this.showToast("Sistem veritabanı bağlantısı bulunamadı.", "error");
+                    return;
+                }
+
+
+                btn.disabled = true;
+                btnText.textContent = "Giriş Yapılıyor...";
+                iconContainer.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>';
+                lucide.createIcons();
+                btn.classList.add('opacity-70');
+
+                try {
+                    const { data, error } = await supabaseClient.auth.signInWithPassword({
+                        email: email,
+                        password: password,
+                    });
+
+                    if (error) throw error;
+                    
+
+                    try {
+                        const deviceId = await this.getDeviceId();
+                        const { error: sessionError } = await supabaseClient.functions.invoke('session-manager', {
+                            body: { action: 'create', device_id: deviceId }
+                        });
+                        if (sessionError) {
+                            console.error("Session creation failed", sessionError);
+                            throw new Error("Oturum oluşturulamadı, güvenlik duvarı engelledi.");
+                        }
+                    } catch (sessionErr) {
+                        await supabaseClient.auth.signOut();
+                        throw sessionErr;
+                    }
+
+                    this.showToast("Giriş başarılı, panele yönlendiriliyorsunuz.", "success");
+                    await this.loadUserProfile(data.user);
+                    
+                } catch (error) {
+                    let msg = "Giriş başarısız. Bilgilerinizi kontrol edin.";
+                    if(error.message && error.message.includes("Invalid login")) msg = "E-posta veya şifre hatalı.";
+                    if(error.message && error.message.includes("Rate limit")) msg = "Çok fazla giriş denemesi yaptınız. Lütfen 1-2 dakika bekleyip tekrar deneyin.";
+                    this.showToast(msg, "error");
+                } finally {
+                    this.hideLoading();
+
+                    btn.disabled = false;
+                    btnText.textContent = "Giriş Yap";
+                    iconContainer.innerHTML = '<i data-lucide="arrow-right" class="w-4 h-4"></i>';
+                    lucide.createIcons();
+                    btn.classList.remove('opacity-70');
+                }
+            },
+
+            getDeviceInfo: function() {
+                const ua = navigator.userAgent;
+                let deviceName = "Bilinmeyen Cihaz";
+                
+                if (/iPhone/i.test(ua)) {
+                    deviceName = "iPhone";
+                } else if (/iPad/i.test(ua)) {
+                    deviceName = "iPad";
+                } else if (/Android/i.test(ua)) {
+                    const match = ua.match(/Android\s+([^\s;]+(?:[- \s][^\s;]+)*)/);
+                    deviceName = match ? `Android (${match[1]})` : "Android Cihaz";
+                } else if (/Macintosh/i.test(ua)) {
+                    deviceName = "Mac";
+                } else if (/Windows NT/i.test(ua)) {
+                    deviceName = "Windows PC";
+                } else if (/Linux/i.test(ua)) {
+                    deviceName = "Linux PC";
+                }
+                
+                let browserName = "Bilinmeyen Tarayıcı";
+                if (/chrome|crios/i.test(ua) && !/edge|edg/i.test(ua) && !/opr/i.test(ua)) {
+                    browserName = "Chrome";
+                } else if (/safari/i.test(ua) && !/chrome|crios/i.test(ua)) {
+                    browserName = "Safari";
+                } else if (/firefox|fxios/i.test(ua)) {
+                    browserName = "Firefox";
+                } else if (/edge|edg/i.test(ua)) {
+                    browserName = "Edge";
+                } else if (/opr/i.test(ua)) {
+                    browserName = "Opera";
+                }
+                
+                return `${deviceName} - ${browserName}`;
+            },
+
+
+            getRawClientIp: async function() {
+                const endpoints = [
+                    'https://api.ipify.org?format=json',
+                    'https://api64.ipify.org?format=json',
+                    'https://api.my-ip.io/json'
+                ];
+                for (const url of endpoints) {
+                    try {
+                        const res = await fetch(url, { signal: AbortSignal.timeout(4000) });
+                        const data = await res.json();
+                        const ip = data.ip || data.IP || null;
+                        if (ip && ip !== 'unknown' && ip.length > 3) return ip;
+                    } catch (e) {  }
+                }
+                return null; // Hiçbir endpoint çalışmazsa null döndür
+            },
+
+
+            getMaskedClientIp: function(rawIp) {
+                if (!rawIp) return 'Bilinmeyen IP';
+                if (rawIp.includes('.')) {
+                    const parts = rawIp.split('.');
+                    if (parts.length === 4) return `${parts[0]}.${parts[1]}.${parts[2]}.***`;
+                } else if (rawIp.includes(':')) {
+                    const parts = rawIp.split(':');
+                    if (parts.length > 1) { parts[parts.length - 1] = '***'; return parts.join(':'); }
+                }
+                return rawIp;
+            },
+
+
+            getClientIp: async function() {
+                const raw = await this.getRawClientIp();
+                return this.getMaskedClientIp(raw);
+            },
+
+            showSecurityViolationScreen: function(htmlContent) {
+                this.hideAllViews();
+                
+                let container = document.getElementById('securityViolationView');
+                if (!container) {
+                    container = document.createElement('div');
+                    container.id = 'securityViolationView';
+                    container.className = 'fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center px-4 py-8';
+                    document.body.appendChild(container);
+                }
+                
+                container.innerHTML = `
+                    <div class="w-full max-w-lg bg-dark-bg border border-dark-border/80 rounded-3xl p-8 relative overflow-hidden shadow-[0_0_50px_rgba(239,68,68,0.15)] text-white">
+                        <div class="absolute inset-0 bg-[linear-gradient(to_right,#ef444405_1px,transparent_1px),linear-gradient(to_bottom,#ef444405_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+                        <div class="relative z-10">
+                            ${htmlContent}
+                            <button onclick="app.logout(); document.getElementById('securityViolationView').remove();" 
+                                class="mt-6 w-full py-3.5 bg-dark-border/40 hover:bg-dark-border text-white text-sm font-semibold rounded-xl border border-white/5 transition-all">
+                                Kapat ve Ana Sayfaya Dön
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.classList.remove('hidden');
+                lucide.createIcons();
+            },
+
+            logoutSilent: async function() {
+                if (this.sessionCheckInterval) clearInterval(this.sessionCheckInterval);
+                sessionStorage.removeItem('wyckoff_agreement_accepted');
+                sessionStorage.removeItem('wyckoff_session_id');
+                document.getElementById('iframeWrapper').innerHTML = '';
+                document.getElementById('videoPlayerState').classList.add('hidden');
+                document.getElementById('noteContentState').classList.add('hidden');
+                document.getElementById('noVideoState').classList.remove('hidden');
+                if (supabaseClient) await supabaseClient.auth.signOut({ scope: 'local' });
+            },
+
+            forceTerminateAllSessions: async function(userId) {
+                try {
+                    this.showLoading();
+                    
+                    const { error } = await supabaseClient
+                        .from('profiles')
+                        .update({
+                            last_session_id: 'terminated',
+                            last_active_at: null
+                        })
+                        .eq('id', userId);
+
+                    if (error) throw error;
+
+                    this.showToast("Diğer tüm cihazlardaki aktif oturumlar kapatıldı. Şimdi güvenle giriş yapabilirsiniz.", "success");
+                    
+                    const container = document.getElementById('securityViolationView');
+                    if (container) container.remove();
+                    
+
+                    await this.logoutSilent();
+                    this.showLogin();
+                    
+                } catch (e) {
+                    console.error("Force terminate sessions error:", e);
+                    this.showToast("Diğer oturumlar kapatılamadı. Lütfen tekrar deneyin.", "error");
+                } finally {
+                    this.hideLoading();
+                }
+            },
+
+            loadUserProfile: async function(user) {
+                this.state.user = user;
+                
+                try {
+                    this.showLoading();
+                    
+
+                    let savedSessionId = sessionStorage.getItem('wyckoff_session_id');
+                    if (!savedSessionId) {
+                        savedSessionId = Math.random().toString(36).substring(2) + Date.now().toString(36);
+                        sessionStorage.setItem('wyckoff_session_id', savedSessionId);
+                    }
+                    this.state.localSessionId = savedSessionId;
+                    
+                    const clientIp = await this.getClientIp();
+                    const deviceInfo = this.getDeviceInfo();
+
+
+                    const { data: profile, error } = await supabaseClient
+                        .from('profiles')
+                        .select('allowed_modules, last_session_id, last_active_at')
+                        .eq('id', user.id)
+                        .single();
+
+                    if (error && error.code !== 'PGRST116') {
+                        throw error;
+                    }
+
+                    const profileData = profile || { allowed_modules: [], last_session_id: null, last_active_at: null };
+                    this.state.profile = profileData;
+
+
+
+
+                    this.state.myLoginTime = Date.now();
+                    
+
+                    const { data: latestLog, error: logError } = await supabaseClient
+                        .from('login_logs')
+                        .select('status, created_at, device_info')
+                        .eq('user_id', user.id)
+                        .order('created_at', { ascending: false })
+                        .limit(1)
+                        .single();
+
+                    let isOtherSessionActive = false;
+                    
+                    if (latestLog) {
+                        const lastLogTime = new Date(latestLog.created_at).getTime();
+                        const timeDiff = Date.now() - lastLogTime;
+                        
+
+                        if (latestLog.status === 'success' && timeDiff < (2 * 60 * 60 * 1000)) {
+
+                            isOtherSessionActive = true;
+                        }
+                    }
+
+                    if (isOtherSessionActive) {
+
+
+                        await supabaseClient
+                            .from('login_logs')
+                            .insert({
+                                user_id: user.id,
+                                user_email: user.email,
+                                device_info: deviceInfo + " (KICK SIGNAL)",
+                                ip_address: clientIp,
+                                status: 'terminated_conflict'
+                            });
+                        
+                        this.hideLoading();
+                        this.showToast("Güvenlik İhlali: Aynı anda birden fazla cihazdan oturum açılamaz. Tüm aktif oturumlarınız sonlandırıldı.", "error");
+                        
+
+                        setTimeout(async () => {
+                            await this.logoutSilent();
+                            this.showLogin();
+                        }, 2500);
+                        return; // Girişi durdur!
+                    }
+
+
+
+
+                    try {
+                        const rawLoginIp = await this.getRawClientIp();
+                        const maskedLoginIp = this.getMaskedClientIp(rawLoginIp);
+                        await supabaseClient
+                            .from('login_logs')
+                            .insert({
+                                user_id: user.id,
+                                user_email: user.email,
+                                device_info: deviceInfo,
+                                ip_address: rawLoginIp || 'unknown',   // RAW IP — binding için
+                                masked_ip: maskedLoginIp,              // Maskelenmiş — KVKK uyumu
+                                status: 'success'
+                            });
+                    } catch (logErr) {
+
+                        console.warn('Login log kaydedilemedi (devam ediliyor):', logErr);
+                    }
+
+
+
+
+                    try {
+
+                        const { data: previousLogins } = await supabaseClient
+                            .from('login_logs')
+                            .select('device_info')
+                            .eq('user_id', user.id)
+                            .eq('status', 'success')
+                            .order('created_at', { ascending: false })
+                            .limit(50);
+                            
+                        if (previousLogins && previousLogins.length > 1) { 
+
+
+                            const pastDevices = previousLogins.slice(1).map(log => log.device_info);
+                            
+
+                            const uniquePastDevices = [...new Set(pastDevices)];
+                            
+
+                            if (!uniquePastDevices.includes(deviceInfo)) {
+                                
+                                const pastDevicesStr = uniquePastDevices.join(', ') || 'Bilinmiyor';
+                                
+
+                                await supabaseClient.from('security_alerts').insert({
+                                    user_id: user.id,
+                                    user_email: user.email,
+                                    event_type: 'YENİ CİHAZ TESPİTİ',
+                                    details: `Yeni Cihaz: [${deviceInfo}] | Eski Cihazlar: [${pastDevicesStr}]`,
+                                    ip_address: clientIp
+                                });
+                            }
+                        }
+                    } catch (err) {
+
+                        console.error("Yeni cihaz tespit sistemi hatası (Tablo kurulmamış olabilir):", err);
+                    }
+
+
+
+                    const idleLimit = 60 * 60 * 1000; // 1 saat
+                    this.sessionCheckInterval = setInterval(async () => {
+                        try {
+                            const idleTime = Date.now() - this.state.lastActivityTime;
+                            
+                            if (idleTime > idleLimit) {
+                                clearInterval(this.sessionCheckInterval);
+                                this.showToast("Uzun süre işlem yapılmadığı için oturumunuz sonlandırılmıştır.", "error");
+                                setTimeout(() => { this.logoutSilent().then(() => this.showLogin()); }, 2000);
+                                return;
+                            }
+
+
+                            const currentDeviceId = await this.getDeviceId();
+                            const { data, error } = await supabaseClient.functions.invoke('session-manager', {
+                                body: { action: 'refresh', device_id: currentDeviceId }
+                            });
+
+                            if (error) {
+                                clearInterval(this.sessionCheckInterval);
+                                console.error("Heartbeat error:", error);
+                                this.showToast("Güvenlik İhlali: Oturumunuz başka bir cihazdan açılmış olabilir.", "error");
+                                
+
+                                document.getElementById('iframeWrapper').innerHTML = '';
+                                
+                                setTimeout(() => { 
+                                    this.logoutSilent().then(() => this.showLogin()); 
+                                }, 2000);
+                            }
+                        } catch (err) {
+                            console.error("Session heartbeat error:", err);
+                        }
+                    }, 60000); // 60 saniye
+
+
+                    window.onbeforeunload = () => {
+                        if (this.state.user) {
+
+
+                            supabaseClient.from('login_logs').insert({
+                                user_id: this.state.user.id,
+                                user_email: this.state.user.email,
+                                device_info: "Session Closed",
+                                status: 'closed'
+                            }).then();
+                        }
+                    };
+
+                    this.showDashboard();
+
+                } catch (error) {
+                    console.error("Profile load error:", error);
+                    this.showToast("Hesap yetkileriniz alınamadı.", "error");
+                    this.logout();
+                }
+            },
+
+            logout: async function() {
+                this.showLoading();
+                if (this.sessionCheckInterval) clearInterval(this.sessionCheckInterval);
+                
+
+                sessionStorage.removeItem('wyckoff_agreement_accepted');
+                sessionStorage.removeItem('wyckoff_session_id');
+                
+
+                document.getElementById('iframeWrapper').innerHTML = '';
+                document.getElementById('videoPlayerState').classList.add('hidden');
+                document.getElementById('noteContentState').classList.add('hidden');
+                document.getElementById('noVideoState').classList.remove('hidden');
+                
+                if(supabaseClient) await supabaseClient.auth.signOut({ scope: 'local' });
+                this.hideLoading();
+            },
+
+
+            loadVideos: async function() {
+                this.showLoading();
+                const allowed = this.state.profile.allowed_modules || [];
+                
+                if (allowed.length === 0) {
+                    this.renderEmptyDashboard("Herhangi bir eğitim modülü yetkiniz bulunmamaktadır.");
+                    this.hideLoading();
+                    return;
+                }
+
+                try {
+                    let query = supabaseClient.from('videos').select('*').order('order_no', { ascending: true });
+                    
+
+
+                    if (!allowed.includes('hepsi')) {
+                        query = query.in('module_name', allowed);
+                    }
+
+                    const { data: videos, error } = await query;
+
+                    if (error) throw error;
+
+                    this.state.videos = videos;
+                    this.groupVideosByModule();
+                    this.renderSidebar();
+
+                } catch (error) {
+                    console.error("Video load error:", error);
+                    this.showToast("Dersler yüklenirken bir ağ hatası oluştu.", "error");
+                } finally {
+                    this.hideLoading();
+                }
+            },
+
+            loadAnnouncement: async function() {
+                if (!supabaseClient) return;
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('announcements')
+                        .select('title, content, created_at')
+                        .order('created_at', { ascending: false })
+                        .limit(1)
+                        .maybeSingle();
+
+                    if (data) {
+                        document.getElementById('announcementTitle').textContent = data.title || 'Yeni Duyuru';
+                        document.getElementById('announcementContent').textContent = data.content;
+                        
+                        if (data.created_at) {
+                            const date = new Date(data.created_at);
+                            document.getElementById('announcementTime').textContent = date.toLocaleDateString('tr-TR', {
+                                day: 'numeric',
+                                month: 'long',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            });
+                        }
+                        document.getElementById('announcementContainer').classList.remove('hidden');
+                    } else {
+                        document.getElementById('announcementContainer').classList.add('hidden');
+                    }
+                } catch (error) {
+                    console.error("Announcement load error:", error);
+                }
+            },
+
+            switchTab: function(tab) {
+                this.state.currentTab = tab;
+                const tabVideos = document.getElementById('tabBtnVideos');
+                const tabNotes = document.getElementById('tabBtnNotes');
+
+                if (tab === 'videos') {
+
+                    tabVideos.className = "flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-bold transition-all border border-brand-primary/30 bg-brand-primary/10 text-brand-primary";
+                    tabNotes.className = "flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-medium transition-all text-gray-400 hover:text-white bg-transparent border border-transparent";
+                    
+
+                    this.renderSidebar();
+                } else {
+
+                    tabNotes.className = "flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-bold transition-all border border-brand-primary/30 bg-brand-primary/10 text-brand-primary";
+                    tabVideos.className = "flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-medium transition-all text-gray-400 hover:text-white bg-transparent border border-transparent";
+                    
+
+                    this.loadNotes();
+                }
+                lucide.createIcons();
+            },
+
+            loadNotes: async function() {
+                this.showLoading();
+                const allowed = this.state.profile.allowed_modules || [];
+                
+                if (allowed.length === 0) {
+                    this.hideLoading();
+                    return;
+                }
+
+                try {
+                    let query = supabaseClient.from('notes').select('*').order('created_at', { ascending: false });
+                    
+                    if (!allowed.includes('hepsi')) {
+                        query = query.in('module_name', allowed);
+                    }
+
+                    const { data: notes, error } = await query;
+                    if (error) throw error;
+
+                    this.state.notes = notes;
+                    this.renderNotesList();
+                } catch (error) {
+                    console.error("Notes load error:", error);
+                    this.showToast("Notlar yüklenirken bir ağ hatası oluştu.", "error");
+                } finally {
+                    this.hideLoading();
+                }
+            },
+
+            renderNotesList: function() {
+                const container = document.getElementById('moduleList');
+                container.innerHTML = '';
+
+                if (!this.state.notes || this.state.notes.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center p-6 text-gray-500 text-xs">
+                            <i data-lucide="book" class="w-6 h-6 mx-auto mb-2 opacity-40"></i>
+                            Görüntülenecek analiz veya not bulunmamaktadır.
+                        </div>
+                    `;
+                    lucide.createIcons();
+                    return;
+                }
+
+                const notesList = document.createElement('ul');
+                notesList.className = 'space-y-1.5';
+
+                this.state.notes.forEach(note => {
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.href = '#';
+                    a.className = 'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-400 hover:text-white hover:bg-dark-border/50 transition-all group border border-transparent';
+                    a.innerHTML = `
+                        <div class="w-7 h-7 rounded-lg bg-dark-bg border border-dark-border flex items-center justify-center flex-shrink-0 group-hover:border-brand-primary/50 group-hover:text-brand-primary group-hover:shadow-[0_0_10px_rgba(16,185,129,0.2)] transition-all">
+                            <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                        </div>
+                        <div class="overflow-hidden flex-grow text-left">
+                            <span class="truncate block group-hover:translate-x-1 transition-transform text-white font-semibold text-xs">${note.title}</span>
+                            <span class="text-[10px] text-gray-500 block truncate group-hover:translate-x-1 transition-transform">${this.formatModuleName(note.module_name || 'Genel')}</span>
+                        </div>
+                    `;
+                    a.onclick = (e) => {
+                        e.preventDefault();
+                        this.playNote(note);
+                    };
+                    li.appendChild(a);
+                    notesList.appendChild(li);
+                });
+
+                container.appendChild(notesList);
+                lucide.createIcons();
+            },
+
+            playNote: function(note) {
+
+                document.getElementById('noVideoState').classList.add('hidden');
+                document.getElementById('videoPlayerState').classList.add('hidden');
+                document.getElementById('noteContentState').classList.remove('hidden');
+
+
+                document.getElementById('iframeWrapper').innerHTML = '';
+
+
+                document.getElementById('currentNoteTitle').textContent = note.title;
+                document.getElementById('currentNoteBody').innerHTML = note.content; // Render rich HTML
+                document.getElementById('currentNoteBadge').textContent = this.formatModuleName(note.module_name || 'Genel Not');
+                
+                if (note.created_at) {
+                    const date = new Date(note.created_at);
+                    document.getElementById('currentNoteDate').textContent = date.toLocaleDateString('tr-TR', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                    });
+                }
+
+
+                const mediaContainer = document.getElementById('noteMediaContainer');
+                mediaContainer.innerHTML = '';
+
+                if (note.chart_url) {
+                    const chartUrl = note.chart_url.trim();
+                    if (!chartUrl.startsWith('http') && chartUrl.length > 2) {
+
+                        const symbol = chartUrl.toUpperCase();
+                        mediaContainer.innerHTML = `
+                            <iframe 
+                                src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_chart&symbol=${symbol}&interval=D&hidesidetoolbar=1&symboledit=0&saveimage=1&toolbarbg=f1f3f6&studies=%5B%5D&theme=dark&style=1&timezone=exchange" 
+                                style="border:0;position:absolute;top:0;left:0;height:100%;width:100%;" 
+                                allowfullscreen>
+                            </iframe>
+                        `;
+                    } else if (chartUrl.startsWith('http')) {
+
+                        if (chartUrl.includes('/x/') || chartUrl.match(/\.(jpeg|jpg|gif|png|webp)/i)) {
+                            let imgSrc = chartUrl;
+                            if (chartUrl.includes('tradingview.com/x/')) {
+                                const match = chartUrl.match(/x\/([^\/]+)\/?/);
+                                if (match && match[1]) {
+                                    const id = match[1];
+                                    const firstChar = id.charAt(0).toLowerCase();
+                                    imgSrc = `https://s3.tradingview.com/snapshots/${firstChar}/${id}.png`;
+                                }
+                            }
+                            mediaContainer.innerHTML = `
+                                <div onclick="app.openLightbox('${imgSrc}')" class="w-full h-full relative group cursor-zoom-in flex items-center justify-center bg-black/40">
+                                    <img src="${imgSrc}" class="w-full h-full object-contain p-2" alt="TradingView Grafik" />
+                                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
+                                        <span class="text-white text-xs font-semibold px-4 py-2.5 bg-dark-bg/90 border border-brand-primary/30 rounded-xl flex items-center gap-1.5 shadow-2xl backdrop-blur-md">
+                                            <i data-lucide="maximize-2" class="w-4 h-4 text-brand-primary animate-pulse"></i> Grafiği Sitede Büyüt
+                                        </span>
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+
+                            mediaContainer.innerHTML = `
+                                <iframe src="${chartUrl}" style="border:0;position:absolute;top:0;left:0;height:100%;width:100%;" allowfullscreen></iframe>
+                            `;
+                        }
+                    }
+                } else {
+
+                    mediaContainer.innerHTML = `
+                        <div class="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-brand-primary/10 to-dark-bg p-6 text-center">
+                            <i data-lucide="line-chart" class="w-12 h-12 text-brand-primary/40 mb-3 animate-pulse"></i>
+                            <span class="text-sm font-semibold tracking-wider text-gray-500 uppercase">DERS ANALİZİ & AÇIKLAYICI GRAFİK</span>
+                        </div>
+                    `;
+                }
+                
+                lucide.createIcons();
+            },
+
+            groupVideosByModule: function() {
+                this.state.modules = {};
+                this.state.videos.forEach(video => {
+                    if (!this.state.modules[video.module_name]) {
+                        this.state.modules[video.module_name] = [];
+                    }
+                    this.state.modules[video.module_name].push(video);
+                });
+            },
+
+
+            renderSidebar: function() {
+                const container = document.getElementById('moduleList');
+                container.innerHTML = '';
+
+                if (Object.keys(this.state.modules).length === 0) {
+                    this.renderEmptyDashboard("Görüntülenecek ders bulunamadı.");
+                    return;
+                }
+
+                Object.keys(this.state.modules).forEach((moduleName) => {
+                    const videos = this.state.modules[moduleName];
+                    
+                    const modDiv = document.createElement('div');
+                    modDiv.className = 'mb-6';
+                    
+
+                    const modHeader = document.createElement('h3');
+                    modHeader.className = 'text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 px-2 flex items-center gap-2';
+                    modHeader.innerHTML = `<i data-lucide="folder-open" class="w-4 h-4 text-brand-primary/70"></i> ${this.formatModuleName(moduleName)}`;
+                    modDiv.appendChild(modHeader);
+
+
+                    const ul = document.createElement('ul');
+                    ul.className = 'space-y-1.5';
+
+                    videos.forEach(video => {
+                        const li = document.createElement('li');
+                        const a = document.createElement('a');
+                        a.href = '#';
+                        a.className = 'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-400 hover:text-white hover:bg-dark-border/50 transition-all group border border-transparent';
+                        a.innerHTML = `
+                            <div class="w-7 h-7 rounded-lg bg-dark-bg border border-dark-border flex items-center justify-center flex-shrink-0 group-hover:border-brand-primary/50 group-hover:text-brand-primary group-hover:shadow-[0_0_10px_rgba(16,185,129,0.2)] transition-all">
+                                <i data-lucide="play" class="w-3.5 h-3.5 ml-0.5"></i>
+                            </div>
+                            <span class="truncate group-hover:translate-x-1 transition-transform">${video.title}</span>
+                        `;
+                        
+                        a.onclick = (e) => {
+                            e.preventDefault();
+                            this.playVideo(video);
+                            
+
+                            document.querySelectorAll('#moduleList a').forEach(el => {
+                                el.classList.remove('bg-brand-primary/10', 'text-brand-primary', 'border-brand-primary/30');
+                                el.classList.add('text-gray-400', 'border-transparent');
+                                el.querySelector('.w-7').classList.remove('border-brand-primary', 'text-brand-primary', 'shadow-[0_0_10px_rgba(16,185,129,0.3)]');
+                            });
+                            a.classList.remove('text-gray-400', 'border-transparent', 'hover:bg-dark-border/50');
+                            a.classList.add('bg-brand-primary/10', 'text-brand-primary', 'border-brand-primary/30');
+                            a.querySelector('.w-7').classList.add('border-brand-primary', 'text-brand-primary', 'shadow-[0_0_10px_rgba(16,185,129,0.3)]');
+                            
+                            if(window.innerWidth < 768) this.toggleSidebar();
+                        };
+
+                        li.appendChild(a);
+                        ul.appendChild(li);
+                    });
+
+                    modDiv.appendChild(ul);
+                    container.appendChild(modDiv);
+                });
+
+                lucide.createIcons();
+            },
+
+            renderEmptyDashboard: function(message) {
+                document.getElementById('moduleList').innerHTML = `
+                    <div class="text-center mt-10 p-4 border border-dashed border-dark-border rounded-xl bg-dark-bg/50">
+                        <i data-lucide="shield-alert" class="w-8 h-8 text-gray-600 mx-auto mb-3"></i>
+                        <p class="text-sm text-gray-400 leading-relaxed">${message}</p>
+                    </div>
+                `;
+                lucide.createIcons();
+            },
+
+
+            playVideo: async function(video) {
+                
+
+                if (!this.state.profile) {
+                    this.showToast("Oturum bilgileriniz yüklenemedi. Lütfen sayfayı yenileyip tekrar giriş yapın.", "error");
+                    return;
+                }
+                const allowed = this.state.profile.allowed_modules || [];
+                if (!allowed.includes('hepsi') && !allowed.includes(video.module_name)) {
+                    this.showToast("Güvenlik İhlali: Bu modülü izleme yetkiniz yok.", "error");
+                    return;
+                }
+
+
+                const isValid = this.state.videos.find(v => v.id === video.id && v.bunny_url === video.bunny_url);
+                if (!isValid) {
+                    this.showToast("Güvenlik İhlali: Geçersiz video kaynağı tespit edildi.", "error");
+                    return;
+                }
+                
+                this.showLoading();
+
+
+                let secureBunnyUrl = "";
+                let watermarkText = "";
+                let hlsUrl = "";
+                let hlsToken = "";
+                let hlsExpires = "";
+                
+                try {
+                    const { data, error } = await supabaseClient.functions.invoke('get-video', {
+                        body: { 
+                            video_url: video.bunny_url,
+                            module_name: video.module_name,
+                            device_id: await this.getDeviceId()
+                        }
+                    });
+                    
+                    if (error) {
+                        this.hideLoading();
+
+                        if (error.message && error.message.includes('Rate limit')) {
+                            this.showToast("Çok fazla istek attınız. Lütfen biraz bekleyip tekrar deneyin.", "error");
+                            return;
+                        }
+
+                        if (error.message && error.message.includes('Unauthorized')) {
+                            this.showToast("Oturumunuz geçersiz. Lütfen tekrar giriş yapın.", "error");
+                            setTimeout(async () => {
+                                await this.logoutSilent();
+                                this.showLogin();
+                            }, 3000);
+                            return;
+                        }
+                        throw error;
+                    }
+                    if (data && data.url) {
+                        hlsUrl = data.url;
+                        hlsToken = data.token;
+                        hlsExpires = data.expires;
+                        watermarkText = data.watermark_text || this.state.user?.email || "Wyckoff Academy";
+                    }
+                } catch (e) {
+                    console.error("Token alınamadı:", e);
+                    this.hideLoading();
+                    
+
+                    if (e && e.name === 'FunctionsHttpError') {
+
+                        this.showToast("Güvenlik duvarı videoyu engelledi. Lütfen sayfayı yenileyip tekrar deneyin.", "error");
+                        return;
+                    }
+
+                    this.showToast("Video yüklenemedi. Sayfayı yenileyip tekrar deneyin.", "error");
+                    return;
+                }
+                
+                this.hideLoading();
+
+
+                document.getElementById('noVideoState').classList.add('hidden');
+                document.getElementById('noteContentState').classList.add('hidden');
+                document.getElementById('videoPlayerState').classList.remove('hidden');
+                document.getElementById('videoPlayerState').classList.add('flex');
+
+
+                document.getElementById('currentVideoTitle').textContent = video.title;
+                document.getElementById('currentModuleBadge').textContent = this.formatModuleName(video.module_name);
+                document.getElementById('currentVideoDescription').textContent = video.description || "Bu ders Wyckoff Metodolojisi kapsamında kurumsal fiyat hareketlerini ve Smart Money konseptlerini anlamanız için hazırlanmıştır. Grafik üzerinde backtest yaparak not almanız tavsiye edilir.";
+
+
+                const wrapper = document.getElementById('iframeWrapper');
+                wrapper.innerHTML = `
+                    <div class="relative w-full h-full bg-black overflow-hidden group">
+                        <video id="hls-video-player" controls autoplay class="absolute top-0 left-0 w-full h-full border-0"></video>
+                        
+                        <div class="pointer-events-none absolute inset-0 z-50 flex items-center justify-center overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-1000">
+                            <div class="transform -rotate-45 whitespace-nowrap text-white/10 font-mono text-2xl md:text-4xl font-bold tracking-widest select-none drop-shadow-md">
+                                ${watermarkText} • ${watermarkText} • ${watermarkText}
+                            </div>
+                        </div>
+                        
+                        <div class="pointer-events-none absolute top-4 left-4 z-50 opacity-20 text-white/30 text-xs font-mono select-none mix-blend-overlay">
+                            ${watermarkText}
+                        </div>
+                    </div>
+                `;
+
+                const videoElement = document.getElementById('hls-video-player');
+                if (window.Hls && Hls.isSupported()) {
+                    if (window.currentHlsPlayer) {
+                        window.currentHlsPlayer.destroy();
+                    }
+                    const hls = new Hls({
+                        xhrSetup: function(xhr, xhrUrl) {
+                            if (xhrUrl.includes('video.bunnycdn.com') || xhrUrl.includes('b-cdn.net')) {
+                                const parsedUrl = new URL(xhrUrl);
+                                parsedUrl.searchParams.set('token', hlsToken);
+                                parsedUrl.searchParams.set('expires', hlsExpires);
+                                xhr.open('GET', parsedUrl.toString(), true);
+                            }
+                        }
+                    });
+                    window.currentHlsPlayer = hls;
+                    hls.loadSource(hlsUrl);
+                    hls.attachMedia(videoElement);
+                    hls.on(Hls.Events.ERROR, (event, data) => {
+                        if (data.fatal) {
+                            console.error("HLS Fatal Error", data);
+                        }
+                    });
+                } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+                    const authUrl = new URL(hlsUrl);
+                    authUrl.searchParams.set('token', hlsToken);
+                    authUrl.searchParams.set('expires', hlsExpires);
+                    videoElement.src = authUrl.toString();
+                }
+            },
+
+
+            formatModuleName: function(name) {
+                return name.replace(/_/g, ' ').replace(/-/g, ' ');
+            },
+
+            requireLoginPrompt: function() {
+                this.showToast("İçerikleri görüntülemek için giriş yapmalısınız.", "info");
+                setTimeout(() => {
+                    this.showLogin();
+                }, 1500);
+            },
+
+            toggleSidebar: function() {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('sidebarOverlay');
+                this.state.isSidebarOpen = !this.state.isSidebarOpen;
+                
+                if (this.state.isSidebarOpen) {
+                    sidebar.classList.remove('-translate-x-full');
+                    overlay.classList.remove('hidden');
+
+                    setTimeout(() => overlay.classList.add('opacity-100'), 10);
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                    overlay.classList.remove('opacity-100');
+                    setTimeout(() => overlay.classList.add('hidden'), 300); // Wait for transition
+                }
+            },
+
+            showLoading: function() {
+                document.getElementById('loadingOverlay').classList.remove('hidden');
+            },
+
+            hideLoading: function() {
+                document.getElementById('loadingOverlay').classList.add('hidden');
+            },
+
+            showToast: function(msg, type = "info") {
+                const toast = document.getElementById('toast');
+                const toastMsg = document.getElementById('toastMsg');
+                const toastIcon = document.getElementById('toastIcon');
+
+                toastMsg.textContent = msg;
+
+
+                toast.className = 'fixed top-6 right-6 z-[90] transform transition-all duration-300 glass-panel px-6 py-4 rounded-xl shadow-2xl border-l-4 flex items-center gap-3 max-w-sm';
+                
+                if (type === "success") {
+                    toast.classList.add('border-brand-primary', 'text-brand-primary');
+                    toastIcon.setAttribute('data-lucide', 'check-circle');
+                } else if (type === "error") {
+                    toast.classList.add('border-red-500', 'text-red-400');
+                    toastIcon.setAttribute('data-lucide', 'alert-circle');
+                } else {
+                    toast.classList.add('border-brand-accent', 'text-brand-accent');
+                    toastIcon.setAttribute('data-lucide', 'info');
+                }
+
+                lucide.createIcons();
+
+
+                setTimeout(() => {
+                    toast.classList.remove('translate-y-[-150%]', 'opacity-0');
+                }, 10);
+
+
+                if (this.toastTimeout) clearTimeout(this.toastTimeout);
+                this.toastTimeout = setTimeout(() => {
+                    toast.classList.add('translate-y-[-150%]', 'opacity-0');
+                }, 3500);
+            },
+
+            openLightbox: function(src) {
+                const modal = document.getElementById('lightboxModal');
+                const img = document.getElementById('lightboxImage');
+                img.src = src;
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                lucide.createIcons();
+            },
+
+            closeLightbox: function() {
+                const modal = document.getElementById('lightboxModal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            },
+
+            checkAgreementForm: function() {
+                const agreeTelif = document.getElementById('agreeTelif').checked;
+                const agreeTakip = document.getElementById('agreeTakip').checked;
+                const agreeSorumluluk = document.getElementById('agreeSorumluluk').checked;
+                const btn = document.getElementById('agreeSubmitBtn');
+
+                if (agreeTelif && agreeTakip && agreeSorumluluk) {
+                    btn.disabled = false;
+                    btn.className = "w-full py-4 rounded-xl font-bold text-sm tracking-wider uppercase transition-all flex justify-center items-center gap-2 mt-4 bg-red-600 hover:bg-red-700 text-white cursor-pointer hover:shadow-[0_0_15px_rgba(220,38,38,0.4)] border border-red-500";
+                } else {
+                    btn.disabled = true;
+                    btn.className = "w-full py-4 rounded-xl font-bold text-sm tracking-wider uppercase transition-all flex justify-center items-center gap-2 mt-4 bg-red-600/30 text-red-400 border border-red-500/20 cursor-not-allowed opacity-50";
+                }
+            },
+
+            acceptAgreement: function(e) {
+                e.preventDefault();
+                const agreeTelif = document.getElementById('agreeTelif').checked;
+                const agreeTakip = document.getElementById('agreeTakip').checked;
+                const agreeSorumluluk = document.getElementById('agreeSorumluluk').checked;
+
+                if (agreeTelif && agreeTakip && agreeSorumluluk) {
+                    sessionStorage.setItem('wyckoff_agreement_accepted', 'true');
+                    const modal = document.getElementById('securityAgreementModal');
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                    this.showToast("Güvenlik taahhütnamesi onaylandı. Hoş geldiniz!", "success");
+                }
+            }
+        };
+
+        function initHeroSlideshow() {
+            let currentSlide = 0;
+            const slides = document.querySelectorAll('.hero-slide');
+            const dots = document.querySelectorAll('.hero-slide-dot');
+            if (slides.length === 0) return;
+
+            function showSlide(index) {
+                slides.forEach((slide, i) => {
+                    if (i === index) {
+                        slide.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
+                        slide.classList.add('opacity-100', 'z-10', 'scale-100');
+                    } else {
+                        slide.classList.remove('opacity-100', 'z-10', 'scale-100');
+                        slide.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+                    }
+                });
+
+                dots.forEach((dot, i) => {
+                    if (i === index) {
+                        dot.classList.remove('bg-gray-600', 'w-2');
+                        dot.classList.add('bg-brand-primary', 'w-4');
+                    } else {
+                        dot.classList.remove('bg-brand-primary', 'w-4');
+                        dot.classList.add('bg-gray-600', 'w-2');
+                    }
+                });
+            }
+
+            function nextSlide() {
+                currentSlide = (currentSlide + 1) % slides.length;
+                showSlide(currentSlide);
+            }
+
+
+            showSlide(0);
+
+
+            let slideInterval = setInterval(nextSlide, 3500);
+
+
+            dots.forEach((dot, i) => {
+                dot.addEventListener('click', () => {
+                    clearInterval(slideInterval);
+                    currentSlide = i;
+                    showSlide(currentSlide);
+                    slideInterval = setInterval(nextSlide, 3500); // Restart timer
+                });
+            });
+        }
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            app.init();
+            initHeroSlideshow();
+        });
+
+    </script>
+    
+    <div id="lightboxModal" onclick="app.closeLightbox()" class="fixed inset-0 bg-black/95 z-[100] hidden flex items-center justify-center p-4 md:p-10 backdrop-blur-md cursor-zoom-out transition-all duration-300">
+        <button onclick="app.closeLightbox()" class="absolute top-6 right-6 text-gray-400 hover:text-white bg-dark-panel p-2.5 rounded-full border border-dark-border shadow-2xl">
+            <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+        <img id="lightboxImage" src="" class="max-w-full max-h-full object-contain rounded-xl shadow-2xl border border-dark-border" alt="Büyütülmüş Grafik" />
+    </div>
+</body>
+</html>
