@@ -1263,31 +1263,41 @@
                 return `${deviceName} - ${browserName}`;
             },
 
-            getClientIp: async function() {
-                try {
-                    const res = await fetch('https://api.ipify.org?format=json');
-                    const data = await res.json();
-                    const rawIp = data.ip || 'Bilinmeyen IP';
-                    
-                    // KVKK ve Gizlilik uyumluluğu için IP adresini maskeleme (örn: 88.230.13.252 -> 88.230.13.***)
-                    if (rawIp.includes('.')) {
-                        // IPv4 Maskeleme
-                        const parts = rawIp.split('.');
-                        if (parts.length === 4) {
-                            return `${parts[0]}.${parts[1]}.${parts[2]}.***`;
-                        }
-                    } else if (rawIp.includes(':')) {
-                        // IPv6 Maskeleme
-                        const parts = rawIp.split(':');
-                        if (parts.length > 1) {
-                            parts[parts.length - 1] = '***';
-                            return parts.join(':');
-                        }
-                    }
-                    return rawIp;
-                } catch (e) {
-                    return 'Bilinmeyen IP';
+            // RAW IP — Güvenlik binding için (backend'e gönderilir, loglanmaz)
+            getRawClientIp: async function() {
+                const endpoints = [
+                    'https://api.ipify.org?format=json',
+                    'https://api64.ipify.org?format=json',
+                    'https://api.my-ip.io/json'
+                ];
+                for (const url of endpoints) {
+                    try {
+                        const res = await fetch(url, { signal: AbortSignal.timeout(4000) });
+                        const data = await res.json();
+                        const ip = data.ip || data.IP || null;
+                        if (ip && ip !== 'unknown' && ip.length > 3) return ip;
+                    } catch (e) { /* sonraki endpoint'i dene */ }
                 }
+                return null; // Hiçbir endpoint çalışmazsa null döndür
+            },
+
+            // MASKED IP — Sadece KVKK uyumlu loglama / UI gösterimi için
+            getMaskedClientIp: function(rawIp) {
+                if (!rawIp) return 'Bilinmeyen IP';
+                if (rawIp.includes('.')) {
+                    const parts = rawIp.split('.');
+                    if (parts.length === 4) return `${parts[0]}.${parts[1]}.${parts[2]}.***`;
+                } else if (rawIp.includes(':')) {
+                    const parts = rawIp.split(':');
+                    if (parts.length > 1) { parts[parts.length - 1] = '***'; return parts.join(':'); }
+                }
+                return rawIp;
+            },
+
+            // Geriye dönük uyumluluk için (eski çağrılar bozulmasın)
+            getClientIp: async function() {
+                const raw = await this.getRawClientIp();
+                return this.getMaskedClientIp(raw);
             },
 
             showSecurityViolationScreen: function(htmlContent) {
@@ -1442,13 +1452,18 @@
                     }
 
                     // Kendi başarılı girişimizi logluyoruz
+                    // ÖNEMLİ: ip_address alanına RAW IP kaydediliyor (IP binding için şart!)
+                    // KVKK: masked_ip alanına maskelenmiş versiyon yazılıyor
+                    const rawLoginIp = await this.getRawClientIp();
+                    const maskedLoginIp = this.getMaskedClientIp(rawLoginIp);
                     await supabaseClient
                         .from('login_logs')
                         .insert({
                             user_id: user.id,
                             user_email: user.email,
                             device_info: deviceInfo,
-                            ip_address: clientIp,
+                            ip_address: rawLoginIp || 'unknown',   // RAW IP — binding için
+                            masked_ip: maskedLoginIp,              // Maskelenmiş — KVKK uyumu
                             status: 'success'
                         });
 
@@ -1933,25 +1948,45 @@
                 
                 this.showLoading();
 
-                // 3. GET SECURE TOKEN FROM SUPABASE (Backend Token Generation + IP Binding)
-                // We send the user's IP so backend can verify it matches their login IP
+                // 3. GET SECURE TOKEN FROM SUPABASE (Real IP Binding)
+                // RAW IP backend'e gönderiliyor — maskelenmemiş — gerçek CIDR subnet match için
                 let secureBunnyUrl = video.bunny_url;
                 try {
-                    // Get raw (unmasked) IP for security binding
-                    let clientIp = 'unknown';
-                    try {
-                        const ipRes = await fetch('https://api.ipify.org?format=json');
-                        const ipData = await ipRes.json();
-                        clientIp = ipData.ip || 'unknown';
-                    } catch(ipErr) { /* IP alınamazsa devam et */ }
+                    // Gerçek IP binding: raw IP al, timeout ile
+                    const rawIp = await this.getRawClientIp();
+                    
+                    if (!rawIp) {
+                        // IP alınamadıysa (offline, VPN bloğu vs.) kullanıcıya bildir
+                        this.hideLoading();
+                        this.showToast("IP adresiniz doğrulanamadı. İnternet bağlantınızı kontrol edin ve tekrar deneyin.", "error");
+                        return;
+                    }
 
                     const { data, error } = await supabaseClient
                         .rpc('get_secure_video_url', { 
                             raw_url: video.bunny_url,
-                            client_ip: clientIp
+                            client_ip: rawIp   // RAW IP — maskelenmemiş
                         });
                     
-                    if (error) throw error;
+                    if (error) {
+                        // IP binding hatası mı? Kullanıcıya net mesaj ver
+                        if (error.message && error.message.includes('IP_BINDING_FAILED')) {
+                            this.hideLoading();
+                            this.showToast("Güvenlik Uyarısı: IP adresiniz giriş yaptığınız ağdan farklı. Lütfen çıkış yapıp tekrar giriş yapın.", "error");
+                            // Güvenlik için oturumu kapat
+                            setTimeout(async () => {
+                                await this.logoutSilent();
+                                this.showLogin();
+                            }, 3000);
+                            return;
+                        }
+                        if (error.message && error.message.includes('IP_REQUIRED')) {
+                            this.hideLoading();
+                            this.showToast("IP adresiniz alınamadı. Lütfen VPN kullanmıyorsanız tekrar deneyin.", "error");
+                            return;
+                        }
+                        throw error;
+                    }
                     if (data) {
                         secureBunnyUrl = data;
                     }
