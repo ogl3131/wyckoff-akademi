@@ -5,7 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wyckoff Trade Akademisi | Mumların Arkasındaki Mantığı Anlayın</title>
     
-    <!-- Tailwind CSS (CDN) -->
+    
+    <script>
+        const originalWarn = console.warn;
+        console.warn = function(...args) {
+            if (typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com should not be used in production')) return;
+            originalWarn.apply(console, args);
+        };
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -33,13 +40,13 @@
         }
     </script>
     
-    <!-- Google Fonts -->
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Supabase JS -->
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- Lucide Icons -->
+    
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <style>
@@ -97,23 +104,21 @@
 </head>
 <body class="flex flex-col min-h-screen antialiased selection:bg-brand-primary selection:text-white">
 
-    <!-- GLOBAL LOADING OVERLAY -->
+    
     <div id="loadingOverlay" class="fixed inset-0 bg-dark-bg/90 backdrop-blur-sm z-[100] flex flex-col items-center justify-center hidden">
         <i data-lucide="loader-2" class="w-12 h-12 text-brand-primary animate-spin mb-4"></i>
         <div class="text-brand-primary font-medium tracking-widest text-sm uppercase">Sistem Yükleniyor...</div>
     </div>
 
-    <!-- NOTIFICATION TOAST -->
+    
     <div id="toast" class="fixed top-6 right-6 z-[90] transform transition-all duration-300 translate-y-[-150%] opacity-0 glass-panel px-6 py-4 rounded-xl shadow-2xl border-l-4 flex items-center gap-3 max-w-sm">
         <i id="toastIcon" data-lucide="info" class="w-5 h-5"></i>
         <span id="toastMsg" class="font-medium text-sm"></span>
     </div>
 
-    <!-- ==========================================
-         1. PUBLIC LANDING PAGE
-    =========================================== -->
+    
     <div id="landingView" class="flex-grow flex flex-col">
-        <!-- Navbar -->
+        
         <nav class="glass-panel sticky top-0 z-40 border-b border-dark-border px-6 py-4">
             <div class="max-w-7xl mx-auto flex justify-between items-center">
                 <div class="flex items-center gap-3">
@@ -140,7 +145,7 @@
             </div>
         </nav>
 
-        <!-- Hero Section -->
+        
         <section id="hero" class="relative pt-32 pb-24 px-6 overflow-hidden flex-grow flex items-center">
             <div class="absolute inset-0 chart-bg opacity-40 pointer-events-none"></div>
             <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
@@ -148,7 +153,7 @@
             <div class="max-w-7xl mx-auto w-full relative z-10">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
                     
-                    <!-- Left Column: Content & Emphasized Text -->
+                    
                     <div class="lg:col-span-7 text-left space-y-6 flex flex-col items-start">
                         <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs font-bold uppercase tracking-widest animate-pulse shadow-[0_0_20px_rgba(16,185,129,0.25)]">
                             <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
@@ -160,7 +165,7 @@
                             <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary via-emerald-400 to-brand-accent glow-text">Wyckoff ile Sıfırdan Profesyonel Trader Olma Yolculuğu</span>
                         </h1>
                         
-                        <!-- Premium Highlight Callout for %100 Free Training -->
+                        
                         <div class="flex items-center gap-3 text-emerald-400 font-bold text-lg md:text-xl glow-text font-display">
                             <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0 animate-bounce">
                                 <i data-lucide="gift" class="w-5 h-5 text-emerald-400"></i>
@@ -183,7 +188,7 @@
                             </button>
                         </div>
         
-                        <!-- Telegram Info Banner directly on Left Column -->
+                        
                         <div class="glass-panel rounded-2xl p-5 border border-brand-accent/30 bg-brand-accent/5 flex items-center gap-4 text-left shadow-2xl relative overflow-hidden group hover:border-brand-primary/40 hover:bg-brand-primary/5 transition-all max-w-xl mt-6">
                             <div class="w-12 h-12 rounded-xl bg-brand-accent/10 border border-brand-accent/20 flex items-center justify-center text-brand-accent flex-shrink-0 group-hover:border-brand-primary/30 group-hover:text-brand-primary transition-all">
                                 <i data-lucide="send" class="w-6 h-6 animate-pulse"></i>
@@ -198,14 +203,14 @@
                         </div>
                     </div>
                     
-                    <!-- Right Column: Premium Auto-Slideshow Mockup -->
+                    
                     <div class="lg:col-span-5 w-full">
                         <div class="relative w-full aspect-[4/5] md:aspect-[3/4] max-w-md mx-auto lg:max-w-none group">
-                            <!-- Glowing background effect -->
+                            
                             <div class="absolute -inset-1 bg-gradient-to-r from-brand-primary to-brand-accent rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-1000 animate-pulse"></div>
                             
                             <div class="relative glass-panel rounded-3xl border border-dark-border p-4 shadow-2xl h-full flex flex-col justify-between overflow-hidden bg-dark-panel/90">
-                                <!-- Mockup Top bar -->
+                                
                                 <div class="flex items-center justify-between border-b border-dark-border/80 pb-3 mb-3 flex-shrink-0">
                                     <div class="flex items-center gap-1.5">
                                         <span class="w-3 h-3 rounded-full bg-red-500/80"></span>
@@ -218,9 +223,9 @@
                                     </div>
                                 </div>
         
-                                <!-- Slides Area -->
+                                
                                 <div class="relative flex-grow rounded-2xl overflow-hidden bg-dark-bg/60 border border-dark-border/60 flex items-center justify-center min-h-[300px]">
-                                    <!-- Slide 1 -->
+                                    
                                     <div class="hero-slide absolute inset-0 w-full h-full opacity-100 transition-all duration-700 ease-in-out flex flex-col p-2">
                                         <div class="w-full h-full overflow-hidden rounded-xl bg-dark-bg relative">
                                             <img src="./slide1.png" class="w-full h-full object-contain" alt="Zecusdt.p Giriş">
@@ -234,7 +239,7 @@
                                         </div>
                                     </div>
         
-                                    <!-- Slide 2 -->
+                                    
                                     <div class="hero-slide absolute inset-0 w-full h-full opacity-0 transition-all duration-700 ease-in-out flex flex-col p-2">
                                         <div class="w-full h-full overflow-hidden rounded-xl bg-dark-bg relative">
                                             <img src="./slide2.png" class="w-full h-full object-contain" alt="Zecusdt.p Sonuç">
@@ -248,7 +253,7 @@
                                         </div>
                                     </div>
         
-                                    <!-- Slide 3 -->
+                                    
                                     <div class="hero-slide absolute inset-0 w-full h-full opacity-0 transition-all duration-700 ease-in-out flex flex-col p-2">
                                         <div class="w-full h-full overflow-hidden rounded-xl bg-dark-bg relative">
                                             <img src="./slide3.png" class="w-full h-full object-contain" alt="ETH Giriş">
@@ -262,7 +267,7 @@
                                         </div>
                                     </div>
         
-                                    <!-- Slide 4 -->
+                                    
                                     <div class="hero-slide absolute inset-0 w-full h-full opacity-0 transition-all duration-700 ease-in-out flex flex-col p-2">
                                         <div class="w-full h-full overflow-hidden rounded-xl bg-dark-bg relative">
                                             <img src="./slide4.png" class="w-full h-full object-contain" alt="ETH Sonuç">
@@ -276,7 +281,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Slide 5 -->
+                                    
                                     <div class="hero-slide absolute inset-0 w-full h-full opacity-0 transition-all duration-700 ease-in-out flex flex-col p-2">
                                         <div class="w-full h-full overflow-hidden rounded-xl bg-dark-bg relative">
                                             <img src="./slide5.png" class="w-full h-full object-contain" alt="ICNT Giriş">
@@ -290,7 +295,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Slide 6 -->
+                                    
                                     <div class="hero-slide absolute inset-0 w-full h-full opacity-0 transition-all duration-700 ease-in-out flex flex-col p-2">
                                         <div class="w-full h-full overflow-hidden rounded-xl bg-dark-bg relative">
                                             <img src="./slide6.png" class="w-full h-full object-contain" alt="ICNT Sonuç">
@@ -304,7 +309,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Slide 7 -->
+                                    
                                     <div class="hero-slide absolute inset-0 w-full h-full opacity-0 transition-all duration-700 ease-in-out flex flex-col p-2">
                                         <div class="w-full h-full overflow-hidden rounded-xl bg-dark-bg relative">
                                             <img src="./slide7.png" class="w-full h-full object-contain" alt="EDGEX Giriş">
@@ -318,7 +323,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Slide 8 -->
+                                    
                                     <div class="hero-slide absolute inset-0 w-full h-full opacity-0 transition-all duration-700 ease-in-out flex flex-col p-2">
                                         <div class="w-full h-full overflow-hidden rounded-xl bg-dark-bg relative">
                                             <img src="./slide8.png" class="w-full h-full object-contain" alt="EDGEX Sonuç">
@@ -333,7 +338,7 @@
                                     </div>
                                 </div>
         
-                                <!-- Indicators & Controls -->
+                                
                                 <div class="flex items-center justify-between mt-4 flex-shrink-0 px-1">
                                     <div class="flex items-center gap-2">
                                         <span class="hero-slide-dot w-4 h-2 rounded-full bg-brand-primary transition-all duration-300 cursor-pointer"></span>
@@ -358,7 +363,7 @@
             </div>
         </section>
 
-        <!-- Transparency & Success Proof Section -->
+        
         <section id="proof" class="py-24 px-6 border-t border-dark-border bg-dark-bg/60 relative z-10">
             <div class="max-w-4xl mx-auto text-center">
                 <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-brand-primary/30 bg-brand-primary/10 text-brand-primary text-xs font-semibold mb-6 uppercase tracking-wider">
@@ -370,7 +375,7 @@
                     Ezbere dayalı değil, piyasada birebir çalışan modeller. Sürecimizin doğruluğunu ve işlemlerimizin canlı performansını aşağıdaki gerçek işlem kaydından inceleyebilirsiniz.
                 </p>
                 
-                <!-- GIF Showcase Container -->
+                
                 <div class="glass-panel p-4 rounded-3xl border border-dark-border shadow-2xl relative overflow-hidden group hover:border-brand-primary/30 transition-all max-w-2xl mx-auto">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 flex items-end justify-center pb-6 transition-all duration-300 pointer-events-none">
                         <span class="text-white text-xs font-bold px-4 py-2 bg-dark-bg/90 border border-dark-border rounded-xl shadow-xl flex items-center gap-1.5 backdrop-blur-md">
@@ -382,13 +387,13 @@
             </div>
         </section>
 
-        <!-- About & Achievements Section -->
+        
         <section id="about" class="py-24 px-6 border-t border-dark-border bg-dark-panel/20 relative z-10">
             <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
             <div class="max-w-7xl mx-auto relative z-10">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
                     
-                    <!-- Left Column: Biography -->
+                    
                     <div class="lg:col-span-7 space-y-6 text-left">
                         <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-brand-primary/30 bg-brand-primary/10 text-brand-primary text-xs font-semibold mb-2 uppercase tracking-wider">
                             <i data-lucide="user" class="w-3.5 h-3.5 animate-pulse"></i>
@@ -414,28 +419,28 @@
                             </p>
                         </div>
                         
-                        <!-- Social Media Follow Block in About Section -->
+                        
                         <div class="flex flex-wrap items-center gap-4 pt-2">
                             <span class="text-xs font-bold text-gray-500 uppercase tracking-wider font-display">Takip Edin:</span>
                             
-                            <!-- Kick Link -->
+                            
                             <a href="https://kick.com/gtraderfx" target="_blank" class="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[#53fc18]/20 bg-[#53fc18]/5 text-[#53fc18] hover:bg-[#53fc18]/10 hover:border-[#53fc18]/40 hover:-translate-y-0.5 transition-all font-display font-bold text-xs uppercase tracking-wider">
                                 <span class="w-1.5 h-1.5 rounded-full bg-[#53fc18] animate-pulse"></span>
                                 <i data-lucide="tv" class="w-3.5 h-3.5"></i> Kick Yayın
                             </a>
                             
-                            <!-- YouTube Link -->
+                            
                             <a href="https://www.youtube.com/@Gtradefx" target="_blank" class="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-red-500/20 bg-red-500/5 text-red-400 hover:bg-red-500/10 hover:border-red-500/40 hover:-translate-y-0.5 transition-all font-display font-bold text-xs uppercase tracking-wider">
-                                <i data-lucide="youtube" class="w-3.5 h-3.5"></i> YouTube
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg> YouTube
                             </a>
                             
-                            <!-- Instagram Link -->
+                            
                             <a href="https://www.instagram.com/gtradefx1/" target="_blank" class="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-pink-500/20 bg-pink-500/5 text-pink-400 hover:bg-pink-500/10 hover:border-pink-500/40 hover:-translate-y-0.5 transition-all font-display font-bold text-xs uppercase tracking-wider">
-                                <i data-lucide="instagram" class="w-3.5 h-3.5"></i> Instagram
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg> Instagram
                             </a>
                         </div>
                         
-                        <!-- Premium Callout Box (Unutma...) -->
+                        
                         <div class="glass-panel p-5 rounded-2xl border-l-4 border-l-brand-primary border-brand-primary/20 bg-brand-primary/5 max-w-2xl mt-6 relative overflow-hidden group">
                             <div class="absolute -right-6 -bottom-6 text-brand-primary/5 group-hover:scale-110 transition-transform duration-500">
                                 <i data-lucide="trending-up" class="w-24 h-24"></i>
@@ -450,14 +455,14 @@
                         </div>
                     </div>
                     
-                    <!-- Right Column: MT5 Proof Screenshot & Stats Badges -->
+                    
                     <div class="lg:col-span-5 w-full">
                         <div class="relative w-full max-w-md mx-auto lg:max-w-none group">
-                            <!-- Glowing background effect -->
+                            
                             <div class="absolute -inset-1 bg-gradient-to-r from-brand-primary to-brand-accent rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
                             
                             <div class="relative glass-panel rounded-3xl border border-dark-border p-4 shadow-2xl overflow-hidden bg-dark-panel/90 flex flex-col justify-between">
-                                <!-- Top Bar -->
+                                
                                 <div class="flex items-center justify-between border-b border-dark-border/80 pb-3 mb-4">
                                     <div class="flex items-center gap-1.5">
                                         <span class="w-3 h-3 rounded-full bg-red-500/80"></span>
@@ -470,7 +475,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Image Container -->
+                                
                                 <div class="relative rounded-2xl overflow-hidden bg-white/95 border border-dark-border/60 p-1 flex items-center justify-center cursor-zoom-in group/img" onclick="app.openLightbox('./about_proof.png')">
                                     <div class="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-all duration-300 z-10">
                                         <span class="text-white text-xs font-bold px-3 py-2 bg-dark-bg/90 border border-dark-border rounded-xl shadow-xl flex items-center gap-1.5 backdrop-blur-md">
@@ -480,7 +485,7 @@
                                     <img src="./about_proof.png" class="w-full h-auto rounded-xl object-contain shadow-inner transition-transform duration-500 group-hover/img:scale-105" alt="MetaTrader 5 Portföy Performansı" />
                                 </div>
 
-                                <!-- Verified Badges Grid -->
+                                
                                 <div class="grid grid-cols-2 gap-3 mt-4">
                                     <div class="glass-panel px-4 py-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 flex items-center gap-2.5">
                                         <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
@@ -518,7 +523,7 @@
             </div>
         </section>
 
-        <!-- Curriculum Section -->
+        
         <section id="curriculum" class="py-24 px-6 bg-dark-panel/40 border-t border-dark-border relative z-10">
             <div class="max-w-7xl mx-auto">
                 <div class="text-center mb-16">
@@ -527,7 +532,7 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <!-- Module 1 -->
+                    
                     <div class="glass-panel p-8 rounded-2xl group hover:border-brand-primary/40 transition-all cursor-pointer hover:-translate-y-1" onclick="app.requireLoginPrompt()">
                         <div class="w-14 h-14 rounded-xl bg-dark-bg border border-dark-border flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg">
                             <i data-lucide="lock" class="w-6 h-6 text-gray-500 group-hover:text-brand-primary transition-colors"></i>
@@ -540,7 +545,7 @@
                         </div>
                     </div>
 
-                    <!-- Module 2 -->
+                    
                     <div class="glass-panel p-8 rounded-2xl group hover:border-brand-primary/40 transition-all cursor-pointer hover:-translate-y-1" onclick="app.requireLoginPrompt()">
                         <div class="w-14 h-14 rounded-xl bg-dark-bg border border-dark-border flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg">
                             <i data-lucide="lock" class="w-6 h-6 text-gray-500 group-hover:text-brand-primary transition-colors"></i>
@@ -553,7 +558,7 @@
                         </div>
                     </div>
 
-                    <!-- Module 3 -->
+                    
                     <div class="glass-panel p-8 rounded-2xl group hover:border-brand-primary/40 transition-all cursor-pointer hover:-translate-y-1" onclick="app.requireLoginPrompt()">
                         <div class="w-14 h-14 rounded-xl bg-dark-bg border border-dark-border flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg">
                             <i data-lucide="lock" class="w-6 h-6 text-gray-500 group-hover:text-brand-primary transition-colors"></i>
@@ -566,7 +571,7 @@
                         </div>
                     </div>
 
-                    <!-- Module 4 -->
+                    
                     <div class="glass-panel p-8 rounded-2xl group hover:border-brand-primary/40 transition-all cursor-pointer hover:-translate-y-1" onclick="app.requireLoginPrompt()">
                         <div class="w-14 h-14 rounded-xl bg-dark-bg border border-dark-border flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg">
                             <i data-lucide="lock" class="w-6 h-6 text-gray-500 group-hover:text-brand-primary transition-colors"></i>
@@ -582,7 +587,7 @@
             </div>
         </section>
 
-        <!-- How to Register Section -->
+        
         <section id="registration" class="py-24 px-6 border-t border-dark-border bg-dark-panel/20 relative z-10">
             <div class="max-w-7xl mx-auto">
                 <div class="text-center mb-16">
@@ -597,9 +602,9 @@
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-                    <!-- Left Side: Steps -->
+                    
                     <div class="lg:col-span-7 space-y-6">
-                        <!-- Step 1 -->
+                        
                         <div class="glass-panel p-6 rounded-2xl border border-dark-border flex items-start gap-4 hover:border-brand-primary/30 transition-all group">
                             <div class="w-10 h-10 rounded-xl bg-brand-accent/10 border border-brand-accent/20 flex items-center justify-center text-brand-accent font-bold flex-shrink-0 group-hover:bg-brand-primary/10 group-hover:border-brand-primary/20 group-hover:text-brand-primary transition-all">
                                 1
@@ -617,7 +622,7 @@
                             </div>
                         </div>
 
-                        <!-- Step 2 -->
+                        
                         <div class="glass-panel p-6 rounded-2xl border border-dark-border flex items-start gap-4 hover:border-brand-primary/30 transition-all group">
                             <div class="w-10 h-10 rounded-xl bg-brand-accent/10 border border-brand-accent/20 flex items-center justify-center text-brand-accent font-bold flex-shrink-0 group-hover:bg-brand-primary/10 group-hover:border-brand-primary/20 group-hover:text-brand-primary transition-all">
                                 2
@@ -632,7 +637,7 @@
                             </div>
                         </div>
 
-                        <!-- Step 3 -->
+                        
                         <div class="glass-panel p-6 rounded-2xl border border-dark-border flex items-start gap-4 hover:border-brand-primary/30 transition-all group">
                             <div class="w-10 h-10 rounded-xl bg-brand-accent/10 border border-brand-accent/20 flex items-center justify-center text-brand-accent font-bold flex-shrink-0 group-hover:bg-brand-primary/10 group-hover:border-brand-primary/20 group-hover:text-brand-primary transition-all">
                                 3
@@ -647,7 +652,7 @@
                             </div>
                         </div>
 
-                        <!-- Step 4 -->
+                        
                         <div class="glass-panel p-6 rounded-2xl border border-dark-border flex items-start gap-4 hover:border-brand-primary/30 transition-all group">
                             <div class="w-10 h-10 rounded-xl bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center text-brand-primary font-bold flex-shrink-0 transition-all shadow-[0_0_10px_rgba(16,185,129,0.1)]">
                                 4
@@ -663,7 +668,7 @@
                         </div>
                     </div>
 
-                    <!-- Right Side: Telegram Guide Image Mockup -->
+                    
                     <div class="lg:col-span-5">
                         <div class="glass-panel p-3 rounded-3xl border border-dark-border shadow-2xl relative overflow-hidden group hover:border-brand-primary/30 transition-all">
                             <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent p-6 flex flex-col justify-end text-left pointer-events-none z-10">
@@ -679,7 +684,7 @@
             </div>
         </section>
 
-        <!-- Disclaimer Section -->
+        
         <section id="disclaimer" class="py-12 px-6 border-t border-dark-border bg-dark-bg/40 relative z-10">
             <div class="max-w-4xl mx-auto">
                 <div class="glass-panel p-6 md:p-8 rounded-2xl border border-dark-border/60 bg-dark-panel/40">
@@ -709,10 +714,10 @@
             </div>
         </section>
 
-        <!-- Footer -->
+        
         <footer class="py-10 border-t border-dark-border bg-dark-bg relative z-10">
             <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
-                <!-- Brand logo left -->
+                
                 <div class="flex items-center gap-2">
                     <div class="w-8 h-8 rounded-lg bg-brand-primary/10 flex items-center justify-center border border-brand-primary/20">
                         <i data-lucide="bar-chart-2" class="w-4.5 h-4.5 text-brand-primary"></i>
@@ -720,38 +725,36 @@
                     <span class="font-display font-bold uppercase tracking-wider text-sm text-white">Wyckoff<span class="text-brand-primary">Akademi</span></span>
                 </div>
                 
-                <!-- Copyright center -->
+                
                 <div class="text-gray-500 text-xs md:text-sm">
                     &copy; 2026 Tüm hakları saklıdır. Yatırım tavsiyesi değildir.
                 </div>
                 
-                <!-- Social media icons right -->
+                
                 <div class="flex items-center gap-3">
-                    <!-- Kick -->
+                    
                     <a href="https://kick.com/gtraderfx" target="_blank" title="Kick Canlı Yayın" class="w-9 h-9 rounded-lg bg-[#53fc18]/10 border border-[#53fc18]/20 flex items-center justify-center text-[#53fc18] hover:bg-[#53fc18] hover:text-black hover:scale-105 transition-all shadow-sm">
                         <span class="font-display font-black text-xs">K.</span>
                     </a>
                     
-                    <!-- YouTube -->
+                    
                     <a href="https://www.youtube.com/@Gtradefx" target="_blank" title="YouTube Kanalı" class="w-9 h-9 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 hover:bg-red-500 hover:text-white hover:scale-105 transition-all shadow-sm">
-                        <i data-lucide="youtube" class="w-4.5 h-4.5"></i>
+                        <svg class="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg>
                     </a>
                     
-                    <!-- Instagram -->
+                    
                     <a href="https://www.instagram.com/gtradefx1/" target="_blank" title="Instagram Hesabı" class="w-9 h-9 rounded-lg bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-400 hover:bg-pink-500 hover:text-white hover:scale-105 transition-all shadow-sm">
-                        <i data-lucide="instagram" class="w-4.5 h-4.5"></i>
+                        <svg class="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
                     </a>
                 </div>
             </div>
         </footer>
     </div>
 
-    <!-- ==========================================
-         2. LOGIN PAGE
-    =========================================== -->
+    
     <div id="loginView" class="hidden flex-grow flex items-center justify-center chart-bg relative px-4">
         
-        <!-- Back button -->
+        
         <button onclick="app.showLanding()" class="absolute top-6 left-6 text-gray-400 hover:text-white flex items-center gap-2 transition-colors glass-panel px-4 py-2.5 rounded-xl text-sm font-medium z-20">
             <i data-lucide="arrow-left" class="w-4 h-4"></i>
             Ana Sayfaya Dön
@@ -813,15 +816,13 @@
         </div>
     </div>
 
-    <!-- ==========================================
-         3. STUDENT DASHBOARD
-    =========================================== -->
+    
     <div id="dashboardView" class="hidden flex-grow flex flex-col md:flex-row h-screen overflow-hidden bg-dark-bg">
         
-        <!-- Sidebar -->
+        
         <aside class="w-full md:w-80 bg-dark-panel border-r border-dark-border flex flex-col flex-shrink-0 transition-transform duration-300 md:translate-x-0 absolute md:relative z-40 h-full -translate-x-full shadow-2xl md:shadow-none" id="sidebar">
             
-            <!-- Sidebar Header -->
+            
             <div class="p-6 border-b border-dark-border flex justify-between items-center bg-dark-bg/50">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-lg bg-brand-primary/10 flex items-center justify-center border border-brand-primary/30">
@@ -834,7 +835,7 @@
                 </button>
             </div>
             
-            <!-- Tab Switcher -->
+            
             <div class="px-4 pt-4 flex gap-2 border-b border-dark-border/50 pb-3 flex-shrink-0 bg-dark-bg/20">
                 <button onclick="app.switchTab('videos')" id="tabBtnVideos" class="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-bold transition-all border border-brand-primary/30 bg-brand-primary/10 text-brand-primary">
                     <i data-lucide="video" class="w-3.5 h-3.5"></i>
@@ -846,12 +847,12 @@
                 </button>
             </div>
 
-            <!-- Module / Notes List -->
+            
             <div class="flex-grow overflow-y-auto p-4 space-y-6 custom-scrollbar" id="moduleList">
-                <!-- Modules or Notes will be dynamically injected here -->
+                
             </div>
 
-            <!-- User Profile Area -->
+            
             <div class="p-5 border-t border-dark-border bg-dark-bg/80">
                 <div class="flex items-center gap-3 mb-4">
                     <div class="w-10 h-10 rounded-full bg-brand-primary/20 flex items-center justify-center text-brand-primary text-base font-bold uppercase border border-brand-primary/30" id="userInitial">
@@ -871,10 +872,10 @@
             </div>
         </aside>
 
-        <!-- Main Content (Video Area) -->
+        
         <main class="flex-grow flex flex-col h-full relative overflow-hidden">
             
-            <!-- Mobile Header -->
+            
             <header class="md:hidden glass-panel border-b border-dark-border p-4 flex items-center justify-between z-20">
                 <div class="flex items-center gap-2">
                     <div class="w-8 h-8 rounded-lg bg-brand-primary/10 flex items-center justify-center border border-brand-primary/30">
@@ -887,10 +888,10 @@
                 </button>
             </header>
 
-            <!-- Video Container -->
+            
             <div class="flex-grow overflow-y-auto relative w-full custom-scrollbar" id="videoContainer">
                 
-                <!-- Initial State (No Video Selected) -->
+                
                 <div id="noVideoState" class="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-dark-bg overflow-y-auto custom-scrollbar">
                     <div class="w-20 h-20 md:w-24 md:h-24 bg-dark-panel rounded-full flex items-center justify-center border border-dark-border mb-6 shadow-inner relative flex-shrink-0">
                         <div class="absolute inset-0 rounded-full border border-brand-primary/20 animate-ping opacity-20"></div>
@@ -899,7 +900,7 @@
                     <h2 class="font-display text-2xl md:text-3xl font-bold text-white mb-3">Eğitime Başlayın</h2>
                     <p class="text-gray-400 max-w-md leading-relaxed text-sm md:text-base">Sol menüden yetkili olduğunuz modülleri seçerek ders videolarını izleyebilirsiniz.</p>
                     
-                    <!-- Akademi Duyurusu Panel -->
+                    
                     <div id="announcementContainer" class="mt-8 max-w-md w-full mx-auto hidden transition-all duration-300 transform scale-95 hover:scale-100 flex-shrink-0">
                         <div class="glass-panel border border-brand-primary/20 rounded-2xl p-5 text-left relative overflow-hidden bg-brand-primary/5 shadow-xl shadow-brand-primary/5">
                             <div class="absolute -right-8 -top-8 w-24 h-24 bg-brand-primary/10 rounded-full blur-xl"></div>
@@ -918,19 +919,19 @@
                     </div>
                 </div>
 
-                <!-- Video Playing State -->
+                
                 <div id="videoPlayerState" class="hidden h-full flex-col">
-                    <!-- 16:9 Video Aspect Ratio Container -->
+                    
                     <div class="w-full bg-black relative border-b border-dark-border shadow-2xl aspect-video xl:aspect-[21/9] flex-shrink-0 flex items-center justify-center overflow-hidden">
                         
-                        <!-- Secure Iframe Wrapper -->
+                        
                         <div id="iframeWrapper" class="absolute inset-0 w-full h-full">
-                            <!-- JS will safely inject iframe here -->
+                            
                         </div>
                         
                     </div>
                     
-                    <!-- Video Metadata -->
+                    
                     <div class="p-6 md:p-10 max-w-6xl mx-auto w-full flex-grow">
                         <div class="flex items-center gap-3 mb-4">
                             <span class="inline-block px-3 py-1 rounded-md border border-brand-primary/30 bg-brand-primary/10 text-brand-primary text-xs font-bold uppercase tracking-widest" id="currentModuleBadge">
@@ -954,16 +955,16 @@
                     </div>
                 </div>
 
-                <!-- Note Playing State -->
+                
                 <div id="noteContentState" class="hidden h-full flex flex-col">
-                    <!-- Note Header Image or TradingView Widget Container -->
+                    
                     <div class="w-full bg-black relative border-b border-dark-border shadow-2xl aspect-video xl:aspect-[21/9] flex-shrink-0 flex items-center justify-center overflow-hidden">
                         <div id="noteMediaContainer" class="absolute inset-0 w-full h-full">
-                            <!-- TradingView widget or chart image will be injected here -->
+                            
                         </div>
                     </div>
                     
-                    <!-- Note Metadata & Article Content -->
+                    
                     <div class="p-6 md:p-10 max-w-4xl mx-auto w-full flex-grow overflow-y-auto custom-scrollbar">
                         <div class="flex items-center gap-3 mb-4">
                             <span class="inline-block px-3 py-1 rounded-md border border-brand-primary/30 bg-brand-primary/10 text-brand-primary text-xs font-bold uppercase tracking-widest" id="currentNoteBadge">
@@ -981,7 +982,7 @@
                         
                         <div class="w-16 h-1 bg-brand-primary rounded-full mb-6"></div>
                         
-                        <!-- Premium Detailed Article body -->
+                        
                         <div class="bg-dark-panel border border-dark-border rounded-2xl p-6 md:p-8 text-gray-300 text-sm md:text-base leading-relaxed whitespace-pre-line prose prose-invert max-w-none" id="currentNoteBody">
                             Not detayları...
                         </div>
@@ -990,16 +991,14 @@
             </div>
         </main>
         
-        <!-- Mobile Sidebar Overlay -->
+        
         <div id="sidebarOverlay" onclick="app.toggleSidebar()" class="md:hidden fixed inset-0 bg-black/70 z-30 hidden backdrop-blur-sm transition-opacity"></div>
     </div>
 
-    <!-- ==========================================
-         4. SECURITY & COPYRIGHT AGREEMENT MODAL
-    =========================================== -->
+    
     <div id="securityAgreementModal" class="hidden fixed inset-0 z-[100] items-center justify-center bg-black/90 backdrop-blur-xl px-4 overflow-y-auto py-8">
         <div class="glass-panel w-full max-w-[550px] p-6 md:p-8 rounded-3xl shadow-2xl border-red-500/30 relative bg-dark-panel/90 flex flex-col my-auto border">
-            <!-- Pulsing Alert Header -->
+            
             <div class="text-center mb-6">
                 <div class="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center mx-auto mb-4 relative animate-pulse">
                     <span class="absolute inset-0 rounded-2xl border border-red-500/20 animate-ping opacity-30"></span>
@@ -1009,7 +1008,7 @@
                 <p class="text-gray-400 text-xs leading-relaxed max-w-sm mx-auto">Akademi paneline erişebilmek için aşağıdaki yasal güvenlik maddelerini okuyup onaylamanız gerekmektedir.</p>
             </div>
 
-            <!-- Warning Callout -->
+            
             <div class="bg-red-500/5 border border-red-500/20 rounded-xl p-4 mb-6 text-left flex items-start gap-3">
                 <i data-lucide="alert-triangle" class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5 animate-bounce"></i>
                 <div class="text-xs text-red-300 leading-relaxed font-semibold">
@@ -1017,9 +1016,9 @@
                 </div>
             </div>
 
-            <!-- Agreement Form -->
+            
             <form onsubmit="app.acceptAgreement(event)" class="space-y-4 text-left">
-                <!-- Checkbox 1 -->
+                
                 <label class="flex items-start gap-3 p-3.5 rounded-xl border border-dark-border bg-dark-bg/40 hover:bg-dark-bg/60 cursor-pointer transition-colors group select-none">
                     <input type="checkbox" id="agreeTelif" required onchange="app.checkAgreementForm()"
                         class="w-4 h-4 mt-0.5 accent-red-500 rounded focus:ring-red-500 text-red-600 bg-dark-bg border-dark-border cursor-pointer">
@@ -1028,7 +1027,7 @@
                     </span>
                 </label>
 
-                <!-- Checkbox 2 -->
+                
                 <label class="flex items-start gap-3 p-3.5 rounded-xl border border-dark-border bg-dark-bg/40 hover:bg-dark-bg/60 cursor-pointer transition-colors group select-none">
                     <input type="checkbox" id="agreeTakip" required onchange="app.checkAgreementForm()"
                         class="w-4 h-4 mt-0.5 accent-red-500 rounded focus:ring-red-500 text-red-600 bg-dark-bg border-dark-border cursor-pointer">
@@ -1037,7 +1036,7 @@
                     </span>
                 </label>
 
-                <!-- Checkbox 3 -->
+                
                 <label class="flex items-start gap-3 p-3.5 rounded-xl border border-dark-border bg-dark-bg/40 hover:bg-dark-bg/60 cursor-pointer transition-colors group select-none">
                     <input type="checkbox" id="agreeSorumluluk" required onchange="app.checkAgreementForm()"
                         class="w-4 h-4 mt-0.5 accent-red-500 rounded focus:ring-red-500 text-red-600 bg-dark-bg border-dark-border cursor-pointer">
@@ -1046,7 +1045,7 @@
                     </span>
                 </label>
 
-                <!-- Submit Button -->
+                
                 <button type="submit" id="agreeSubmitBtn" disabled
                     class="w-full py-4 rounded-xl font-bold text-sm tracking-wider uppercase transition-all flex justify-center items-center gap-2 mt-4 bg-red-600/30 text-red-400 border border-red-500/20 cursor-not-allowed opacity-50">
                     <i data-lucide="shield-check" class="w-4 h-4"></i>
@@ -1056,28 +1055,32 @@
         </div>
     </div>
 
-    <!-- ==========================================
-         APPLICATION LOGIC (JS)
-    =========================================== -->
+    
     <script>
-        // ------------------------------------------------------------------
-        // [1] SUPABASE CONFIGURATION
-        // YÖNETİCİ BURAYA KENDİ SUPABASE BİLGİLERİNİ GİRMELİDİR.
-        // ------------------------------------------------------------------
+
+
+
+
         const SUPABASE_URL = 'https://kwdyomjvjkvixxvqvszm.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3ZHlvbWp2amt2aXh4dnF2c3ptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxMjM4MzYsImV4cCI6MjA5NDY5OTgzNn0.QhWccLNnLu05ZO5JX2e_HK3n-0GVzxT40SAIsq0xKjY';
         
-        // Init Supabase
+
         let supabaseClient;
         if (SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
-            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+                auth: {
+                    storage: window.sessionStorage,
+                    autoRefreshToken: true,
+                    persistSession: true
+                }
+            });
         } else {
             console.warn("DIKKAT: Supabase URL ve Key yapılandırılmamış.");
         }
 
-        // ------------------------------------------------------------------
-        // [2] APP STATE & CONTROLLER
-        // ------------------------------------------------------------------
+
+
+
         const app = {
             state: {
                 user: null,
@@ -1094,7 +1097,7 @@
                 lucide.createIcons();
                 this.showLoading();
                 
-                // Hareketsizlik kontrolü için dinleyiciler ekle
+
                 const updateActivity = () => {
                     this.state.lastActivityTime = Date.now();
                 };
@@ -1110,7 +1113,7 @@
                 }
 
                 try {
-                    // Check active session on load
+
                     const { data: { session } } = await supabaseClient.auth.getSession();
                     if (session) {
                         await this.loadUserProfile(session.user);
@@ -1124,7 +1127,7 @@
                 
                 this.hideLoading();
                 
-                // Listen for auth changes
+
                 supabaseClient.auth.onAuthStateChange((event, session) => {
                     if (event === 'SIGNED_OUT') {
                         this.state.user = null;
@@ -1134,11 +1137,44 @@
                 });
             },
 
-            // --- VIEW ROUTING ---
+
             hideAllViews: function() {
                 document.getElementById('landingView').classList.add('hidden');
                 document.getElementById('loginView').classList.add('hidden');
                 document.getElementById('dashboardView').classList.add('hidden');
+            },
+
+
+            getDeviceId: async function() {
+                let deviceId = localStorage.getItem('wyckoff_device_id');
+                
+
+                if (!deviceId) {
+                    deviceId = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2) + Date.now().toString(36);
+                    localStorage.setItem('wyckoff_device_id', deviceId);
+                }
+
+
+                try {
+                    const components = [
+                        navigator.userAgent,
+                        navigator.language,
+                        screen.width + 'x' + screen.height,
+                        Intl.DateTimeFormat().resolvedOptions().timeZone
+                    ].join('|');
+                    
+                    const msgBuffer = new TextEncoder().encode(components);
+                    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+                    const hashArray = Array.from(new Uint8Array(hashBuffer));
+                    const currentFingerprint = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                    
+
+                    localStorage.setItem('wyckoff_risk_fingerprint', currentFingerprint);
+                } catch (e) {
+                    console.warn("Fingerprint generation skipped");
+                }
+                
+                return deviceId;
             },
 
             showLanding: function() {
@@ -1157,20 +1193,20 @@
                 document.getElementById('dashboardView').classList.remove('hidden');
                 document.getElementById('dashboardView').classList.add('flex');
                 
-                // Update UI Profile
+
                 document.getElementById('userEmailDisplay').textContent = this.state.user.email;
                 document.getElementById('userInitial').textContent = this.state.user.email.charAt(0);
                 
                 await this.loadVideos();
                 await this.loadAnnouncement();
 
-                // Check Security Agreement
+
                 if (sessionStorage.getItem('wyckoff_agreement_accepted') !== 'true') {
                     const modal = document.getElementById('securityAgreementModal');
                     modal.classList.remove('hidden');
                     modal.classList.add('flex');
                     
-                    // Reset Checkboxes & Button
+
                     document.getElementById('agreeTelif').checked = false;
                     document.getElementById('agreeTakip').checked = false;
                     document.getElementById('agreeSorumluluk').checked = false;
@@ -1180,7 +1216,7 @@
                 }
             },
 
-            // --- AUTH LOGIC ---
+
             handleLogin: async function(e) {
                 e.preventDefault();
                 const email = document.getElementById('email').value;
@@ -1194,7 +1230,7 @@
                     return;
                 }
 
-                // UI Loading State
+
                 btn.disabled = true;
                 btnText.textContent = "Giriş Yapılıyor...";
                 iconContainer.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>';
@@ -1209,6 +1245,21 @@
 
                     if (error) throw error;
                     
+
+                    try {
+                        const deviceId = await this.getDeviceId();
+                        const { error: sessionError } = await supabaseClient.functions.invoke('session-manager', {
+                            body: { action: 'create', device_id: deviceId }
+                        });
+                        if (sessionError) {
+                            console.error("Session creation failed", sessionError);
+                            throw new Error("Oturum oluşturulamadı, güvenlik duvarı engelledi.");
+                        }
+                    } catch (sessionErr) {
+                        await supabaseClient.auth.signOut();
+                        throw sessionErr;
+                    }
+
                     this.showToast("Giriş başarılı, panele yönlendiriliyorsunuz.", "success");
                     await this.loadUserProfile(data.user);
                     
@@ -1219,7 +1270,7 @@
                     this.showToast(msg, "error");
                 } finally {
                     this.hideLoading();
-                    // Reset UI
+
                     btn.disabled = false;
                     btnText.textContent = "Giriş Yap";
                     iconContainer.innerHTML = '<i data-lucide="arrow-right" class="w-4 h-4"></i>';
@@ -1263,7 +1314,7 @@
                 return `${deviceName} - ${browserName}`;
             },
 
-            // RAW IP — Güvenlik binding için (backend'e gönderilir, loglanmaz)
+
             getRawClientIp: async function() {
                 const endpoints = [
                     'https://api.ipify.org?format=json',
@@ -1276,12 +1327,12 @@
                         const data = await res.json();
                         const ip = data.ip || data.IP || null;
                         if (ip && ip !== 'unknown' && ip.length > 3) return ip;
-                    } catch (e) { /* sonraki endpoint'i dene */ }
+                    } catch (e) {  }
                 }
                 return null; // Hiçbir endpoint çalışmazsa null döndür
             },
 
-            // MASKED IP — Sadece KVKK uyumlu loglama / UI gösterimi için
+
             getMaskedClientIp: function(rawIp) {
                 if (!rawIp) return 'Bilinmeyen IP';
                 if (rawIp.includes('.')) {
@@ -1294,7 +1345,7 @@
                 return rawIp;
             },
 
-            // Geriye dönük uyumluluk için (eski çağrılar bozulmasın)
+
             getClientIp: async function() {
                 const raw = await this.getRawClientIp();
                 return this.getMaskedClientIp(raw);
@@ -1330,7 +1381,7 @@
             logoutSilent: async function() {
                 if (this.sessionCheckInterval) clearInterval(this.sessionCheckInterval);
                 sessionStorage.removeItem('wyckoff_agreement_accepted');
-                localStorage.removeItem('wyckoff_session_id');
+                sessionStorage.removeItem('wyckoff_session_id');
                 document.getElementById('iframeWrapper').innerHTML = '';
                 document.getElementById('videoPlayerState').classList.add('hidden');
                 document.getElementById('noteContentState').classList.add('hidden');
@@ -1357,7 +1408,7 @@
                     const container = document.getElementById('securityViolationView');
                     if (container) container.remove();
                     
-                    // Oturumu tamamen kapatıp giriş yapma ekranına yönlendir
+
                     await this.logoutSilent();
                     this.showLogin();
                     
@@ -1375,18 +1426,18 @@
                 try {
                     this.showLoading();
                     
-                    // Sayfa yenilendiğinde (F5) kendini engellememesi için session ID'yi localStorage'dan okuyoruz.
-                    let savedSessionId = localStorage.getItem('wyckoff_session_id');
+
+                    let savedSessionId = sessionStorage.getItem('wyckoff_session_id');
                     if (!savedSessionId) {
                         savedSessionId = Math.random().toString(36).substring(2) + Date.now().toString(36);
-                        localStorage.setItem('wyckoff_session_id', savedSessionId);
+                        sessionStorage.setItem('wyckoff_session_id', savedSessionId);
                     }
                     this.state.localSessionId = savedSessionId;
                     
                     const clientIp = await this.getClientIp();
                     const deviceInfo = this.getDeviceInfo();
 
-                    // Kullanıcının yetkili modüllerini ve oturum verilerini çekiyoruz
+
                     const { data: profile, error } = await supabaseClient
                         .from('profiles')
                         .select('allowed_modules, last_session_id, last_active_at')
@@ -1400,12 +1451,12 @@
                     const profileData = profile || { allowed_modules: [], last_session_id: null, last_active_at: null };
                     this.state.profile = profileData;
 
-                    // -------------------------------------------------------------
-                    // YENİ GÜVENLİK SİSTEMİ (profiles UPDATE engeline karşı login_logs üzerinden)
-                    // -------------------------------------------------------------
+
+
+
                     this.state.myLoginTime = Date.now();
                     
-                    // En son girişi kontrol et
+
                     const { data: latestLog, error: logError } = await supabaseClient
                         .from('login_logs')
                         .select('status, created_at, device_info')
@@ -1420,16 +1471,16 @@
                         const lastLogTime = new Date(latestLog.created_at).getTime();
                         const timeDiff = Date.now() - lastLogTime;
                         
-                        // Eğer son kayıt 'success' ise ve üzerinden 2 saatten az geçmişse, hala aktif kabul edelim
+
                         if (latestLog.status === 'success' && timeDiff < (2 * 60 * 60 * 1000)) {
-                            // Cihaz isimleri farklıysa veya aynı cihazda yeni bir oturum açılıyorsa (sürekli yenileme hariç)
+
                             isOtherSessionActive = true;
                         }
                     }
 
                     if (isOtherSessionActive) {
-                        // KURAL: 2'SİNİ DE AT!
-                        // Diğer cihazın atılması için veritabanına 'terminated_conflict' sinyali gönderiyoruz
+
+
                         await supabaseClient
                             .from('login_logs')
                             .insert({
@@ -1443,7 +1494,7 @@
                         this.hideLoading();
                         this.showToast("Güvenlik İhlali: Aynı anda birden fazla cihazdan oturum açılamaz. Tüm aktif oturumlarınız sonlandırıldı.", "error");
                         
-                        // Kendimizi (yeni giren cihazı) de atıyoruz!
+
                         setTimeout(async () => {
                             await this.logoutSilent();
                             this.showLogin();
@@ -1451,27 +1502,32 @@
                         return; // Girişi durdur!
                     }
 
-                    // Kendi başarılı girişimizi logluyoruz
-                    // ÖNEMLİ: ip_address alanına RAW IP kaydediliyor (IP binding için şart!)
-                    // KVKK: masked_ip alanına maskelenmiş versiyon yazılıyor
-                    const rawLoginIp = await this.getRawClientIp();
-                    const maskedLoginIp = this.getMaskedClientIp(rawLoginIp);
-                    await supabaseClient
-                        .from('login_logs')
-                        .insert({
-                            user_id: user.id,
-                            user_email: user.email,
-                            device_info: deviceInfo,
-                            ip_address: rawLoginIp || 'unknown',   // RAW IP — binding için
-                            masked_ip: maskedLoginIp,              // Maskelenmiş — KVKK uyumu
-                            status: 'success'
-                        });
 
-                    // -------------------------------------------------------------
-                    // YENİ CİHAZ TESPİTİ (Güvenlik Uyarısı)
-                    // -------------------------------------------------------------
+
+
                     try {
-                        // Kullanıcının geçmiş başarılı girişlerini çekelim
+                        const rawLoginIp = await this.getRawClientIp();
+                        const maskedLoginIp = this.getMaskedClientIp(rawLoginIp);
+                        await supabaseClient
+                            .from('login_logs')
+                            .insert({
+                                user_id: user.id,
+                                user_email: user.email,
+                                device_info: deviceInfo,
+                                ip_address: rawLoginIp || 'unknown',   // RAW IP — binding için
+                                masked_ip: maskedLoginIp,              // Maskelenmiş — KVKK uyumu
+                                status: 'success'
+                            });
+                    } catch (logErr) {
+
+                        console.warn('Login log kaydedilemedi (devam ediliyor):', logErr);
+                    }
+
+
+
+
+                    try {
+
                         const { data: previousLogins } = await supabaseClient
                             .from('login_logs')
                             .select('device_info')
@@ -1481,19 +1537,19 @@
                             .limit(50);
                             
                         if (previousLogins && previousLogins.length > 1) { 
-                            // İlk eleman [0] az önce insert ettiğimiz şu anki girişimizdir.
-                            // O yüzden [1]'den itibaren eski cihazlara bakıyoruz.
+
+
                             const pastDevices = previousLogins.slice(1).map(log => log.device_info);
                             
-                            // Tekrar eden cihaz isimlerini eleyip benzersiz bir liste yapalım
+
                             const uniquePastDevices = [...new Set(pastDevices)];
                             
-                            // Eğer şu anki cihazımız, geçmişte kullandıklarımız arasında HİÇ YOKSA:
+
                             if (!uniquePastDevices.includes(deviceInfo)) {
                                 
                                 const pastDevicesStr = uniquePastDevices.join(', ') || 'Bilinmiyor';
                                 
-                                // Ayrı açtığımız güvenlik tablosuna uyarı olarak basıyoruz
+
                                 await supabaseClient.from('security_alerts').insert({
                                     user_id: user.id,
                                     user_email: user.email,
@@ -1504,18 +1560,15 @@
                             }
                         }
                     } catch (err) {
-                        // Tablo henüz kurulmamışsa veya hata olursa ana sistemi bozmasın
+
                         console.error("Yeni cihaz tespit sistemi hatası (Tablo kurulmamış olabilir):", err);
                     }
 
-                    // Heartbeat (Oturum Kontrolü)
-                    if (this.sessionCheckInterval) clearInterval(this.sessionCheckInterval);
+
+
+                    const idleLimit = 60 * 60 * 1000; // 1 saat
                     this.sessionCheckInterval = setInterval(async () => {
-                        if (!this.state.user) return;
                         try {
-                            // Hareketsizlik Kontrolü
-                            const isVideoOpen = document.getElementById('iframeWrapper').innerHTML !== '';
-                            const idleLimit = isVideoOpen ? 2 * 60 * 60 * 1000 : 30 * 60 * 1000;
                             const idleTime = Date.now() - this.state.lastActivityTime;
                             
                             if (idleTime > idleLimit) {
@@ -1525,43 +1578,34 @@
                                 return;
                             }
 
-                            // Sadece login_logs tablosunu okuyarak başkası girmiş mi kontrol ediyoruz!
-                            const { data: currentLog } = await supabaseClient
-                                .from('login_logs')
-                                .select('status, created_at')
-                                .eq('user_id', this.state.user.id)
-                                .order('created_at', { ascending: false })
-                                .limit(1)
-                                .single();
-                            
-                            if (currentLog) {
-                                const logTime = new Date(currentLog.created_at).getTime();
+
+                            const currentDeviceId = await this.getDeviceId();
+                            const { data, error } = await supabaseClient.functions.invoke('session-manager', {
+                                body: { action: 'refresh', device_id: currentDeviceId }
+                            });
+
+                            if (error) {
+                                clearInterval(this.sessionCheckInterval);
+                                console.error("Heartbeat error:", error);
+                                this.showToast("Güvenlik İhlali: Oturumunuz başka bir cihazdan açılmış olabilir.", "error");
                                 
-                                // Eğer veritabanındaki EN SON log, benim kendi giriş saatimden DAHA YENİYSE
-                                // bu demektir ki benden SONRA başka birisi giriş yapmış veya KICK sinyali göndermiş!
-                                if (logTime > this.state.myLoginTime + 5000) { // 5 saniye tolerans (kendi logumuzla çakışmamak için)
-                                    clearInterval(this.sessionCheckInterval);
-                                    
-                                    const toastMsg = currentLog.status === 'terminated_conflict'
-                                        ? "Güvenlik İhlali: Aynı anda birden fazla cihazdan oturum açılamaz. Oturumunuz sonlandırıldı."
-                                        : "Hesabınıza başka bir cihazdan giriş yapıldı. Oturumunuz sonlandırılıyor.";
-                                    
-                                    this.showToast(toastMsg, "error");
-                                    setTimeout(() => { 
-                                        this.logoutSilent().then(() => this.showLogin()); 
-                                    }, 2000);
-                                }
+
+                                document.getElementById('iframeWrapper').innerHTML = '';
+                                
+                                setTimeout(() => { 
+                                    this.logoutSilent().then(() => this.showLogin()); 
+                                }, 2000);
                             }
                         } catch (err) {
                             console.error("Session heartbeat error:", err);
                         }
-                    }, 10000);
+                    }, 60000); // 60 saniye
 
-                    // Sayfa kapanırken veya yenilenirken 'logout' logu atmak için event
+
                     window.onbeforeunload = () => {
                         if (this.state.user) {
-                            // Asenkron istek sayfa kapanırken garanti değildir ama sendBeacon kullanılabilir.
-                            // Şimdilik Supabase client ile şansımızı deniyoruz.
+
+
                             supabaseClient.from('login_logs').insert({
                                 user_id: this.state.user.id,
                                 user_email: this.state.user.email,
@@ -1584,11 +1628,11 @@
                 this.showLoading();
                 if (this.sessionCheckInterval) clearInterval(this.sessionCheckInterval);
                 
-                // Reset Security Agreement and Session
+
                 sessionStorage.removeItem('wyckoff_agreement_accepted');
-                localStorage.removeItem('wyckoff_session_id');
+                sessionStorage.removeItem('wyckoff_session_id');
                 
-                // Clear video state to prevent leaks
+
                 document.getElementById('iframeWrapper').innerHTML = '';
                 document.getElementById('videoPlayerState').classList.add('hidden');
                 document.getElementById('noteContentState').classList.add('hidden');
@@ -1598,7 +1642,7 @@
                 this.hideLoading();
             },
 
-            // --- DATA / SECURITY LOGIC ---
+
             loadVideos: async function() {
                 this.showLoading();
                 const allowed = this.state.profile.allowed_modules || [];
@@ -1612,8 +1656,8 @@
                 try {
                     let query = supabaseClient.from('videos').select('*').order('order_no', { ascending: true });
                     
-                    // Backend-side filtering: 
-                    // If 'hepsi' is not in array, only fetch specific modules
+
+
                     if (!allowed.includes('hepsi')) {
                         query = query.in('module_name', allowed);
                     }
@@ -1672,18 +1716,18 @@
                 const tabNotes = document.getElementById('tabBtnNotes');
 
                 if (tab === 'videos') {
-                    // Update tab styling
+
                     tabVideos.className = "flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-bold transition-all border border-brand-primary/30 bg-brand-primary/10 text-brand-primary";
                     tabNotes.className = "flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-medium transition-all text-gray-400 hover:text-white bg-transparent border border-transparent";
                     
-                    // Render video sidebar
+
                     this.renderSidebar();
                 } else {
-                    // Update tab styling
+
                     tabNotes.className = "flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-bold transition-all border border-brand-primary/30 bg-brand-primary/10 text-brand-primary";
                     tabVideos.className = "flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-medium transition-all text-gray-400 hover:text-white bg-transparent border border-transparent";
                     
-                    // Fetch and render notes sidebar
+
                     this.loadNotes();
                 }
                 lucide.createIcons();
@@ -1763,15 +1807,15 @@
             },
 
             playNote: function(note) {
-                // Hide other views
+
                 document.getElementById('noVideoState').classList.add('hidden');
                 document.getElementById('videoPlayerState').classList.add('hidden');
                 document.getElementById('noteContentState').classList.remove('hidden');
 
-                // Clear video player to stop playback
+
                 document.getElementById('iframeWrapper').innerHTML = '';
 
-                // Populate Note Data
+
                 document.getElementById('currentNoteTitle').textContent = note.title;
                 document.getElementById('currentNoteBody').innerHTML = note.content; // Render rich HTML
                 document.getElementById('currentNoteBadge').textContent = this.formatModuleName(note.module_name || 'Genel Not');
@@ -1785,14 +1829,14 @@
                     });
                 }
 
-                // Render TradingView Chart or Media
+
                 const mediaContainer = document.getElementById('noteMediaContainer');
                 mediaContainer.innerHTML = '';
 
                 if (note.chart_url) {
                     const chartUrl = note.chart_url.trim();
                     if (!chartUrl.startsWith('http') && chartUrl.length > 2) {
-                        // It is a Symbol! Load interactive TradingView Widget in iframe
+
                         const symbol = chartUrl.toUpperCase();
                         mediaContainer.innerHTML = `
                             <iframe 
@@ -1802,7 +1846,7 @@
                             </iframe>
                         `;
                     } else if (chartUrl.startsWith('http')) {
-                        // It is a direct URL. If it's a TradingView image snapshot or normal image, display it.
+
                         if (chartUrl.includes('/x/') || chartUrl.match(/\.(jpeg|jpg|gif|png|webp)/i)) {
                             let imgSrc = chartUrl;
                             if (chartUrl.includes('tradingview.com/x/')) {
@@ -1824,14 +1868,14 @@
                                 </div>
                             `;
                         } else {
-                            // Render standard iframe
+
                             mediaContainer.innerHTML = `
                                 <iframe src="${chartUrl}" style="border:0;position:absolute;top:0;left:0;height:100%;width:100%;" allowfullscreen></iframe>
                             `;
                         }
                     }
                 } else {
-                    // No chart provided
+
                     mediaContainer.innerHTML = `
                         <div class="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-brand-primary/10 to-dark-bg p-6 text-center">
                             <i data-lucide="line-chart" class="w-12 h-12 text-brand-primary/40 mb-3 animate-pulse"></i>
@@ -1853,7 +1897,7 @@
                 });
             },
 
-            // --- UI RENDERING ---
+
             renderSidebar: function() {
                 const container = document.getElementById('moduleList');
                 container.innerHTML = '';
@@ -1869,13 +1913,13 @@
                     const modDiv = document.createElement('div');
                     modDiv.className = 'mb-6';
                     
-                    // Module Header
+
                     const modHeader = document.createElement('h3');
                     modHeader.className = 'text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 px-2 flex items-center gap-2';
                     modHeader.innerHTML = `<i data-lucide="folder-open" class="w-4 h-4 text-brand-primary/70"></i> ${this.formatModuleName(moduleName)}`;
                     modDiv.appendChild(modHeader);
 
-                    // Video List
+
                     const ul = document.createElement('ul');
                     ul.className = 'space-y-1.5';
 
@@ -1895,7 +1939,7 @@
                             e.preventDefault();
                             this.playVideo(video);
                             
-                            // Highlight selected item visually
+
                             document.querySelectorAll('#moduleList a').forEach(el => {
                                 el.classList.remove('bg-brand-primary/10', 'text-brand-primary', 'border-brand-primary/30');
                                 el.classList.add('text-gray-400', 'border-transparent');
@@ -1929,17 +1973,21 @@
                 lucide.createIcons();
             },
 
-            // --- CORE SECURITY & PLAYER LOGIC ---
+
             playVideo: async function(video) {
                 
-                // 1. FRONTEND DOUBLE-CHECK AUTHORIZATION
+
+                if (!this.state.profile) {
+                    this.showToast("Oturum bilgileriniz yüklenemedi. Lütfen sayfayı yenileyip tekrar giriş yapın.", "error");
+                    return;
+                }
                 const allowed = this.state.profile.allowed_modules || [];
                 if (!allowed.includes('hepsi') && !allowed.includes(video.module_name)) {
                     this.showToast("Güvenlik İhlali: Bu modülü izleme yetkiniz yok.", "error");
                     return;
                 }
 
-                // 2. DATA INTEGRITY CHECK (Prevents DOM manipulation attacks)
+
                 const isValid = this.state.videos.find(v => v.id === video.id && v.bunny_url === video.bunny_url);
                 if (!isValid) {
                     this.showToast("Güvenlik İhlali: Geçersiz video kaynağı tespit edildi.", "error");
@@ -1948,82 +1996,124 @@
                 
                 this.showLoading();
 
-                // 3. GET SECURE TOKEN FROM SUPABASE (Real IP Binding)
-                // RAW IP backend'e gönderiliyor — maskelenmemiş — gerçek CIDR subnet match için
-                let secureBunnyUrl = video.bunny_url;
-                try {
-                    // Gerçek IP binding: raw IP al, timeout ile
-                    const rawIp = await this.getRawClientIp();
-                    
-                    if (!rawIp) {
-                        // IP alınamadıysa (offline, VPN bloğu vs.) kullanıcıya bildir
-                        this.hideLoading();
-                        this.showToast("IP adresiniz doğrulanamadı. İnternet bağlantınızı kontrol edin ve tekrar deneyin.", "error");
-                        return;
-                    }
 
-                    const { data, error } = await supabaseClient
-                        .rpc('get_secure_video_url', { 
-                            raw_url: video.bunny_url,
-                            client_ip: rawIp   // RAW IP — maskelenmemiş
-                        });
+                let secureBunnyUrl = "";
+                let watermarkText = "";
+                let hlsUrl = "";
+                let hlsToken = "";
+                let hlsExpires = "";
+                
+                try {
+                    const { data, error } = await supabaseClient.functions.invoke('get-video', {
+                        body: { 
+                            video_url: video.bunny_url,
+                            module_name: video.module_name,
+                            device_id: await this.getDeviceId()
+                        }
+                    });
                     
                     if (error) {
-                        // IP binding hatası mı? Kullanıcıya net mesaj ver
-                        if (error.message && error.message.includes('IP_BINDING_FAILED')) {
-                            this.hideLoading();
-                            this.showToast("Güvenlik Uyarısı: IP adresiniz giriş yaptığınız ağdan farklı. Lütfen çıkış yapıp tekrar giriş yapın.", "error");
-                            // Güvenlik için oturumu kapat
+                        this.hideLoading();
+
+                        if (error.message && error.message.includes('Rate limit')) {
+                            this.showToast("Çok fazla istek attınız. Lütfen biraz bekleyip tekrar deneyin.", "error");
+                            return;
+                        }
+
+                        if (error.message && error.message.includes('Unauthorized')) {
+                            this.showToast("Oturumunuz geçersiz. Lütfen tekrar giriş yapın.", "error");
                             setTimeout(async () => {
                                 await this.logoutSilent();
                                 this.showLogin();
                             }, 3000);
                             return;
                         }
-                        if (error.message && error.message.includes('IP_REQUIRED')) {
-                            this.hideLoading();
-                            this.showToast("IP adresiniz alınamadı. Lütfen VPN kullanmıyorsanız tekrar deneyin.", "error");
-                            return;
-                        }
                         throw error;
                     }
-                    if (data) {
-                        secureBunnyUrl = data;
+                    if (data && data.url) {
+                        hlsUrl = data.url;
+                        hlsToken = data.token;
+                        hlsExpires = data.expires;
+                        watermarkText = data.watermark_text || this.state.user?.email || "Wyckoff Academy";
                     }
                 } catch (e) {
                     console.error("Token alınamadı:", e);
-                    this.showToast("Video yüklenemedi. Sayfayı yenileyip tekrar deneyin.", "error");
                     this.hideLoading();
+                    
+
+                    if (e && e.name === 'FunctionsHttpError') {
+
+                        this.showToast("Güvenlik duvarı videoyu engelledi. Lütfen sayfayı yenileyip tekrar deneyin.", "error");
+                        return;
+                    }
+
+                    this.showToast("Video yüklenemedi. Sayfayı yenileyip tekrar deneyin.", "error");
                     return;
                 }
                 
                 this.hideLoading();
 
-                // Switch UI State
+
                 document.getElementById('noVideoState').classList.add('hidden');
                 document.getElementById('noteContentState').classList.add('hidden');
                 document.getElementById('videoPlayerState').classList.remove('hidden');
                 document.getElementById('videoPlayerState').classList.add('flex');
 
-                // Set Text
+
                 document.getElementById('currentVideoTitle').textContent = video.title;
                 document.getElementById('currentModuleBadge').textContent = this.formatModuleName(video.module_name);
                 document.getElementById('currentVideoDescription').textContent = video.description || "Bu ders Wyckoff Metodolojisi kapsamında kurumsal fiyat hareketlerini ve Smart Money konseptlerini anlamanız için hazırlanmıştır. Grafik üzerinde backtest yaparak not almanız tavsiye edilir.";
 
-                // 4. SECURE IFRAME INJECTION
+
                 const wrapper = document.getElementById('iframeWrapper');
                 wrapper.innerHTML = `
-                    <iframe 
-                        src="${secureBunnyUrl}" 
-                        loading="lazy" 
-                        class="absolute top-0 left-0 w-full h-full border-0 bg-black" 
-                        allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" 
-                        allowfullscreen="true">
-                    </iframe>
+                    <div class="relative w-full h-full bg-black overflow-hidden group">
+                        <video id="hls-video-player" controls autoplay class="absolute top-0 left-0 w-full h-full border-0"></video>
+                        
+                        <div class="pointer-events-none absolute inset-0 z-50 flex items-center justify-center overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-1000">
+                            <div class="transform -rotate-45 whitespace-nowrap text-white/10 font-mono text-2xl md:text-4xl font-bold tracking-widest select-none drop-shadow-md">
+                                ${watermarkText} • ${watermarkText} • ${watermarkText}
+                            </div>
+                        </div>
+                        
+                        <div class="pointer-events-none absolute top-4 left-4 z-50 opacity-20 text-white/30 text-xs font-mono select-none mix-blend-overlay">
+                            ${watermarkText}
+                        </div>
+                    </div>
                 `;
+
+                const videoElement = document.getElementById('hls-video-player');
+                if (window.Hls && Hls.isSupported()) {
+                    if (window.currentHlsPlayer) {
+                        window.currentHlsPlayer.destroy();
+                    }
+                    const hls = new Hls({
+                        xhrSetup: function(xhr, xhrUrl) {
+                            if (xhrUrl.includes('video.bunnycdn.com') || xhrUrl.includes('b-cdn.net')) {
+                                const parsedUrl = new URL(xhrUrl);
+                                parsedUrl.searchParams.set('token', hlsToken);
+                                parsedUrl.searchParams.set('expires', hlsExpires);
+                                xhr.open('GET', parsedUrl.toString(), true);
+                            }
+                        }
+                    });
+                    window.currentHlsPlayer = hls;
+                    hls.loadSource(hlsUrl);
+                    hls.attachMedia(videoElement);
+                    hls.on(Hls.Events.ERROR, (event, data) => {
+                        if (data.fatal) {
+                            console.error("HLS Fatal Error", data);
+                        }
+                    });
+                } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+                    const authUrl = new URL(hlsUrl);
+                    authUrl.searchParams.set('token', hlsToken);
+                    authUrl.searchParams.set('expires', hlsExpires);
+                    videoElement.src = authUrl.toString();
+                }
             },
 
-            // --- UTILS ---
+
             formatModuleName: function(name) {
                 return name.replace(/_/g, ' ').replace(/-/g, ' ');
             },
@@ -2043,7 +2133,7 @@
                 if (this.state.isSidebarOpen) {
                     sidebar.classList.remove('-translate-x-full');
                     overlay.classList.remove('hidden');
-                    // Add subtle fade-in to overlay
+
                     setTimeout(() => overlay.classList.add('opacity-100'), 10);
                 } else {
                     sidebar.classList.add('-translate-x-full');
@@ -2067,7 +2157,7 @@
 
                 toastMsg.textContent = msg;
 
-                // Reset standard classes
+
                 toast.className = 'fixed top-6 right-6 z-[90] transform transition-all duration-300 glass-panel px-6 py-4 rounded-xl shadow-2xl border-l-4 flex items-center gap-3 max-w-sm';
                 
                 if (type === "success") {
@@ -2083,12 +2173,12 @@
 
                 lucide.createIcons();
 
-                // Animate In
+
                 setTimeout(() => {
                     toast.classList.remove('translate-y-[-150%]', 'opacity-0');
                 }, 10);
 
-                // Auto Hide After 3.5s
+
                 if (this.toastTimeout) clearTimeout(this.toastTimeout);
                 this.toastTimeout = setTimeout(() => {
                     toast.classList.add('translate-y-[-150%]', 'opacity-0');
@@ -2174,13 +2264,13 @@
                 showSlide(currentSlide);
             }
 
-            // Initial Call
+
             showSlide(0);
 
-            // Set interval for auto-sliding every 3.5 seconds
+
             let slideInterval = setInterval(nextSlide, 3500);
 
-            // Dot clicks
+
             dots.forEach((dot, i) => {
                 dot.addEventListener('click', () => {
                     clearInterval(slideInterval);
@@ -2191,14 +2281,14 @@
             });
         }
 
-        // Boot
+
         document.addEventListener('DOMContentLoaded', () => {
             app.init();
             initHeroSlideshow();
         });
 
     </script>
-    <!-- Image Lightbox Modal -->
+    
     <div id="lightboxModal" onclick="app.closeLightbox()" class="fixed inset-0 bg-black/95 z-[100] hidden flex items-center justify-center p-4 md:p-10 backdrop-blur-md cursor-zoom-out transition-all duration-300">
         <button onclick="app.closeLightbox()" class="absolute top-6 right-6 text-gray-400 hover:text-white bg-dark-panel p-2.5 rounded-full border border-dark-border shadow-2xl">
             <i data-lucide="x" class="w-6 h-6"></i>
