@@ -1933,20 +1933,33 @@
                 
                 this.showLoading();
 
-                // 3. GET SECURE TOKEN FROM SUPABASE (Backend Token Generation)
-                // We call the PostgreSQL function to generate the token securely without exposing the key
+                // 3. GET SECURE TOKEN FROM SUPABASE (Backend Token Generation + IP Binding)
+                // We send the user's IP so backend can verify it matches their login IP
                 let secureBunnyUrl = video.bunny_url;
                 try {
+                    // Get raw (unmasked) IP for security binding
+                    let clientIp = 'unknown';
+                    try {
+                        const ipRes = await fetch('https://api.ipify.org?format=json');
+                        const ipData = await ipRes.json();
+                        clientIp = ipData.ip || 'unknown';
+                    } catch(ipErr) { /* IP alınamazsa devam et */ }
+
                     const { data, error } = await supabaseClient
-                        .rpc('get_secure_video_url', { raw_url: video.bunny_url });
+                        .rpc('get_secure_video_url', { 
+                            raw_url: video.bunny_url,
+                            client_ip: clientIp
+                        });
                     
                     if (error) throw error;
                     if (data) {
                         secureBunnyUrl = data;
                     }
                 } catch (e) {
-                    console.error("Token alınamadı, normal link denenecek:", e);
-                    // Fallback to raw URL just in case token system fails, though Bunny will block it
+                    console.error("Token alınamadı:", e);
+                    this.showToast("Video yüklenemedi. Sayfayı yenileyip tekrar deneyin.", "error");
+                    this.hideLoading();
+                    return;
                 }
                 
                 this.hideLoading();
