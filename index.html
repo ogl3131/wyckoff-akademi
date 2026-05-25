@@ -102,7 +102,7 @@
         }
     </style>
 </head>
-<body class="flex flex-col min-h-screen antialiased selection:bg-brand-primary selection:text-white">
+<body class="flex flex-col min-h-screen antialiased selection:bg-brand-primary selection:text-white overflow-x-hidden w-full max-w-[100vw]">
 
     
     <div id="loadingOverlay" class="fixed inset-0 bg-dark-bg/90 backdrop-blur-sm z-[100] flex flex-col items-center justify-center hidden">
@@ -151,7 +151,7 @@
             <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
             
             <div class="max-w-7xl mx-auto w-full relative z-10">
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
                     
                     
                     <div class="lg:col-span-7 text-left space-y-6 flex flex-col items-start">
@@ -760,7 +760,7 @@
             Ana Sayfaya Dön
         </button>
 
-        <div class="glass-panel w-full max-w-[400px] p-8 md:p-10 rounded-2xl shadow-2xl border-brand-primary/20 relative z-10">
+        <div class="glass-panel w-full max-w-[400px] p-6 md:p-10 rounded-2xl shadow-2xl border-brand-primary/20 relative z-10">
             <div class="text-center mb-8">
                 <div class="w-16 h-16 rounded-2xl bg-dark-bg border border-dark-border flex items-center justify-center mx-auto mb-5 shadow-inner">
                     <i data-lucide="user" class="w-8 h-8 text-brand-primary"></i>
@@ -932,7 +932,7 @@
                     </div>
                     
                     
-                    <div class="p-6 md:p-10 max-w-6xl mx-auto w-full flex-grow">
+                    <div class="p-4 md:p-10 max-w-6xl mx-auto w-full flex-grow">
                         <div class="flex items-center gap-3 mb-4">
                             <span class="inline-block px-3 py-1 rounded-md border border-brand-primary/30 bg-brand-primary/10 text-brand-primary text-xs font-bold uppercase tracking-widest" id="currentModuleBadge">
                                 MODÜL
@@ -949,7 +949,7 @@
                         
                         <div class="w-16 h-1 bg-brand-primary rounded-full mb-6"></div>
                         
-                        <div class="bg-dark-panel border border-dark-border rounded-xl p-6 text-gray-400 text-sm md:text-base leading-relaxed">
+                        <div class="bg-dark-panel border border-dark-border rounded-xl p-4 md:p-6 text-gray-400 text-sm md:text-base leading-relaxed">
                             <p id="currentVideoDescription">Bu ders Wyckoff Metodolojisi kapsamında kurumsal fiyat hareketlerini ve Smart Money konseptlerini anlamanız için hazırlanmıştır. Grafik üzerinde backtest yaparak not almanız tavsiye edilir.</p>
                         </div>
                     </div>
@@ -965,7 +965,7 @@
                     </div>
                     
                     
-                    <div class="p-6 md:p-10 max-w-4xl mx-auto w-full flex-grow overflow-y-auto custom-scrollbar">
+                    <div class="p-4 md:p-10 max-w-4xl mx-auto w-full flex-grow overflow-y-auto custom-scrollbar">
                         <div class="flex items-center gap-3 mb-4">
                             <span class="inline-block px-3 py-1 rounded-md border border-brand-primary/30 bg-brand-primary/10 text-brand-primary text-xs font-bold uppercase tracking-widest" id="currentNoteBadge">
                                 ANALİZ / NOT
@@ -983,7 +983,7 @@
                         <div class="w-16 h-1 bg-brand-primary rounded-full mb-6"></div>
                         
                         
-                        <div class="bg-dark-panel border border-dark-border rounded-2xl p-6 md:p-8 text-gray-300 text-sm md:text-base leading-relaxed whitespace-pre-line prose prose-invert max-w-none" id="currentNoteBody">
+                        <div class="bg-dark-panel border border-dark-border rounded-2xl p-4 md:p-8 text-gray-300 text-sm md:text-base leading-relaxed whitespace-pre-line prose prose-invert max-w-none" id="currentNoteBody">
                             Not detayları...
                         </div>
                     </div>
@@ -2072,7 +2072,7 @@
                         </iframe>
                         
                         <div class="pointer-events-none absolute inset-0 z-50 flex items-center justify-center overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-1000">
-                            <div class="transform -rotate-45 whitespace-nowrap text-white/10 font-mono text-2xl md:text-4xl font-bold tracking-widest select-none drop-shadow-md">
+                            <div class="transform -rotate-45 whitespace-nowrap text-white/10 font-mono text-xl md:text-3xl lg:text-4xl font-bold tracking-widest select-none drop-shadow-md">
                                 ${watermarkText} • ${watermarkText} • ${watermarkText}
                             </div>
                         </div>
