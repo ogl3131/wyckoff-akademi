@@ -1985,7 +1985,8 @@
                     return;
                 }
                 const allowed = this.state.profile.allowed_modules || [];
-                if (!allowed.includes('hepsi') && !allowed.includes(video.module_name)) {
+                const expandedAllowed = this.expandAllowedModules(allowed);
+                if (!expandedAllowed.includes('hepsi') && !expandedAllowed.includes(video.module_name)) {
                     this.showToast("Güvenlik İhlali: Bu modülü izleme yetkiniz yok.", "error");
                     return;
                 }
@@ -2097,6 +2098,7 @@
                     if (!isNaN(num)) {
                         for (let i = 1; i <= num; i++) {
                             expanded.add(String(i));
+                            expanded.add(i); // Hem string hem integer olarak ekliyoruz (Supabase RLS/Query uyumluluğu için)
                         }
                     }
                 });

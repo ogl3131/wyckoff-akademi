@@ -9,15 +9,16 @@ async function sha256(message: string) {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-function expandAllowedModules(allowed: string[]): string[] {
+function expandAllowedModules(allowed: any[]): any[] {
   if (!allowed) return [];
   if (allowed.includes('hepsi')) return ['hepsi'];
-  const expanded = new Set<string>(allowed);
+  const expanded = new Set<any>(allowed);
   allowed.forEach(mod => {
     const num = parseInt(mod, 10);
     if (!isNaN(num)) {
       for (let i = 1; i <= num; i++) {
         expanded.add(String(i));
+        expanded.add(i);
       }
     }
   });
