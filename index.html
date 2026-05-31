@@ -1647,8 +1647,9 @@
             loadVideos: async function() {
                 this.showLoading();
                 const allowed = this.state.profile.allowed_modules || [];
+                const expandedAllowed = this.expandAllowedModules(allowed);
                 
-                if (allowed.length === 0) {
+                if (expandedAllowed.length === 0) {
                     this.renderEmptyDashboard("Herhangi bir eğitim modülü yetkiniz bulunmamaktadır.");
                     this.hideLoading();
                     return;
@@ -1659,8 +1660,8 @@
                     
 
 
-                    if (!allowed.includes('hepsi')) {
-                        query = query.in('module_name', allowed);
+                    if (!expandedAllowed.includes('hepsi')) {
+                        query = query.in('module_name', expandedAllowed);
                     }
 
                     const { data: videos, error } = await query;
@@ -1737,8 +1738,9 @@
             loadNotes: async function() {
                 this.showLoading();
                 const allowed = this.state.profile.allowed_modules || [];
+                const expandedAllowed = this.expandAllowedModules(allowed);
                 
-                if (allowed.length === 0) {
+                if (expandedAllowed.length === 0) {
                     this.hideLoading();
                     return;
                 }
@@ -1746,8 +1748,8 @@
                 try {
                     let query = supabaseClient.from('notes').select('*').order('created_at', { ascending: false });
                     
-                    if (!allowed.includes('hepsi')) {
-                        query = query.in('module_name', allowed);
+                    if (!expandedAllowed.includes('hepsi')) {
+                        query = query.in('module_name', expandedAllowed);
                     }
 
                     const { data: notes, error } = await query;
@@ -2085,6 +2087,21 @@
                 `;
             },
 
+
+            expandAllowedModules: function(allowed) {
+                if (!allowed) return [];
+                if (allowed.includes('hepsi')) return ['hepsi'];
+                const expanded = new Set(allowed);
+                allowed.forEach(mod => {
+                    const num = parseInt(mod, 10);
+                    if (!isNaN(num)) {
+                        for (let i = 1; i <= num; i++) {
+                            expanded.add(String(i));
+                        }
+                    }
+                });
+                return Array.from(expanded);
+            },
 
             formatModuleName: function(name) {
                 return name.replace(/_/g, ' ').replace(/-/g, ' ');

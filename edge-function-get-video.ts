@@ -9,6 +9,21 @@ async function sha256(message: string) {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+function expandAllowedModules(allowed: string[]): string[] {
+  if (!allowed) return [];
+  if (allowed.includes('hepsi')) return ['hepsi'];
+  const expanded = new Set<string>(allowed);
+  allowed.forEach(mod => {
+    const num = parseInt(mod, 10);
+    if (!isNaN(num)) {
+      for (let i = 1; i <= num; i++) {
+        expanded.add(String(i));
+      }
+    }
+  });
+  return Array.from(expanded);
+}
+
 
 const rateLimits = new Map<string, { count: number, resetAt: number }>();
 
@@ -122,7 +137,8 @@ Deno.serve(async (req) => {
     }
 
     const allowed = profile.allowed_modules || [];
-    if (!allowed.includes('hepsi') && !allowed.includes(module_name)) {
+    const expandedAllowed = expandAllowedModules(allowed);
+    if (!expandedAllowed.includes('hepsi') && !expandedAllowed.includes(module_name)) {
       console.log(`[ENTITLEMENT ERROR] User not allowed to view module: ${module_name}`);
       return new Response(JSON.stringify({ error: "Entitlement check failed: No access to this module" }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
