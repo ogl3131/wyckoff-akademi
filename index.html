@@ -1737,22 +1737,12 @@
 
             loadNotes: async function() {
                 this.showLoading();
-                const allowed = this.state.profile.allowed_modules || [];
-                const expandedAllowed = this.expandAllowedModules(allowed);
-                
-                if (expandedAllowed.length === 0) {
-                    this.hideLoading();
-                    return;
-                }
-
                 try {
-                    let query = supabaseClient.from('notes').select('*').order('created_at', { ascending: false });
-                    
-                    if (!expandedAllowed.includes('hepsi')) {
-                        query = query.in('module_name', expandedAllowed);
-                    }
+                    const { data: notes, error } = await supabaseClient
+                        .from('notes')
+                        .select('*')
+                        .order('created_at', { ascending: false });
 
-                    const { data: notes, error } = await query;
                     if (error) throw error;
 
                     this.state.notes = notes;
