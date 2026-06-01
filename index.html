@@ -1011,7 +1011,7 @@
                             <div class="flex items-center gap-2 bg-dark-panel/60 p-1.5 rounded-xl border border-dark-border/40 w-fit">
                                 <button onclick="app.filterSocial('all')" id="socialFilter_all" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-brand-primary text-dark-bg">Tümü</button>
                                 <button onclick="app.filterSocial('youtube')" id="socialFilter_youtube" class="px-3.5 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition-all bg-transparent">YouTube</button>
-                                <button onclick="app.filterSocial('reels')" id="socialFilter_reels" class="px-3.5 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition-all bg-transparent">Reels</button>
+                                <button onclick="app.filterSocial('reels')" id="socialFilter_reels" class="px-3.5 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition-all bg-transparent">Instagram Reels</button>
                             </div>
                         </div>
 
@@ -2178,7 +2178,15 @@
                         .select('*')
                         .order('order_no', { ascending: true });
 
-                    const dbReels = (dbItems || []).filter(item => item.type === 'reels');
+                    const dbReels = (dbItems || []).filter(item => {
+                        const type = (item.type || '').toLowerCase();
+                        return type === 'reels' || type === 'instagram' || type === 'instagram reels' || type === 'instagram_reels';
+                    }).map(item => {
+                        return {
+                            ...item,
+                            type: 'reels' // Normalize to 'reels' in memory
+                        };
+                    });
 
                     this.state.socialFeed = [...ytItems, ...dbReels];
                     this.state.socialFilter = 'all';
@@ -2376,6 +2384,12 @@
             },
 
             extractYouTubeId: function(url) {
+                if (url.includes('/shorts/')) {
+                    const parts = url.split('/shorts/');
+                    if (parts[1]) {
+                        return parts[1].substring(0, 11);
+                    }
+                }
                 const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
                 const match = url.match(regExp);
                 return (match && match[2].length === 11) ? match[2] : null;
