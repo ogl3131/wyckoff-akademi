@@ -998,21 +998,31 @@
                 <div id="socialHubState" class="hidden h-full flex flex-col overflow-y-auto custom-scrollbar bg-dark-bg">
                     <div class="p-4 md:p-10 max-w-6xl mx-auto w-full flex-grow">
                         <!-- Header -->
-                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                             <div>
                                 <h1 class="font-display text-2xl md:text-3xl font-bold text-white mb-2 flex items-center gap-2">
                                     <i data-lucide="globe" class="w-7 h-7 text-brand-primary"></i>
                                     Sosyal Hub
                                 </h1>
-                                <p class="text-gray-400 text-xs md:text-sm">En güncel YouTube videolarımız ve Instagram Reels paylaşımlarımız</p>
+                                <p class="text-gray-400 text-xs md:text-sm">En güncel piyasa analizleri ve canlı yayın kayıtları</p>
                             </div>
-                            
-                            <!-- Filter pills -->
-                            <div class="flex items-center gap-2 bg-dark-panel/60 p-1.5 rounded-xl border border-dark-border/40 w-fit">
-                                <button onclick="app.filterSocial('all')" id="socialFilter_all" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-brand-primary text-dark-bg">Tümü</button>
-                                <button onclick="app.filterSocial('youtube')" id="socialFilter_youtube" class="px-3.5 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition-all bg-transparent">YouTube</button>
-                                <button onclick="app.filterSocial('reels')" id="socialFilter_reels" class="px-3.5 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition-all bg-transparent">Instagram Reels</button>
+                        </div>
+
+                        <!-- Instagram Support Banner -->
+                        <div class="bg-gradient-to-r from-[#f9ce34]/15 via-[#ee2a7b]/15 to-[#6228d7]/15 border border-purple-500/20 rounded-3xl p-6 mb-8 text-left relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xl backdrop-blur-sm">
+                            <div class="absolute -right-12 -top-12 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl"></div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] flex items-center justify-center text-white flex-shrink-0 shadow-lg shadow-purple-500/20">
+                                    <i data-lucide="instagram" class="w-6 h-6"></i>
+                                </div>
+                                <div class="overflow-hidden">
+                                    <h3 class="font-display font-bold text-white text-base md:text-lg mb-1 truncate">@gtradefx1 Instagram'da Takip Edin!</h3>
+                                    <p class="text-gray-300 text-xs md:text-sm leading-relaxed">Sizler için hazırladığımız özel Reels videolarımızı ve piyasa analiz özetlerimizi Instagram'da takip edin. Lütfen videolarımızı beğenip yorum yaparak topluluğumuzu desteklemeyi unutmayın, desteğiniz çok değerlidir! 🙏</p>
+                                </div>
                             </div>
+                            <a href="https://www.instagram.com/gtradefx1/" target="_blank" rel="noopener noreferrer" class="flex-shrink-0 px-6 py-3 rounded-2xl text-xs font-bold bg-white text-purple-700 hover:bg-gray-100 transition-all shadow-lg hover:shadow-purple-500/10 flex items-center justify-center gap-1.5 whitespace-nowrap">
+                                Takip Et & Destek Ol <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                            </a>
                         </div>
 
                         <!-- Main Grid -->
@@ -2172,28 +2182,7 @@
                         });
                     }
 
-                    // Optional: Fetch Reels from database if any exist
-                    const { data: dbItems, error: dbError } = await supabaseClient
-                        .from('social_feeds')
-                        .select('*')
-                        .order('order_no', { ascending: true });
-
-                    if (dbError) {
-                        console.error("Social feed DB error:", dbError);
-                        this.showToast("Reels Veritabanı Hatası: " + dbError.message, "error");
-                    }
-
-                    const dbReels = (dbItems || []).filter(item => {
-                        const type = (item.type || '').toLowerCase();
-                        return type === 'reels' || type === 'instagram' || type === 'instagram reels' || type === 'instagram_reels';
-                    }).map(item => {
-                        return {
-                            ...item,
-                            type: 'reels' // Normalize to 'reels' in memory
-                        };
-                    });
-
-                    this.state.socialFeed = [...ytItems, ...dbReels];
+                    this.state.socialFeed = ytItems;
                     this.state.socialFilter = 'all';
                     this.renderSocialGrid();
                 } catch (error) {
@@ -2207,151 +2196,65 @@
                 }
             },
 
-            filterSocial: function(type) {
-                this.state.socialFilter = type;
-                
-                ['all', 'youtube', 'reels'].forEach(t => {
-                    const btn = document.getElementById(`socialFilter_${t}`);
-                    if (btn) {
-                        if (t === type) {
-                            btn.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-brand-primary text-dark-bg";
-                        } else {
-                            btn.className = "px-3.5 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition-all bg-transparent";
-                        }
-                    }
-                });
-                
-                this.renderSocialGrid();
-            },
-
             renderSocialGrid: function() {
                 const container = document.getElementById('socialGrid');
                 if (!container) return;
                 container.innerHTML = '';
 
-                const filter = this.state.socialFilter;
-                const items = this.state.socialFeed.filter(item => {
-                    if (filter === 'all') return true;
-                    return item.type === filter;
-                });
+                const items = this.state.socialFeed;
 
-                // Prepend Call-To-Action Banners for channels
-                if (filter === 'all' || filter === 'youtube') {
-                    const ytCta = document.createElement('div');
-                    ytCta.className = "group relative bg-gradient-to-br from-red-600/90 to-red-800/90 border border-red-500/30 rounded-2xl overflow-hidden shadow-xl hover:shadow-red-950/20 transition-all duration-300 hover:-translate-y-1 flex flex-col p-5 text-left text-white";
-                    ytCta.innerHTML = `
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-white">
-                                <i data-lucide="youtube" class="w-5 h-5 fill-current"></i>
-                            </div>
-                            <span class="text-[9px] font-bold bg-white text-red-700 uppercase px-2 py-0.5 rounded shadow">ABONE OL</span>
+                // Prepend YouTube channel support card
+                const ytCta = document.createElement('div');
+                ytCta.className = "group relative bg-gradient-to-br from-red-600/90 to-red-800/90 border border-red-500/30 rounded-2xl overflow-hidden shadow-xl hover:shadow-red-950/20 transition-all duration-300 hover:-translate-y-1 flex flex-col p-5 text-left text-white";
+                ytCta.innerHTML = `
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-white">
+                            <i data-lucide="youtube" class="w-5 h-5 fill-current"></i>
                         </div>
-                        <h3 class="font-display font-bold text-base mb-1.5 group-hover:text-brand-primary transition-colors">@Gtradefx YouTube Kanalı</h3>
-                        <p class="text-white/80 text-xs leading-relaxed mb-5 flex-grow">Her gün paylaştığımız canlı trade günlükleri, Wyckoff metodolojisi eğitimleri ve piyasa analizlerini kaçırmamak için abone olun! Yorum ve beğenilerinizle desteğiniz bizim için çok önemli! 🚀</p>
-                        <a href="https://www.youtube.com/@Gtradefx" target="_blank" rel="noopener noreferrer" class="w-full text-center py-2.5 rounded-xl text-xs font-bold bg-white text-red-700 hover:bg-gray-100 transition-all shadow flex items-center justify-center gap-1.5">
-                            Destek Ol & Kanala Git <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
-                        </a>
-                    `;
-                    container.appendChild(ytCta);
-                }
-
-                if (filter === 'all' || filter === 'reels') {
-                    const reelsCta = document.createElement('div');
-                    reelsCta.className = "group relative bg-gradient-to-tr from-[#f9ce34]/90 via-[#ee2a7b]/90 to-[#6228d7]/90 border border-purple-500/30 rounded-2xl overflow-hidden shadow-xl hover:shadow-purple-950/20 transition-all duration-300 hover:-translate-y-1 flex flex-col p-5 text-left text-white";
-                    reelsCta.innerHTML = `
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-white">
-                                <i data-lucide="instagram" class="w-5 h-5"></i>
-                            </div>
-                            <span class="text-[9px] font-bold bg-white text-purple-700 uppercase px-2 py-0.5 rounded shadow">TAKİP ET</span>
-                        </div>
-                        <h3 class="font-display font-bold text-base mb-1.5 group-hover:text-brand-primary transition-colors">@gtradefx1 Instagram Reels</h3>
-                        <p class="text-white/80 text-xs leading-relaxed mb-5 flex-grow">Sizler için hazırladığımız özel Reels videolarımızı ve piyasa analiz özetlerimizi Instagram'da takip edin. Lütfen videolarımızı beğenip yorum yaparak topluluğumuzu desteklemeyi unutmayın, desteğiniz çok değerlidir! 🙏</p>
-                        <a href="https://www.instagram.com/gtradefx1/" target="_blank" rel="noopener noreferrer" class="w-full text-center py-2.5 rounded-xl text-xs font-bold bg-white text-purple-700 hover:bg-gray-100 transition-all shadow flex items-center justify-center gap-1.5">
-                            Beğen, Yorum Yap & Reels İzle <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
-                        </a>
-                    `;
-                    container.appendChild(reelsCta);
-                }
+                        <span class="text-[9px] font-bold bg-white text-red-700 uppercase px-2 py-0.5 rounded shadow">ABONE OL</span>
+                    </div>
+                    <h3 class="font-display font-bold text-base mb-1.5 group-hover:text-brand-primary transition-colors">@Gtradefx YouTube Kanalı</h3>
+                    <p class="text-white/80 text-xs leading-relaxed mb-5 flex-grow">Her gün paylaştığımız canlı trade günlükleri, Wyckoff metodolojisi eğitimleri ve piyasa analizlerini kaçırmamak için abone olun! Yorum ve beğenilerinizle desteğiniz bizim için çok önemli! 🚀</p>
+                    <a href="https://www.youtube.com/@Gtradefx" target="_blank" rel="noopener noreferrer" class="w-full text-center py-2.5 rounded-xl text-xs font-bold bg-white text-red-700 hover:bg-gray-100 transition-all shadow flex items-center justify-center gap-1.5">
+                        Destek Ol & Kanala Git <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+                    </a>
+                `;
+                container.appendChild(ytCta);
 
                 items.forEach(item => {
                     const card = document.createElement('div');
+                    card.className = "group relative bg-dark-panel border border-dark-border/60 hover:border-brand-primary/40 rounded-2xl overflow-hidden shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col cursor-pointer";
                     
-                    if (item.type === 'youtube') {
-                        card.className = "group relative bg-dark-panel border border-dark-border/60 hover:border-brand-primary/40 rounded-2xl overflow-hidden shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col cursor-pointer";
-                        
-                        const defaultThumb = 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=600&q=80';
-                        const thumb = item.thumbnail_url || defaultThumb;
-                        
-                        card.innerHTML = `
-                            <div class="aspect-video w-full relative overflow-hidden bg-black/40 border-b border-dark-border/50">
-                                <img src="${thumb}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="${item.title}" />
-                                <div class="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center">
-                                    <div class="w-12 h-12 rounded-full bg-brand-primary/10 group-hover:bg-brand-primary flex items-center justify-center text-brand-primary group-hover:text-dark-bg border border-brand-primary/30 group-hover:border-transparent shadow-[0_0_15px_rgba(16,185,129,0.1)] group-hover:shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all duration-300 transform group-hover:scale-110">
-                                        <i data-lucide="play" class="w-5 h-5 fill-current ml-0.5"></i>
-                                    </div>
-                                </div>
-                                <div class="absolute top-3 left-3 bg-red-600 text-white font-bold text-[9px] uppercase px-2 py-0.5 rounded shadow flex items-center gap-1">
-                                    <i data-lucide="video" class="w-2.5 h-2.5"></i> YouTube
-                                </div>
-                            </div>
-                            <div class="p-4 flex-grow flex flex-col justify-between text-left">
-                                <h3 class="font-display font-semibold text-white text-xs md:text-sm leading-snug line-clamp-2 mb-2 group-hover:text-brand-primary transition-colors duration-300">${item.title}</h3>
-                                <div class="flex items-center justify-between mt-2">
-                                    <span class="text-[10px] text-gray-500 flex items-center gap-1">
-                                        <i data-lucide="calendar" class="w-3 h-3"></i>
-                                        ${new Date(item.created_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}
-                                    </span>
-                                    <span class="text-[10px] text-brand-primary font-bold group-hover:underline flex items-center gap-0.5">
-                                        İzle <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
-                                    </span>
-                                </div>
-                            </div>
-                        `;
-                        
-                        card.onclick = () => this.playSocialVideo(item);
-                    } else {
-                        card.className = "group relative bg-dark-panel border border-dark-border/60 hover:border-brand-primary/40 rounded-2xl overflow-hidden shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col cursor-pointer";
-                        
-                        const defaultThumb = 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&w=600&q=80';
-                        const thumb = item.thumbnail_url || defaultThumb;
-                        
-                        card.innerHTML = `
-                            <div class="aspect-[9/16] w-full relative overflow-hidden bg-black/40 border-b border-dark-border/50">
-                                <img src="${thumb}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="${item.title}" />
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/40 group-hover:from-black/70 transition-all duration-300 flex flex-col justify-between p-4">
-                                    <div class="flex justify-between items-start">
-                                        <div class="bg-gradient-to-r from-pink-600 to-purple-600 text-white font-bold text-[9px] uppercase px-2 py-0.5 rounded shadow flex items-center gap-1">
-                                            <i data-lucide="instagram" class="w-2.5 h-2.5"></i> Instagram Reels
-                                        </div>
-                                        <div class="w-7 h-7 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center text-white backdrop-blur-sm">
-                                            <i data-lucide="film" class="w-3.5 h-3.5"></i>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="w-12 h-12 rounded-full bg-white/10 group-hover:bg-white flex items-center justify-center text-white group-hover:text-black border border-white/20 group-hover:border-transparent backdrop-blur-sm self-center shadow-lg transition-all duration-300 transform group-hover:scale-110">
-                                        <i data-lucide="play" class="w-5 h-5 fill-current ml-0.5 animate-pulse"></i>
-                                    </div>
-                                    
-                                    <div class="text-left">
-                                        <h3 class="font-display font-semibold text-white text-xs md:text-sm leading-snug line-clamp-3 mb-2 group-hover:text-brand-primary transition-colors duration-300">${item.title}</h3>
-                                        <div class="flex items-center justify-between pt-1 border-t border-white/10 mt-1">
-                                            <span class="text-[9px] text-gray-400 flex items-center gap-1">
-                                                <i data-lucide="calendar" class="w-2.5 h-2.5"></i>
-                                                ${new Date(item.created_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}
-                                            </span>
-                                            <span class="text-[9px] text-brand-primary font-bold flex items-center gap-0.5">
-                                                Instagram'da Aç <i data-lucide="arrow-up-right" class="w-2.5 h-2.5"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                        
-                        card.onclick = () => window.open(item.url, '_blank', 'noopener,noreferrer');
-                    }
+                    const defaultThumb = 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=600&q=80';
+                    const thumb = item.thumbnail_url || defaultThumb;
                     
+                    card.innerHTML = `
+                        <div class="aspect-video w-full relative overflow-hidden bg-black/40 border-b border-dark-border/50">
+                            <img src="${thumb}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="${item.title}" />
+                            <div class="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center">
+                                <div class="w-12 h-12 rounded-full bg-brand-primary/10 group-hover:bg-brand-primary flex items-center justify-center text-brand-primary group-hover:text-dark-bg border border-brand-primary/30 group-hover:border-transparent shadow-[0_0_15px_rgba(16,185,129,0.1)] group-hover:shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all duration-300 transform group-hover:scale-110">
+                                    <i data-lucide="play" class="w-5 h-5 fill-current ml-0.5"></i>
+                                </div>
+                            </div>
+                            <div class="absolute top-3 left-3 bg-red-600 text-white font-bold text-[9px] uppercase px-2 py-0.5 rounded shadow flex items-center gap-1">
+                                <i data-lucide="video" class="w-2.5 h-2.5"></i> YouTube
+                            </div>
+                        </div>
+                        <div class="p-4 flex-grow flex flex-col justify-between text-left">
+                            <h3 class="font-display font-semibold text-white text-xs md:text-sm leading-snug line-clamp-2 mb-2 group-hover:text-brand-primary transition-colors duration-300">${item.title}</h3>
+                            <div class="flex items-center justify-between mt-2">
+                                <span class="text-[10px] text-gray-500 flex items-center gap-1">
+                                    <i data-lucide="calendar" class="w-3 h-3"></i>
+                                    ${new Date(item.created_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}
+                                </span>
+                                <span class="text-[10px] text-brand-primary font-bold group-hover:underline flex items-center gap-0.5">
+                                    İzle <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    card.onclick = () => this.playSocialVideo(item);
                     container.appendChild(card);
                 });
 
