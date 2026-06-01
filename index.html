@@ -2173,10 +2173,15 @@
                     }
 
                     // Optional: Fetch Reels from database if any exist
-                    const { data: dbItems } = await supabaseClient
+                    const { data: dbItems, error: dbError } = await supabaseClient
                         .from('social_feeds')
                         .select('*')
                         .order('order_no', { ascending: true });
+
+                    if (dbError) {
+                        console.error("Social feed DB error:", dbError);
+                        this.showToast("Reels Veritabanı Hatası: " + dbError.message, "error");
+                    }
 
                     const dbReels = (dbItems || []).filter(item => {
                         const type = (item.type || '').toLowerCase();
