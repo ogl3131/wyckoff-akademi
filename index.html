@@ -2149,20 +2149,46 @@
             loadSocialFeed: async function() {
                 this.showLoading();
                 try {
-                    const { data, error } = await supabaseClient
+                    // UCFfgiHt1rFcHs7SwsE-fZmw is the Gtradefx YouTube Channel ID
+                    const feedUrl = 'https://api.rss2json.com/v1/api.json?rss_url=https://www.youtube.com/feeds/videos.xml?channel_id=UCFfgiHt1rFcHs7SwsE-fZmw';
+                    const response = await fetch(feedUrl);
+                    const data = await response.json();
+
+                    let ytItems = [];
+                    if (data && data.status === 'ok' && data.items) {
+                        ytItems = data.items.map(item => {
+                            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+                            const match = item.link.match(regExp);
+                            const videoId = (match && match[2].length === 11) ? match[2] : null;
+
+                            return {
+                                id: item.guid,
+                                type: 'youtube',
+                                title: item.title,
+                                url: item.link,
+                                thumbnail_url: item.thumbnail || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+                                created_at: item.pubDate
+                            };
+                        });
+                    }
+
+                    // Optional: Fetch Reels from database if any exist
+                    const { data: dbItems } = await supabaseClient
                         .from('social_feeds')
                         .select('*')
-                        .order('order_no', { ascending: true })
-                        .order('created_at', { ascending: false });
+                        .order('order_no', { ascending: true });
 
-                    if (error) throw error;
+                    const dbReels = (dbItems || []).filter(item => item.type === 'reels');
 
-                    this.state.socialFeed = data || [];
+                    this.state.socialFeed = [...ytItems, ...dbReels];
                     this.state.socialFilter = 'all';
                     this.renderSocialGrid();
                 } catch (error) {
                     console.error("Social feed load error:", error);
                     this.showToast("Sosyal medya akışı yüklenirken bir ağ hatası oluştu.", "error");
+                    
+                    this.state.socialFeed = [];
+                    this.renderSocialGrid();
                 } finally {
                     this.hideLoading();
                 }
@@ -2196,15 +2222,43 @@
                     return item.type === filter;
                 });
 
-                if (items.length === 0) {
-                    container.innerHTML = `
-                        <div class="col-span-full text-center p-12 text-gray-500 text-xs bg-dark-panel/30 border border-dark-border/40 rounded-2xl">
-                            <i data-lucide="globe" class="w-8 h-8 mx-auto mb-3 opacity-40"></i>
-                            Görüntülenecek sosyal medya içeriği bulunmamaktadır.
+                // Prepend Call-To-Action Banners for channels
+                if (filter === 'all' || filter === 'youtube') {
+                    const ytCta = document.createElement('div');
+                    ytCta.className = "group relative bg-gradient-to-br from-red-600/90 to-red-800/90 border border-red-500/30 rounded-2xl overflow-hidden shadow-xl hover:shadow-red-950/20 transition-all duration-300 hover:-translate-y-1 flex flex-col p-5 text-left text-white";
+                    ytCta.innerHTML = `
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-white">
+                                <i data-lucide="youtube" class="w-5 h-5 fill-current"></i>
+                            </div>
+                            <span class="text-[9px] font-bold bg-white text-red-700 uppercase px-2 py-0.5 rounded shadow">ABONE OL</span>
                         </div>
+                        <h3 class="font-display font-bold text-base mb-1.5 group-hover:text-brand-primary transition-colors">@Gtradefx YouTube Kanalı</h3>
+                        <p class="text-white/80 text-xs leading-relaxed mb-5 flex-grow">Her gün paylaştığımız canlı trade günlükleri, Wyckoff metodolojisi eğitimleri ve piyasa analizlerini kaçırmamak için abone olun! Yorum ve beğenilerinizle desteğiniz bizim için çok önemli! 🚀</p>
+                        <a href="https://www.youtube.com/@Gtradefx" target="_blank" rel="noopener noreferrer" class="w-full text-center py-2.5 rounded-xl text-xs font-bold bg-white text-red-700 hover:bg-gray-100 transition-all shadow flex items-center justify-center gap-1.5">
+                            Destek Ol & Kanala Git <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+                        </a>
                     `;
-                    lucide.createIcons();
-                    return;
+                    container.appendChild(ytCta);
+                }
+
+                if (filter === 'all' || filter === 'reels') {
+                    const reelsCta = document.createElement('div');
+                    reelsCta.className = "group relative bg-gradient-to-tr from-[#f9ce34]/90 via-[#ee2a7b]/90 to-[#6228d7]/90 border border-purple-500/30 rounded-2xl overflow-hidden shadow-xl hover:shadow-purple-950/20 transition-all duration-300 hover:-translate-y-1 flex flex-col p-5 text-left text-white";
+                    reelsCta.innerHTML = `
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-white">
+                                <i data-lucide="instagram" class="w-5 h-5"></i>
+                            </div>
+                            <span class="text-[9px] font-bold bg-white text-purple-700 uppercase px-2 py-0.5 rounded shadow">TAKİP ET</span>
+                        </div>
+                        <h3 class="font-display font-bold text-base mb-1.5 group-hover:text-brand-primary transition-colors">@gtradefx1 Instagram Reels</h3>
+                        <p class="text-white/80 text-xs leading-relaxed mb-5 flex-grow">Sizler için hazırladığımız özel Reels videolarımızı ve piyasa analiz özetlerimizi Instagram'da takip edin. Lütfen videolarımızı beğenip yorum yaparak topluluğumuzu desteklemeyi unutmayın, desteğiniz çok değerlidir! 🙏</p>
+                        <a href="https://www.instagram.com/gtradefx1/" target="_blank" rel="noopener noreferrer" class="w-full text-center py-2.5 rounded-xl text-xs font-bold bg-white text-purple-700 hover:bg-gray-100 transition-all shadow flex items-center justify-center gap-1.5">
+                            Beğen, Yorum Yap & Reels İzle <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+                        </a>
+                    `;
+                    container.appendChild(reelsCta);
                 }
 
                 items.forEach(item => {
