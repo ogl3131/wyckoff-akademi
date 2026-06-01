@@ -131,6 +131,7 @@
                 
                 <div class="hidden lg:flex items-center gap-8 text-sm font-medium text-gray-400">
                     <a href="#hero" class="hover:text-white transition-colors">Ana Sayfa</a>
+                    <a href="#blog" class="hover:text-white transition-colors">Blog</a>
                     <a href="#proof" class="hover:text-white transition-colors">Kanıtlar</a>
                     <a href="#about" class="hover:text-white transition-colors">Hakkımda</a>
                     <a href="#curriculum" class="hover:text-white transition-colors">Müfredat</a>
@@ -360,6 +361,137 @@
                         </div>
                     </div>
                     
+                </div>
+            </div>
+        </section>
+
+        <!-- Blog Section -->
+        <section id="blog" class="py-24 px-6 border-t border-dark-border bg-dark-bg/20 relative z-10 overflow-hidden">
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
+            <div class="max-w-7xl mx-auto relative z-10">
+                <div class="text-center max-w-3xl mx-auto mb-16">
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-brand-primary/30 bg-brand-primary/10 text-brand-primary text-xs font-semibold mb-6 uppercase tracking-wider">
+                        <i data-lucide="book-open" class="w-3.5 h-3.5 animate-pulse"></i>
+                        Kütüphane & Akademi Blog
+                    </div>
+                    <h2 class="font-display text-3xl md:text-5xl font-bold text-white mb-6">Akademi Blog: Trade ve Piyasa Analizi Eğitimi</h2>
+                    <p class="text-gray-400 leading-relaxed text-sm md:text-base">
+                        Google aramalarda öne çıkmak ve öğrencilerimize en güncel Price Action, Wyckoff Metodolojisi ve kurumsal finans analiz rehberlerini sunmak için hazırladığımız zengin kütüphanemiz.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Blog Card 1 -->
+                    <article class="group bg-dark-panel border border-dark-border/60 hover:border-brand-primary/40 rounded-3xl overflow-hidden shadow-xl transition-all duration-300 hover:-translate-y-2 flex flex-col h-full cursor-pointer" onclick="app.openBlogArticle(1)">
+                        <div class="aspect-video w-full relative overflow-hidden bg-black/40 border-b border-dark-border/50">
+                            <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Price Action Eğitimi" />
+                            <div class="absolute top-3 left-3 bg-brand-primary/10 border border-brand-primary/30 text-brand-primary font-bold text-[9px] uppercase px-2.5 py-1 rounded-full shadow backdrop-blur-md">
+                                Price Action
+                            </div>
+                        </div>
+                        <div class="p-6 flex-grow flex flex-col justify-between text-left">
+                            <div>
+                                <div class="flex items-center gap-3 text-[10px] text-gray-500 mb-3 font-semibold">
+                                    <span class="flex items-center gap-1"><i data-lucide="calendar" class="w-3.5 h-3.5"></i> 2 Haziran 2026</span>
+                                    <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 6 Dakika Okuma</span>
+                                </div>
+                                <h3 class="font-display font-bold text-white text-base md:text-lg leading-snug mb-3 group-hover:text-brand-primary transition-colors duration-300 line-clamp-2">Price Action Nedir? Sıfırdan Price Action Stratejileri ve Eğitim Rehberi</h3>
+                                <p class="text-gray-400 text-xs md:text-sm leading-relaxed line-clamp-3 mb-6">Finansal piyasalarda gecikmeli indikatörlere bağlı kalmadan, yalnızca çıplak grafik üzerindeki fiyat hareketlerini, mum yapılarını ve kurumsal emir akışını okuyarak işlem alma sanatı.</p>
+                            </div>
+                            <div class="flex items-center justify-between pt-4 border-t border-dark-border/50">
+                                <span class="text-xs text-brand-primary font-bold group-hover:underline flex items-center gap-1">
+                                    Devamını Oku <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Blog Card 2 -->
+                    <article class="group bg-dark-panel border border-dark-border/60 hover:border-brand-primary/40 rounded-3xl overflow-hidden shadow-xl transition-all duration-300 hover:-translate-y-2 flex flex-col h-full cursor-pointer" onclick="app.openBlogArticle(2)">
+                        <div class="aspect-video w-full relative overflow-hidden bg-black/40 border-b border-dark-border/50">
+                            <img src="https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Wyckoff Metodolojisi" />
+                            <div class="absolute top-3 left-3 bg-brand-primary/10 border border-brand-primary/30 text-brand-primary font-bold text-[9px] uppercase px-2.5 py-1 rounded-full shadow backdrop-blur-md">
+                                Wyckoff Metodu
+                            </div>
+                        </div>
+                        <div class="p-6 flex-grow flex flex-col justify-between text-left">
+                            <div>
+                                <div class="flex items-center gap-3 text-[10px] text-gray-500 mb-3 font-semibold">
+                                    <span class="flex items-center gap-1"><i data-lucide="calendar" class="w-3.5 h-3.5"></i> 1 Haziran 2026</span>
+                                    <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 8 Dakika Okuma</span>
+                                </div>
+                                <h3 class="font-display font-bold text-white text-base md:text-lg leading-snug mb-3 group-hover:text-brand-primary transition-colors duration-300 line-clamp-2">Borsa ve Kriptoda Wyckoff Metodolojisi: Akıllı Parayı (Smart Money) Takip Etmek</h3>
+                                <p class="text-gray-400 text-xs md:text-sm leading-relaxed line-clamp-3 mb-6">Richard D. Wyckoff tarafından geliştirilen kurumsal mal toplama ve dağıtma aşamalarını anlama kılavuzu. Akıllı paranın (Smart Money Concepts) ayak izlerini takip ederek işlem alın.</p>
+                            </div>
+                            <div class="flex items-center justify-between pt-4 border-t border-dark-border/50">
+                                <span class="text-xs text-brand-primary font-bold group-hover:underline flex items-center gap-1">
+                                    Devamını Oku <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Blog Card 3 -->
+                    <article class="group bg-dark-panel border border-dark-border/60 hover:border-brand-primary/40 rounded-3xl overflow-hidden shadow-xl transition-all duration-300 hover:-translate-y-2 flex flex-col h-full cursor-pointer" onclick="app.openBlogArticle(3)">
+                        <div class="aspect-video w-full relative overflow-hidden bg-black/40 border-b border-dark-border/50">
+                            <img src="https://images.unsplash.com/photo-1642390061910-0f7121b24ccb?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Risk Yönetimi ve Psikoloji" />
+                            <div class="absolute top-3 left-3 bg-brand-primary/10 border border-brand-primary/30 text-brand-primary font-bold text-[9px] uppercase px-2.5 py-1 rounded-full shadow backdrop-blur-md">
+                                Risk & Psikoloji
+                            </div>
+                        </div>
+                        <div class="p-6 flex-grow flex flex-col justify-between text-left">
+                            <div>
+                                <div class="flex items-center gap-3 text-[10px] text-gray-500 mb-3 font-semibold">
+                                    <span class="flex items-center gap-1"><i data-lucide="calendar" class="w-3.5 h-3.5"></i> 31 Mayıs 2026</span>
+                                    <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 5 Dakika Okuma</span>
+                                </div>
+                                <h3 class="font-display font-bold text-white text-base md:text-lg leading-snug mb-3 group-hover:text-brand-primary transition-colors duration-300 line-clamp-2">Başarılı Bir Trader Olma Yolculuğu: Risk Yönetimi ve Psikoloji Eğitimi</h3>
+                                <p class="text-gray-400 text-xs md:text-sm leading-relaxed line-clamp-3 mb-6">Teknik analizi kusursuz bilseniz bile risk yönetimi ve kasa disiplini olmadan kazanamazsınız. FOMO ile baş etme ve profesyonel sermaye yönetimi stratejileri.</p>
+                            </div>
+                            <div class="flex items-center justify-between pt-4 border-t border-dark-border/50">
+                                <span class="text-xs text-brand-primary font-bold group-hover:underline flex items-center gap-1">
+                                    Devamını Oku <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+
+                <!-- Hidden articles for perfect search engine crawler (Google SEO) indexing -->
+                <div class="hidden" aria-hidden="true" style="display: none;">
+                    <article id="seo-article-1">
+                        <h1>Price Action Nedir? Sıfırdan Price Action Stratejileri ve Eğitim Rehberi</h1>
+                        <h2>Price Action Eğitimi ve Teknik Analizin Gücü</h2>
+                        <p>Price Action (Fiyat Hareketi), finansal piyasalarda indikatörlere (RSI, MACD vb.) ihtiyaç duymadan, yalnızca çıplak grafik üzerindeki fiyat hareketlerini, mum yapılarını ve piyasa yapısını okuyarak işlem alma sanatıdır. Borsa, kripto para ve forex piyasalarında profesyonel trader'ların en çok tercih ettiği yöntemlerin başında gelir.</p>
+                        <h3>Market Structure (Piyasa Yapısı)</h3>
+                        <p>Bir trendi doğru okumak için fiyatın tepelerini (Higher High - HH, Lower High - LH) ve diplerini (Higher Low - HL, Lower Low - LL) analiz etmek gerekir. Fiyat yapısının kırıldığı anlar olan Market Structure Shift (MSS) veya Break of Structure (BOS) bölgeleri, trend dönüşümünün en güçlü göstergesidir.</p>
+                        <h3>Destek ve Direnç Bölgeleri: Arz ve Talep Alanları</h3>
+                        <p>Geleneksel teknik analizde kullanılan ince destek-direnç çizgileri yerine, Price Action metodunda kurumsal emirlerin yoğunlaştığı "Arz ve Talep" kutuları (Supply & Demand zones) çizilir. Bu bölgeler fiyatın sert bir şekilde yön değiştirdiği kurumsal karar alanlarıdır.</p>
+                        <h3>Order Flow (Emir Akışı) & Likidite</h3>
+                        <p>Borsa ve kriptoda büyük oyuncular işlemlerini gerçekleştirmek için perakende yatırımcıların stop-loss emirlerine yani likiditeye ihtiyaç duyarlar. Fiyatın likidite havuzlarını temizledikten sonra verdiği tepkiler, güvenli giriş noktaları sağlar.</p>
+                    </article>
+                    <article id="seo-article-2">
+                        <h1>Borsa ve Kriptoda Wyckoff Metodolojisi: Akıllı Parayı (Smart Money) Takip Etmek</h1>
+                        <h2>Wyckoff Metodolojisi ve Smart Money Concepts (SMC) Eğitimi</h2>
+                        <p>Richard D. Wyckoff tarafından geliştirilen Wyckoff Metodolojisi, piyasaların rastgele değil, "Akıllı Para" (Smart Money / Kurumsal Yatırımcılar) tarafından yönetilen belirli döngülerle hareket ettiğini savunur. Borsa ve kripto para piyasalarında büyük oyuncuların ne zaman mal topladığını ve ne zaman sattığını anlamanın en güçlü yoludur.</p>
+                        <h3>Composite Man (Bileşik Adam) Kuramı</h3>
+                        <p>Wyckoff'a göre, tüm piyasa hareketlerini tek bir aklın yönettiğini hayal etmeliyiz. Bu "Bileşik Adam", sessizce ucuz fiyatlardan mal toplar (Birikim), fiyatı yukarı sürer (Markup), tepede yine sessizce perakende yatırımcıya dağıtır (Dağıtım) ve ardından fiyatı aşağı çökertir (Markdown).</p>
+                        <h3>Birikim Fazı (Accumulation Phase)</h3>
+                        <p>Fiyatın dip yaptığı, perakende yatırımcının panikle sattığı, kurumsal oyuncuların ise sessizce alım yaptığı bölgedir. Bu fazda Spring (sahte kırılım), Selling Climax (satış çılgınlığı), Automatic Rally ve Secondary Test gibi aşamalar izlenir.</p>
+                        <h3>Dağıtım Fazı (Distribution Phase)</h3>
+                        <p>Fiyatın tepeye ulaştığı, kurumsal oyuncuların kâr realize edip malı perakendeye devrettiği bölgedir. Upthrust After Distribution (UTAD) ve Buying Climax (alış çılgınlığı) aşamalarıyla karakterizedir.</p>
+                    </article>
+                    <article id="seo-article-3">
+                        <h1>Başarılı Bir Trader Olma Yolculuğu: Risk Yönetimi ve Psikoloji Eğitimi</h1>
+                        <h2>Trade Eğitimi, Borsa Disiplini ve Kasa Yönetimi</h2>
+                        <p>Harika bir analiz yöntemi (Price Action veya Wyckoff) bilmek tek başına sizi başarılı bir trader yapmaz. Profesyonel trading dünyasında başarının %20'si teknik analizden, %80'i ise katı bir risk yönetimi ve sarsılmaz bir ticaret psikolojisinden geçer.</p>
+                        <h3>Risk/Ödül Oranı (R:R Ratio) ve Sermaye Koruma</h3>
+                        <p>Her işlemde ne kadar risk alıp ne kadar kâr hedeflendiği (R:R Oranı) hayati önem taşır. Başarılı bir trader en az 1:2 veya 1:3 R:R oranı hedefler. Bu sayede işlemlerinin sadece yarısında haklı çıksa bile uzun vadede yüksek kârlılık sağlar.</p>
+                        <h3>Kasa Yönetimi (Position Sizing)</h3>
+                        <p>Tek bir işlemde toplam kasanın maksimum %1-%2'sini riske etme kuralıdır. Bu kurala sadık kalan bir trader, arka arkaya 10 işlem kaybetse dahi sermayesinin yalnızca %10 ila %20'sini kaybeder ve oyunda kalmaya devam eder.</p>
+                        <h3>FOMO (Fırsatı Kaçırma Korkusu) ve İntikam Trade'i</h3>
+                        <p>Finansal piyasalarda duygular en büyük düşmandır. Fırsatı kaçırma korkusuyla (FOMO) koşan fiyatın tepesinden atlamak veya kaybedilen parayı hemen geri almak için intikam trade'i yapmak batışın en hızlı yoludur. Profesyonel trade eğitimi bu duyguları yönetmeyi öğretir.</p>
+                    </article>
                 </div>
             </div>
         </section>
@@ -2417,6 +2549,127 @@
                     modal.classList.remove('flex');
                     this.showToast("Güvenlik taahhütnamesi onaylandı. Hoş geldiniz!", "success");
                 }
+            },
+
+            // Blog Integration Data & Functions
+            blogArticles: {
+                1: {
+                    title: "Price Action Nedir? Sıfırdan Price Action Stratejileri ve Eğitim Rehberi",
+                    category: "Price Action",
+                    date: "2 Haziran 2026",
+                    readTime: "6 Dakika Okuma",
+                    image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1200&q=80",
+                    contentHtml: `
+                        <p class="text-gray-300 leading-relaxed text-sm md:text-base">Finansal okuryazarlığın ve teknik analizin en zirve noktalarından biri olarak kabul edilen <strong>Price Action (Fiyat Hareketi)</strong>, geleneksel indikatörlerden (RSI, MACD, Hareketli Ortalamalar) tamamen bağımsız olarak, sadece fiyatın kendi hareketine odaklanan profesyonel bir işlem stratejisidir. Borsa, kripto para ve forex gibi likit piyasalarda akıllı paranın ayak izlerini sürmek isteyen her yatırımcının mutlaka alması gereken temel bir <strong>trade eğitimidir</strong>.</p>
+                        
+                        <h3 class="font-display font-bold text-white text-base md:text-lg mt-6 mb-3 border-l-4 border-brand-primary pl-3">Price Action Nedir?</h3>
+                        <p class="text-gray-400 leading-relaxed text-sm md:text-base">Geleneksel indikatörler, geçmiş fiyat verilerini matematiksel formüllerle işleyerek gecikmeli sinyaller üretirler. Price Action ise fiyatın "şimdi" ve "gerçek zamanlı" olarak ne yaptığını gösterir. Çıplak bir grafik üzerindeki mumların diliyle konuşarak, alıcıların ve satıcıların psikolojik mücadelesini analiz eder. Bu eğitim yöntemi, trader'ların piyasayı karmaşık indikatörlerden arınmış, sade ve kusursuz bir şekilde görmesini sağlar.</p>
+                        
+                        <h3 class="font-display font-bold text-white text-base md:text-lg mt-6 mb-3 border-l-4 border-brand-primary pl-3">En Etkili Price Action Stratejileri</h3>
+                        <ul class="list-disc pl-6 space-y-2.5 text-gray-400 text-sm md:text-base">
+                            <li><strong>Piyasa Yapısı (Market Structure - MS):</strong> Piyasadaki trendlerin yönünü doğru okumak için fiyatın yaptığı en yüksek tepeler (HH), en yüksek dipler (HL), en düşük tepeler (LH) ve en düşük dipler (LL) takip edilir.</li>
+                            <li><strong>Market Structure Shift (MSS) & BOS (Break of Structure):</strong> Bir trendin kırıldığı ve yön değiştirdiği kritik anları yakalamak, en erken ve güvenli giriş noktalarını sunar.</li>
+                            <li><strong>Arz ve Talep Bölgeleri (Supply & Demand):</strong> Klasik destek-direnç çizgileri yerine, büyük fonların ve kurumsal yatırımcıların yüklü alım satım emirlerini beklettiği geniş bölgeler çizilir. Fiyat bu bölgelere ulaştığında yüksek hacimli tepkiler verir.</li>
+                            <li><strong>Emir Blokları (Order Block):</strong> Akıllı paranın piyasaya agresif giriş yaptığı son karşıt renkli mumlardır. Bu bloklar, gelecekte fiyatın test edeceği en güçlü mıknatıs alanlarıdır.</li>
+                            <li><strong>Likidite Temizliği (Liquidity Sweep):</strong> Piyasa yapıcılar, büyük pozisyonlarını doldurmak için perakende trader'ların stop emirlerinin bulunduğu havuzları hedefler. Stop patlatma operasyonu sonrası fiyatın tersine dönmesiyle yapılan girişler, en yüksek R:R (Risk/Ödül) oranlı işlemlerdir.</li>
+                        </ul>
+
+                        <h3 class="font-display font-bold text-white text-base md:text-lg mt-6 mb-3 border-l-4 border-brand-primary pl-3">Neden Price Action Eğitimi Almalısınız?</h3>
+                        <p class="text-gray-400 leading-relaxed text-sm md:text-base">Eğer borsa veya kripto piyasalarında sürekli kaybetmekten yorulduysanız, bunun sebebi gecikmeli sinyal veren sistemleri takip etmenizdir. Price Action eğitimiyle piyasa yapıcının ne yapacağını önceden tahmin edebilir, akıllı parayla birlikte (Smart Money) güvenle işlem alabilirsiniz. Wyckoff Akademi bünyesinde bu eğitimlerin tamamına sıfırdan ve <strong>%100 ücretsiz</strong> olarak erişebilirsiniz.</p>
+                    `
+                },
+                2: {
+                    title: "Borsa ve Kriptoda Wyckoff Metodolojisi: Akıllı Parayı (Smart Money) Takip Etmek",
+                    category: "Wyckoff Metodu",
+                    date: "1 Haziran 2026",
+                    readTime: "8 Dakika Okuma",
+                    image: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&w=1200&q=80",
+                    contentHtml: `
+                        <p class="text-gray-300 leading-relaxed text-sm md:text-base">Finans dünyasının efsanevi isimlerinden Richard D. Wyckoff tarafından geliştirilen <strong>Wyckoff Metodolojisi</strong>, borsa ve kripto para piyasalarında akıllı paranın (sermaye sahiplerinin) hareket döngülerini okumamızı sağlayan en gelişmiş teknik analiz teorilerinden biridir. Günümüzde yaygınlaşan <strong>Smart Money Concepts (SMC)</strong> anlayışının da ana kaynağı olan bu yöntem, fiyatın rastgele hareket etmediğini ispatlar.</p>
+                        
+                        <h3 class="font-display font-bold text-white text-base md:text-lg mt-6 mb-3 border-l-4 border-brand-primary pl-3">Bileşik Adam (Composite Man) Kuramı</h3>
+                        <p class="text-gray-400 leading-relaxed text-sm md:text-base">Wyckoff metodolojisinin temelinde, tüm piyasa hareketlerini arkasında tek bir devasa akıl varmış gibi düşünmek yatar. "Bileşik Adam" olarak adlandırılan bu kurumsal yapı, büyük miktarda sermayeyi yönettiği için pozisyonlarını tek bir anda açamaz veya kapatamaz. Bu nedenle perakende yatırımcının psikolojisini manipüle ederek belirli döngüler oluşturur:</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-5">
+                            <div class="glass-panel p-4 rounded-xl border border-dark-border text-left bg-dark-bg/25">
+                                <h4 class="font-display font-bold text-brand-primary text-xs md:text-sm mb-1.5 uppercase">1. Birikim (Accumulation) Fazı</h4>
+                                <p class="text-[11px] md:text-xs text-gray-400 leading-relaxed">Piyasanın dip seviyelerinde kurumsal oyuncuların yavaş yavaş mal topladığı yatay konsolidasyon alanıdır. Fiyatı sert düşürüp panik satışları (Spring / Sahte Kırılım) tetikleyerek küçük yatırımcının elindeki malları ucuza toplarlar.</p>
+                            </div>
+                            <div class="glass-panel p-4 rounded-xl border border-dark-border text-left bg-dark-bg/25">
+                                <h4 class="font-display font-bold text-brand-accent text-xs md:text-sm mb-1.5 uppercase">2. Dağıtım (Distribution) Fazı</h4>
+                                <p class="text-[11px] md:text-xs text-gray-400 leading-relaxed">Fiyatın zirve noktalarında kurumsal oyuncuların kâr realize edip ellerindeki malı perakende yatırımcıya devrettiği alandır. Aşırı iyimser haberlerle alış iştahı artırılırken kurumsallar satış yapar.</p>
+                            </div>
+                        </div>
+
+                        <h3 class="font-display font-bold text-white text-base md:text-lg mt-6 mb-3 border-l-4 border-brand-primary pl-3">Wyckoff Döngüsünün Aşamaları</h3>
+                        <p class="text-gray-400 leading-relaxed text-sm md:text-base">Bir Wyckoff birikim şeması temel olarak beş faza (A, B, C, D, E) ve belirli kritik test noktalarına ayrılır:</p>
+                        <ul class="list-disc pl-6 space-y-2.5 text-gray-400 text-sm md:text-base">
+                            <li><strong>SC (Selling Climax):</strong> Satışların doruk noktasına ulaştığı ve kurumsal alımların başladığı aşırı hacimli düşüş mumu.</li>
+                            <li><strong>AR (Automatic Rally):</strong> Panik satışların bitmesiyle alıcıların fiyatı otomatik olarak yukarı fırlattığı tepki yükselişi.</li>
+                            <li><strong>ST (Secondary Test):</strong> Fiyatın dip seviyeleri tekrar test ederek o bölgede alıcı gücünü ölçmesi.</li>
+                            <li><strong>Spring (Yay):</strong> Fiyatın dip seviyenin altına inerek stop-loss emirlerini avladığı ve ardından hızla konsolidasyon alanına döndüğü en kârlı alım sinyali.</li>
+                            <li><strong>LPS (Last Point of Support):</strong> Fiyatın birikim alanını yukarı yönlü kırmadan önceki son geri çekilme ve onay noktası.</li>
+                        </ul>
+
+                        <h3 class="font-display font-bold text-white text-base md:text-lg mt-6 mb-3 border-l-4 border-brand-primary pl-3">Borsa ve Kripto Trade Eğitiminde Wyckoff'un Rolü</h3>
+                        <p class="text-gray-400 leading-relaxed text-sm md:text-base">Borsada veya Bitcoin analizlerinde sürekli ters köşe oluyorsanız, bunun sebebi piyasa döngülerinin hangi aşamasında olduğunuzu bilmemenizdir. Wyckoff metodolojisini öğrenen bir trader, ne zaman akıntıya karşı yüzeceğini, ne zaman kurumsal oyuncularla (Smart Money) aynı yönde aksiyon alacağını çok iyi bilir. Wyckoff Akademi'nin sunduğu ücretsiz ders serisi, sizi bu döngüleri grafik üzerinde saniyeler içinde tespit edebilen uzman bir trader yapmayı hedefler.</p>
+                    `
+                },
+                3: {
+                    title: "Başarılı Bir Trader Olma Yolculuğu: Risk Yönetimi ve Psikoloji Eğitimi",
+                    category: "Risk & Psikoloji",
+                    date: "31 Mayıs 2026",
+                    readTime: "5 Dakika Okuma",
+                    image: "https://images.unsplash.com/photo-1642390061910-0f7121b24ccb?auto=format&fit=crop&w=1200&q=80",
+                    contentHtml: `
+                        <p class="text-gray-300 leading-relaxed text-sm md:text-base">Finansal piyasalarda işlem yapmaya yeni başlayanların yaptığı en büyük hata, başarının sırrının sadece mükemmel bir teknik analiz yöntemi bulmak olduğunu düşünmeleridir. Oysa profesyonel trade dünyasında değişmez bir kural vardır: <strong>Başarının %20'si teknik analizden, %80'i ise katı bir risk yönetimi ve sarsılmaz bir ticaret psikolojisinden geçer</strong>.</p>
+                        
+                        <h3 class="font-display font-bold text-white text-base md:text-lg mt-6 mb-3 border-l-4 border-brand-primary pl-3">Katı Risk Yönetimi Kuralları</h3>
+                        <p class="text-gray-400 leading-relaxed text-sm md:text-base">Risk yönetimi, borsa ve kriptoda sermayenizi iflas riskinden koruyan tek zırhtır. Bu disiplini oluşturmak için şu kurallara kesinlikle uymalısınız:</p>
+                        <ul class="list-disc pl-6 space-y-2.5 text-gray-400 text-sm md:text-base">
+                            <li><strong>Pozisyon Büyüklüğü (Position Sizing):</strong> Her işlemde toplam kasanızın maksimum <strong>%1 ila %2'sini</strong> riske etmelisiniz. Bu kurala sadık kaldığınızda, arka arkaya 10 işlem kaybetseniz dahi toplam sermayenizin yalnızca %10-%15'ini kaybeder ve piyasada kalmaya devam edersiniz.</li>
+                            <li><strong>Risk/Ödül Oranı (R:R Ratio):</strong> Gireceğiniz her işlemde risk aldığınız miktarın (stop-loss mesafesi) en az 2 katı kâr hedefi (take-profit mesafesi) belirlemelisiniz. 1:2 veya 1:3 R:R oranına sahip bir sistemde, işlemlerinizin yalnızca %40'ında başarılı olsanız bile uzun vadede yüksek oranda kâr edersiniz.</li>
+                            <li><strong>Stop-Loss (Zarar Durdur) Kuralı:</strong> Stop-loss çizgisi asla keyfi olarak kaydırılmamalı veya işlem açıldıktan sonra kaldırılmamalıdır. Stop olmak, hata yaptığınızı kabul etmek ve daha büyük zararları önlemek için bir trader'ın en yakın dostudur.</li>
+                        </ul>
+
+                        <h3 class="font-display font-bold text-white text-base md:text-lg mt-6 mb-3 border-l-4 border-brand-primary pl-3">Trader Psikolojisi ve Duygusal Tuzaklar</h3>
+                        <p class="text-gray-400 leading-relaxed text-sm md:text-base">Grafikleri mükemmel okusan da duygularınızın esiri olduğunuz an kaybetmeye mahkumsunuzdur. Sizi batışa sürükleyecek en popüler psikolojik engeller şunlardır:</p>
+                        <ul class="list-disc pl-6 space-y-2.5 text-gray-400 text-sm md:text-base">
+                            <li><strong>FOMO (Fırsatı Kaçırma Korkusu):</strong> Sert yükselen bir koini veya hisse senedini en tepeden panikle satın alma dürtüsüdür. Profesyonel trader'lar fiyatın ayaklarına gelmesini bekler, koşan fiyatın arkasından koşmaz.</li>
+                            <li><strong>İntikam Trade'i (Revenge Trading):</strong> Kayıpla sonuçlanan bir işlemin ardından, kaybedilen parayı hemen geri kazanmak hırsıyla plansız ve aksiyon alma arzusuyla yeni işlemler açmaktır. Bu durum genellikle kasanın tamamen sıfırlanmasıyla biter.</li>
+                            <li><strong>Aşırı Güven (Overconfidence):</strong> Üst üste kazanılan 5-10 işlem sonrası trader'ın kendini yenilmez hissetmesi ve risk kurallarını çiğneyerek büyük işlemler almasıdır. Piyasa her zaman aşırı güveni cezalandırır.</li>
+                        </ul>
+
+                        <h3 class="font-display font-bold text-white text-base md:text-lg mt-6 mb-3 border-l-4 border-brand-primary pl-3">Disiplinli Bir Trading Journal Tutun</h3>
+                        <p class="text-gray-400 leading-relaxed text-sm md:text-base">Aldığınız her işlemin nedenlerini, stop-loss ve hedef seviyelerini, işlem sırasındaki hislerinizi ve sonucunu mutlaka bir <strong>Trade Günlüğüne (Trading Journal)</strong> not etmelisiniz. Kendinizi düzenli olarak analiz etmek, yaptığınız hataları fark edip düzelterek profesyonel bir trader olmanızı sağlayan en etkili araçtır.</p>
+                    `
+                }
+            },
+
+            openBlogArticle: function(id) {
+                const article = this.blogArticles[id];
+                if (!article) return;
+
+                document.getElementById('blogModalCategory').textContent = article.category;
+                document.getElementById('blogModalReadTime').innerHTML = `<i data-lucide="clock" class="w-3.5 h-3.5"></i> ${article.readTime}`;
+                document.getElementById('blogModalImage').src = article.image;
+                document.getElementById('blogModalImage').alt = article.title;
+                document.getElementById('blogModalDate').textContent = article.date;
+                document.getElementById('blogModalTitle').textContent = article.title;
+                document.getElementById('blogModalContent').innerHTML = article.contentHtml;
+
+                const modal = document.getElementById('blogModal');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                
+                // Re-create icons for dynamic elements in modal
+                lucide.createIcons();
+            },
+
+            closeBlogModal: function() {
+                const modal = document.getElementById('blogModal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
             }
         };
 
@@ -2483,6 +2736,59 @@
             <i data-lucide="x" class="w-6 h-6"></i>
         </button>
         <img id="lightboxImage" src="" class="max-w-full max-h-full object-contain rounded-xl shadow-2xl border border-dark-border" alt="Büyütülmüş Grafik" />
+    </div>
+
+    <!-- Blog Article Modal -->
+    <div id="blogModal" class="fixed inset-0 bg-black/95 z-[100] hidden items-center justify-center p-4 backdrop-blur-xl transition-all duration-300">
+        <div class="glass-panel w-full max-w-4xl max-h-[90vh] rounded-3xl shadow-2xl border-brand-primary/20 relative bg-dark-panel/95 flex flex-col my-auto overflow-hidden border">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between px-6 py-5 border-b border-dark-border/80 bg-dark-bg/40 flex-shrink-0">
+                <div class="flex items-center gap-3">
+                    <span id="blogModalCategory" class="px-2.5 py-1 rounded-full bg-brand-primary/10 border border-brand-primary/30 text-brand-primary text-[10px] font-bold uppercase tracking-wider">Kategori</span>
+                    <span id="blogModalReadTime" class="text-xs text-gray-500 flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 5 dk okuma</span>
+                </div>
+                <button onclick="app.closeBlogModal()" class="text-gray-400 hover:text-white bg-dark-bg/60 p-2 rounded-xl border border-dark-border/80 hover:bg-dark-bg transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <!-- Modal Body (Scrollable) -->
+            <div class="flex-grow overflow-y-auto custom-scrollbar p-6 md:p-10 text-left">
+                <!-- Cover Image & Title -->
+                <div class="relative w-full aspect-video md:aspect-[2.39/1] rounded-2xl overflow-hidden mb-8 border border-dark-border/50">
+                    <img id="blogModalImage" src="" class="w-full h-full object-cover" alt="Blog Kapak" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-6 left-6 right-6">
+                        <div class="text-[10px] text-gray-300 mb-2 flex items-center gap-1.5 font-semibold">
+                            <i data-lucide="calendar" class="w-3.5 h-3.5 text-brand-primary"></i> 
+                            <span id="blogModalDate">Tarih</span>
+                        </div>
+                        <h2 id="blogModalTitle" class="font-display text-xl md:text-3xl font-extrabold text-white leading-tight">Yazı Başlığı</h2>
+                    </div>
+                </div>
+
+                <!-- Article Content -->
+                <article id="blogModalContent" class="text-gray-300 space-y-6 text-sm md:text-base leading-relaxed max-w-none prose prose-invert prose-emerald">
+                    <!-- Content will be injected dynamically here -->
+                </article>
+            </div>
+            
+            <!-- Modal Footer (Telegram Call to Action) -->
+            <div class="p-6 border-t border-dark-border bg-dark-bg/60 flex-shrink-0 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3 text-left">
+                    <div class="w-10 h-10 rounded-xl bg-brand-primary/10 border border-brand-primary/30 flex items-center justify-center text-brand-primary flex-shrink-0">
+                        <i data-lucide="gift" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <p class="text-white text-xs font-bold font-display">%100 Ücretsiz Profesyonel Eğitim!</p>
+                        <p class="text-[10px] text-gray-400">Detaylı eğitim serisine ömür boyu ücretsiz erişmek için Telegram grubumuza katılın.</p>
+                    </div>
+                </div>
+                <a href="https://t.me/+9xPTBzt5Zo45YTU0" target="_blank" rel="noopener noreferrer" class="px-5 py-2.5 rounded-xl text-xs font-bold bg-brand-primary text-white hover:bg-brand-hover transition-all shadow-lg shadow-brand-primary/20 flex items-center gap-1.5 w-full sm:w-auto justify-center">
+                    Telegram Grubuna Katıl <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                </a>
+            </div>
+        </div>
     </div>
 
     <!-- Social Video Modal -->
