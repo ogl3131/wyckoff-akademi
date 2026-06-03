@@ -1249,9 +1249,10 @@
     </div>
 
     
+    <!-- Security Agreement Modal (2-Step onboarding flow) -->
     <div id="securityAgreementModal" class="hidden fixed inset-0 z-[100] items-center justify-center bg-black/90 backdrop-blur-xl px-4 overflow-y-auto py-8">
-        <div class="glass-panel w-full max-w-[550px] p-6 md:p-8 rounded-3xl shadow-2xl border-red-500/30 relative bg-dark-panel/90 flex flex-col my-auto border">
-            
+        <!-- Step 1: Legal Agreement -->
+        <div id="agreementStep1" class="glass-panel w-full max-w-[550px] p-6 md:p-8 rounded-3xl shadow-2xl border-red-500/30 relative bg-dark-panel/90 flex flex-col my-auto border">
             <div class="text-center mb-6">
                 <div class="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center mx-auto mb-4 relative animate-pulse">
                     <span class="absolute inset-0 rounded-2xl border border-red-500/20 animate-ping opacity-30"></span>
@@ -1261,7 +1262,6 @@
                 <p class="text-gray-400 text-xs leading-relaxed max-w-sm mx-auto">Akademi paneline erişebilmek için aşağıdaki yasal güvenlik maddelerini okuyup onaylamanız gerekmektedir.</p>
             </div>
 
-            
             <div class="bg-red-500/5 border border-red-500/20 rounded-xl p-4 mb-6 text-left flex items-start gap-3">
                 <i data-lucide="alert-triangle" class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5 animate-bounce"></i>
                 <div class="text-xs text-red-300 leading-relaxed font-semibold">
@@ -1269,9 +1269,7 @@
                 </div>
             </div>
 
-            
-            <form onsubmit="app.acceptAgreement(event)" class="space-y-4 text-left">
-                
+            <form onsubmit="app.goToAgreementStep2(event)" class="space-y-4 text-left">
                 <label class="flex items-start gap-3 p-3.5 rounded-xl border border-dark-border bg-dark-bg/40 hover:bg-dark-bg/60 cursor-pointer transition-colors group select-none">
                     <input type="checkbox" id="agreeTelif" required onchange="app.checkAgreementForm()"
                         class="w-4 h-4 mt-0.5 accent-red-500 rounded focus:ring-red-500 text-red-600 bg-dark-bg border-dark-border cursor-pointer">
@@ -1280,7 +1278,6 @@
                     </span>
                 </label>
 
-                
                 <label class="flex items-start gap-3 p-3.5 rounded-xl border border-dark-border bg-dark-bg/40 hover:bg-dark-bg/60 cursor-pointer transition-colors group select-none">
                     <input type="checkbox" id="agreeTakip" required onchange="app.checkAgreementForm()"
                         class="w-4 h-4 mt-0.5 accent-red-500 rounded focus:ring-red-500 text-red-600 bg-dark-bg border-dark-border cursor-pointer">
@@ -1289,7 +1286,6 @@
                     </span>
                 </label>
 
-                
                 <label class="flex items-start gap-3 p-3.5 rounded-xl border border-dark-border bg-dark-bg/40 hover:bg-dark-bg/60 cursor-pointer transition-colors group select-none">
                     <input type="checkbox" id="agreeSorumluluk" required onchange="app.checkAgreementForm()"
                         class="w-4 h-4 mt-0.5 accent-red-500 rounded focus:ring-red-500 text-red-600 bg-dark-bg border-dark-border cursor-pointer">
@@ -1298,14 +1294,46 @@
                     </span>
                 </label>
 
-                
                 <button type="submit" id="agreeSubmitBtn" disabled
                     class="w-full py-4 rounded-xl font-bold text-sm tracking-wider uppercase transition-all flex justify-center items-center gap-2 mt-4 bg-red-600/30 text-red-400 border border-red-500/20 cursor-not-allowed opacity-50">
                     <i data-lucide="shield-check" class="w-4 h-4"></i>
-                    <span>Taahhütnameyi Onaylıyorum ve Giriş Yap</span>
+                    <span>Taahhütnameyi Onaylıyorum ve Devam Et</span>
                 </button>
             </form>
         </div>
+
+        <!-- Step 2: Risk Management Video & Confirmation -->
+        <div id="agreementStep2" class="hidden glass-panel w-full max-w-[620px] p-6 md:p-8 rounded-3xl shadow-2xl border-brand-primary/30 relative bg-dark-panel/90 flex flex-col my-auto border">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 rounded-2xl bg-brand-primary/10 border border-brand-primary/30 flex items-center justify-center mx-auto mb-4 relative">
+                    <i data-lucide="shield-check" class="w-8 h-8 text-brand-primary animate-pulse"></i>
+                </div>
+                <h2 class="font-display text-xl md:text-2xl font-bold text-white mb-2 uppercase tracking-wide">ADIM 2: RİSK YÖNETİMİ & KASA DİSİPLİNİ</h2>
+                <p class="text-gray-400 text-xs leading-relaxed max-w-sm mx-auto">Akademideki ders videolarına erişebilmek için aşağıdaki risk yönetimi dersini izlemeli ve onaylamalısınız.</p>
+            </div>
+
+            <!-- YouTube Video Embed -->
+            <div class="w-full aspect-video bg-black/60 rounded-2xl overflow-hidden border border-dark-border mb-6">
+                <iframe id="agreementVideoIframe" class="w-full h-full border-0" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
+            </div>
+
+            <form onsubmit="app.acceptAgreement(event)" class="space-y-4 text-left">
+                <label class="flex items-start gap-3 p-3.5 rounded-xl border border-dark-border bg-dark-bg/40 hover:bg-dark-bg/60 cursor-pointer transition-colors group select-none">
+                    <input type="checkbox" id="agreeRisk" required onchange="app.checkAgreementForm()"
+                        class="w-4 h-4 mt-0.5 accent-brand-primary rounded focus:ring-brand-primary text-brand-primary bg-dark-bg border-dark-border cursor-pointer">
+                    <span class="text-xs text-gray-300 leading-relaxed group-hover:text-white transition-colors">
+                        <strong class="text-white font-bold">Önemli Risk Beyanı:</strong> Risk yönetimi videosunu izledim, stoploss koymayı öğrendim ve sermayemi korumak için riskimi her işlemde yöneteceğim.
+                    </span>
+                </label>
+
+                <button type="submit" id="agreeRiskSubmitBtn" disabled
+                    class="w-full py-4 rounded-xl font-bold text-sm tracking-wider uppercase transition-all flex justify-center items-center gap-2 mt-4 bg-brand-primary/30 text-brand-primary/50 border border-brand-primary/20 cursor-not-allowed opacity-50">
+                    <i data-lucide="shield-check" class="w-4 h-4"></i>
+                    <span>Onaylıyorum ve Giriş Yap</span>
+                </button>
+            </form>
+        </div>
+    </div>
     </div>
 
     
@@ -1461,10 +1489,17 @@
                     modal.classList.remove('hidden');
                     modal.classList.add('flex');
                     
+                    // Reset steps to step 1
+                    document.getElementById('agreementStep1').classList.remove('hidden');
+                    document.getElementById('agreementStep1').classList.add('flex');
+                    document.getElementById('agreementStep2').classList.remove('flex');
+                    document.getElementById('agreementStep2').classList.add('hidden');
 
                     document.getElementById('agreeTelif').checked = false;
                     document.getElementById('agreeTakip').checked = false;
                     document.getElementById('agreeSorumluluk').checked = false;
+                    document.getElementById('agreeRisk').checked = false;
+                    document.getElementById('agreementVideoIframe').src = '';
                     this.checkAgreementForm();
                     
                     lucide.createIcons();
@@ -2618,17 +2653,51 @@
             },
 
             checkAgreementForm: function() {
+                // Step 1 Validation
                 const agreeTelif = document.getElementById('agreeTelif').checked;
                 const agreeTakip = document.getElementById('agreeTakip').checked;
                 const agreeSorumluluk = document.getElementById('agreeSorumluluk').checked;
-                const btn = document.getElementById('agreeSubmitBtn');
+                const btn1 = document.getElementById('agreeSubmitBtn');
 
                 if (agreeTelif && agreeTakip && agreeSorumluluk) {
-                    btn.disabled = false;
-                    btn.className = "w-full py-4 rounded-xl font-bold text-sm tracking-wider uppercase transition-all flex justify-center items-center gap-2 mt-4 bg-red-600 hover:bg-red-700 text-white cursor-pointer hover:shadow-[0_0_15px_rgba(220,38,38,0.4)] border border-red-500";
+                    btn1.disabled = false;
+                    btn1.className = "w-full py-4 rounded-xl font-bold text-sm tracking-wider uppercase transition-all flex justify-center items-center gap-2 mt-4 bg-red-600 hover:bg-red-700 text-white cursor-pointer hover:shadow-[0_0_15px_rgba(220,38,38,0.4)] border border-red-500";
                 } else {
-                    btn.disabled = true;
-                    btn.className = "w-full py-4 rounded-xl font-bold text-sm tracking-wider uppercase transition-all flex justify-center items-center gap-2 mt-4 bg-red-600/30 text-red-400 border border-red-500/20 cursor-not-allowed opacity-50";
+                    btn1.disabled = true;
+                    btn1.className = "w-full py-4 rounded-xl font-bold text-sm tracking-wider uppercase transition-all flex justify-center items-center gap-2 mt-4 bg-red-600/30 text-red-400 border border-red-500/20 cursor-not-allowed opacity-50";
+                }
+
+                // Step 2 Validation
+                const agreeRisk = document.getElementById('agreeRisk').checked;
+                const btn2 = document.getElementById('agreeRiskSubmitBtn');
+
+                if (agreeRisk) {
+                    btn2.disabled = false;
+                    btn2.className = "w-full py-4 rounded-xl font-bold text-sm tracking-wider uppercase transition-all flex justify-center items-center gap-2 mt-4 bg-brand-primary hover:bg-brand-hover text-white cursor-pointer hover:shadow-[0_0_15px_rgba(16,185,129,0.4)] border border-brand-primary";
+                } else {
+                    btn2.disabled = true;
+                    btn2.className = "w-full py-4 rounded-xl font-bold text-sm tracking-wider uppercase transition-all flex justify-center items-center gap-2 mt-4 bg-brand-primary/30 text-brand-primary/50 border border-brand-primary/20 cursor-not-allowed opacity-50";
+                }
+            },
+
+            goToAgreementStep2: function(e) {
+                e.preventDefault();
+                const agreeTelif = document.getElementById('agreeTelif').checked;
+                const agreeTakip = document.getElementById('agreeTakip').checked;
+                const agreeSorumluluk = document.getElementById('agreeSorumluluk').checked;
+
+                if (agreeTelif && agreeTakip && agreeSorumluluk) {
+                    // Hide Step 1, Show Step 2
+                    document.getElementById('agreementStep1').classList.add('hidden');
+                    document.getElementById('agreementStep1').classList.remove('flex');
+                    document.getElementById('agreementStep2').classList.remove('hidden');
+                    document.getElementById('agreementStep2').classList.add('flex');
+
+                    // Load Risk Management video with autoplay
+                    document.getElementById('agreementVideoIframe').src = "https://www.youtube.com/embed/HpIGOep0xI4?autoplay=1&rel=0";
+
+                    this.checkAgreementForm();
+                    lucide.createIcons();
                 }
             },
 
@@ -2637,13 +2706,18 @@
                 const agreeTelif = document.getElementById('agreeTelif').checked;
                 const agreeTakip = document.getElementById('agreeTakip').checked;
                 const agreeSorumluluk = document.getElementById('agreeSorumluluk').checked;
+                const agreeRisk = document.getElementById('agreeRisk').checked;
 
-                if (agreeTelif && agreeTakip && agreeSorumluluk) {
+                if (agreeTelif && agreeTakip && agreeSorumluluk && agreeRisk) {
                     sessionStorage.setItem('wyckoff_agreement_accepted', 'true');
+                    
+                    // Stop video play
+                    document.getElementById('agreementVideoIframe').src = '';
+
                     const modal = document.getElementById('securityAgreementModal');
                     modal.classList.add('hidden');
                     modal.classList.remove('flex');
-                    this.showToast("Güvenlik taahhütnamesi onaylandı. Hoş geldiniz!", "success");
+                    this.showToast("Taahhütname ve Risk Politikası onaylandı. Hoş geldiniz!", "success");
                 }
             },
 
