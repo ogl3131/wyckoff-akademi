@@ -19,8 +19,7 @@ const unsplashImages = [
     "https://images.unsplash.com/photo-1620228883793-f300b6d61d0a?auto=format&fit=crop&w=1200&q=80"
 ];
 
-async function generateArticle() {
-    console.log("Gemini API çağrısı yapılıyor...");
+async function generateArticle(retries = 5, initialDelay = 3000) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
     
     const prompt = `Sen Wyckoff ve Price Action konusunda uzman, Türkçe içerik üreten profesyonel bir finans yazarısın. Wyckoff Akademi web sitesi için Google SEO uyumlu, 'trade eğitimi', 'borsa eğitimi', 'Price Action', 'Wyckoff Metodolojisi', 'kripto para' ve 'teknik analiz' gibi anahtar kelimeleri doğal bir şekilde barındıran, zengin içerikli ve bilgilendirici bir blog yazısı yazacaksın.
@@ -59,26 +58,44 @@ Aşağıdaki konulardan biri üzerine odaklan (her çalışmada farklı bir konu
         }
     };
 
-    const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody)
-    });
+    let delay = initialDelay;
+    for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+            console.log(`Gemini API çağrısı yapılıyor... (Deneme ${attempt}/${retries})`);
+            const response = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(requestBody)
+            });
 
-    if (!response.ok) {
-        const errText = await response.text();
-        throw new Error(`Gemini API error: ${response.status} - ${errText}`);
+            if (response.status === 503 || response.status === 429) {
+                console.warn(`Geçici Google API Hatası (${response.status}). ${delay}ms sonra tekrar denenecek...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+                delay *= 2; // Üstel bekleme süresini artır
+                continue;
+            }
+
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(`Gemini API hatası: ${response.status} - ${errText}`);
+            }
+
+            const data = await response.json();
+            const resultText = data.candidates[0].content.parts[0].text;
+            const article = JSON.parse(resultText);
+
+            // Rastgele resim ata
+            const randomImage = unsplashImages[Math.floor(Math.random() * unsplashImages.length)];
+            article.image = randomImage;
+
+            return article;
+        } catch (error) {
+            console.error(`Deneme ${attempt} başarısız oldu:`, error.message);
+            if (attempt === retries) throw error;
+            await new Promise(resolve => setTimeout(resolve, delay));
+            delay *= 2;
+        }
     }
-
-    const data = await response.json();
-    const resultText = data.candidates[0].content.parts[0].text;
-    const article = JSON.parse(resultText);
-
-    // Rastgele resim ata
-    const randomImage = unsplashImages[Math.floor(Math.random() * unsplashImages.length)];
-    article.image = randomImage;
-
-    return article;
 }
 
 async function main() {
