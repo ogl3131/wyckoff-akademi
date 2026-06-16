@@ -51,9 +51,10 @@ Aşağıdaki konulardan biri üzerine odaklan (her çalışmada farklı bir konu
                     title: { type: "STRING" },
                     category: { type: "STRING" },
                     readTime: { type: "STRING" },
+                    summary: { type: "STRING" },
                     contentHtml: { type: "STRING" }
                 },
-                required: ["title", "category", "readTime", "contentHtml"]
+                required: ["title", "category", "readTime", "summary", "contentHtml"]
             }
         }
     };
@@ -120,6 +121,7 @@ async function main() {
         // HTML içindeki template literal çakışmalarını önlemek için kaçış işlemleri
         const contentHtmlEscaped = article.contentHtml.replace(/`/g, '\\`').replace(/\${/g, '\\${');
 
+        // 1. JS Nesnesine Ekleme
         const newArticleString = `                ${nextId}: {
                     title: "${article.title.replace(/"/g, '\\"')}",
                     category: "${article.category}",
@@ -131,18 +133,63 @@ ${contentHtmlEscaped}
                     \`
                 },`;
 
-        // blogArticles: { altına ekle
-        const target = "blogArticles: {";
-        const replacement = `${target}\n${newArticleString}`;
-        
-        if (!html.includes(target)) {
+        const jsTarget = "blogArticles: {";
+        if (!html.includes(jsTarget)) {
             throw new Error("index.html dosyasında 'blogArticles: {' bulunamadı!");
         }
+        html = html.replace(jsTarget, `${jsTarget}\n${newArticleString}`);
 
-        html = html.replace(target, replacement);
+        // 2. Görünür HTML Kartı Ekleme
+        const newCardHtml = `                    <!-- Blog Card ${nextId} -->
+                    <article class="group bg-dark-panel border border-dark-border/60 hover:border-brand-primary/40 rounded-3xl overflow-hidden shadow-xl transition-all duration-300 hover:-translate-y-2 flex flex-col h-full cursor-pointer" onclick="app.openBlogArticle(${nextId})">
+                        <div class="aspect-video w-full relative overflow-hidden bg-black/40 border-b border-dark-border/50">
+                            <img src="${article.image}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="${article.title}" />
+                            <div class="absolute top-3 left-3 bg-brand-primary/10 border border-brand-primary/30 text-brand-primary font-bold text-[9px] uppercase px-2.5 py-1 rounded-full shadow backdrop-blur-md">
+                                ${article.category}
+                            </div>
+                        </div>
+                        <div class="p-6 flex-grow flex flex-col justify-between text-left">
+                            <div>
+                                <div class="flex items-center gap-3 text-[10px] text-gray-500 mb-3 font-semibold">
+                                    <span class="flex items-center gap-1"><i data-lucide="calendar" class="w-3.5 h-3.5"></i> ${trDate}</span>
+                                    <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> ${article.readTime}</span>
+                                </div>
+                                <h3 class="font-display font-bold text-white text-base md:text-lg leading-snug mb-3 group-hover:text-brand-primary transition-colors duration-300 line-clamp-2">${article.title}</h3>
+                                <p class="text-gray-400 text-xs md:text-sm leading-relaxed line-clamp-3 mb-6">${article.summary}</p>
+                            </div>
+                            <div class="flex items-center justify-between pt-4 border-t border-dark-border/50">
+                                <span class="text-xs text-brand-primary font-bold group-hover:underline flex items-center gap-1">
+                                    Devamını Oku <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </article>\n`;
+
+        const cardTarget = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">';
+        const cardIndex = html.indexOf(cardTarget);
+        if (cardIndex === -1) {
+            throw new Error("HTML Card grid container not found!");
+        }
+        const cardInsertPos = cardIndex + cardTarget.length;
+        html = html.slice(0, cardInsertPos) + "\n" + newCardHtml + html.slice(cardInsertPos);
+
+        // 3. Gizli SEO Makalesi Ekleme
+        const newSeoHtml = `                    <article id="seo-article-${nextId}">
+                        <h1>${article.title}</h1>
+                        <h2>${article.title} - ${article.category} Eğitimi</h2>
+                        ${article.contentHtml}
+                    </article>\n`;
+
+        const seoTarget = '<div class="hidden" aria-hidden="true" style="display: none;">';
+        const seoIndex = html.indexOf(seoTarget);
+        if (seoIndex === -1) {
+            throw new Error("SEO hidden container not found!");
+        }
+        const seoInsertPos = seoIndex + seoTarget.length;
+        html = html.slice(0, seoInsertPos) + "\n" + newSeoHtml + html.slice(seoInsertPos);
+
         fs.writeFileSync(indexPath, html, 'utf8');
-        
-        console.log(`BAŞARILI: "${article.title}" başlıklı yeni makale index.html'e eklendi!`);
+        console.log(`BAŞARILI: "${article.title}" başlıklı yeni makale tüm alanlara başarıyla eklendi!`);
     } catch (e) {
         console.error("Hata oluştu:", e);
         process.exit(1);
