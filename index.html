@@ -2633,6 +2633,17 @@
                 modal.classList.remove('flex');
             },
 
+            scrollBlog: function(direction) {
+                const slider = document.getElementById('blogSlider');
+                if (!slider) return;
+                const scrollAmount = slider.offsetWidth * 0.8;
+                if (direction === 'left') {
+                    slider.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+                } else {
+                    slider.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                }
+            },
+
             extractYouTubeId: function(url) {
                 if (url.includes('/shorts/')) {
                     const parts = url.split('/shorts/');
