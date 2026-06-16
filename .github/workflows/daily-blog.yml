@@ -1,0 +1,35 @@
+name: Daily SEO Blog Generator
+
+on:
+  schedule:
+    - cron: '0 9 * * *' # Her gün saat 12:00'de (TSİ) otomatik çalışır
+  workflow_dispatch: # GitHub web arayüzünden el ile tetiklenebilir
+
+permissions:
+  contents: write # Repoya geri commit-push yapmak için izin veriyoruz
+
+jobs:
+  build-and-generate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate Blog Post
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: node scripts/generate-blog.js
+
+      - name: Commit and Push Changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action AI Blogger"
+          git add index.html
+          git commit -m "Auto-generate daily SEO blog post [skip ci]" || echo "No changes to commit"
+          git push origin main
