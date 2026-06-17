@@ -141,7 +141,7 @@ ${contentHtmlEscaped}
 
         // 2. Görünür HTML Kartı Ekleme
         const newCardHtml = `                    <!-- Blog Card ${nextId} -->
-                    <article class="group bg-dark-panel border border-dark-border/60 hover:border-brand-primary/40 rounded-3xl overflow-hidden shadow-xl transition-all duration-300 hover:-translate-y-2 flex flex-col h-full cursor-pointer" onclick="app.openBlogArticle(${nextId})">
+                    <article class="group bg-dark-panel border border-dark-border/60 hover:border-brand-primary/40 rounded-3xl overflow-hidden shadow-xl transition-all duration-300 hover:-translate-y-2 flex flex-col h-full cursor-pointer flex-shrink-0 w-full sm:w-[calc(50%-16px)] lg:w-[calc(33.333%-22px)] snap-start" onclick="app.openBlogArticle(${nextId})">
                         <div class="aspect-video w-full relative overflow-hidden bg-black/40 border-b border-dark-border/50">
                             <img src="${article.image}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="${article.title}" />
                             <div class="absolute top-3 left-3 bg-brand-primary/10 border border-brand-primary/30 text-brand-primary font-bold text-[9px] uppercase px-2.5 py-1 rounded-full shadow backdrop-blur-md">
@@ -165,7 +165,7 @@ ${contentHtmlEscaped}
                         </div>
                     </article>\n`;
 
-        const cardTarget = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">';
+        const cardTarget = '<div id="blogSlider" class="flex overflow-x-auto gap-8 pb-6 snap-x snap-mandatory scroll-smooth no-scrollbar" style="scrollbar-width: none; -ms-overflow-style: none;">';
         const cardIndex = html.indexOf(cardTarget);
         if (cardIndex === -1) {
             throw new Error("HTML Card grid container not found!");
