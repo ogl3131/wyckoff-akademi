@@ -30,7 +30,8 @@ Yazı dili samimi ama son derece profesyonel olmalıdır.
 - Açıklayıcı ve eğitici listeler (ul ve li etiketleriyle, list-disc pl-6 space-y-2.5 text-gray-400 text-sm md:text-base)
 - Önemli noktalar veya tanımlar için şık paneller (class'ı 'glass-panel p-4 rounded-xl border border-dark-border text-left bg-dark-bg/25 mb-4' olan div'ler)
 - Güçlü vurgular için strong etiketleri.
-- Sonuç veya harekete geçirici mesaj (öğrencinin Wyckoff Akademi'ye ücretsiz katılmasını teşvik eden).
+- Sonuç veya harekete geçirici mesaj (öğrencinin Wyckoff Akademi'ye katılmasını teşvik eden).
+- İçerikte 'ücretsiz' veya 'bedava' kelimelerini KESİNLİKLE KULLANMA.
 
 Aşağıdaki konulardan biri üzerine odaklan (her çalışmada farklı bir konu seçmeye çalış):
 1. Price Action konseptleri (MSS, BOS, Order Block, Liquidity Sweep, FVG - Fair Value Gap, OTE - Optimal Trade Entry).
